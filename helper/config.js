@@ -1,6 +1,6 @@
 const config = {
     app: {
-        port: 3001
+        port: 3002
     },
     secret_key:'Quoded_secret_key',
 }
