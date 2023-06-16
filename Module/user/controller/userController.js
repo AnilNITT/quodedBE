@@ -95,6 +95,49 @@ async function registerUser(req, res) {
  */
 
 
+
+// Search the user
+exports.findUser = (req, res) => {
+  let { email } = req.query;
+  if (email == undefined) {
+    res.status(500).send({
+      error: "error",
+      message: "Email is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  users.find(
+    {
+      email: {
+        $regex: `^${email}`,
+        $options: "i",
+        $ne: req.user.email,
+      },
+    },
+    {
+      email: 1,
+      firstname: 1,
+      lastname: 1,
+      Status: 1,
+      ProfileIcon: 1,
+    },
+    function (err, user) {
+      let myArray = user.filter(function (obj) {
+        return obj._id.toString() !== req.user.id;
+      });
+
+      res.json({
+        status: true,
+        users: myArray,
+        message: "Founded results",
+      });
+    }
+  );
+};
+
+
 // User login with this function
 exports.login = async (req, res) => {
   try {
@@ -186,150 +229,6 @@ exports.login = async (req, res) => {
   return;
 }
 };
-
-
-// Search the user
-exports.findUser = (req, res) => {
-  let { email } = req.query;
-  if (email == undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "Email is required",
-      status: "fail",
-    });
-    return;
-  }
-
-  users.find(
-    {
-      email: {
-        $regex: `^${email}`,
-        $options: "i",
-        $ne: req.user.email,
-      },
-    },
-    {
-      email: 1,
-      firstname: 1,
-      lastname: 1,
-      Status: 1,
-      ProfileIcon: 1,
-    },
-    function (err, user) {
-      let myArray = user.filter(function (obj) {
-        return obj._id.toString() !== req.user.id;
-      });
-
-      res.json({
-        status: true,
-        users: myArray,
-        message: "Founded results",
-      });
-    }
-  );
-};
-
-
-// update profile picture
-exports.updateProfilePicture = async (req, res) => {
-
-  const userdata = req.user
-
-  let file = req.file;
-  if (file == undefined) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "file is required",
-      status: "fail",
-    });
-    return;
-  }
-
-  const user = await users.findById(userdata.id);
-
-  user.ProfileIcon = req.file.filename;
-  await user.save();
-  return res.status(StatusCodes.OK).json({
-    status: true,
-    message: "Profile Picture update successfully",
-  });
-};
-
-// update profile
-exports.updateProfile = async (req, res) => {
-
-  const userdata = req.user
-
-  const { firstname, lastname, PhoneNumber } = req.body;
-
-  const data = {
-    firstname: firstname,
-    lastname: lastname,
-    PhoneNumber: PhoneNumber,
-  };
-
-  const user = await users.findByIdAndUpdate(
-    { _id: userdata.id },
-    { $set: data },
-    { new: true }
-  );
-
-  if (user) {
-    return res.status(StatusCodes.OK).json({
-      status: true,
-      data: user,
-      message: "Profile updated successfully",
-    });
-  } else {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "Something went wrong",
-      status: "fail",
-    });
-    return;
-  }
-};
-
-
-// register user
-exports.register = async(req,res)=>{
-  try{
-  let {phonenumber} = req.body;
-  if(phonenumber == undefined){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      error: "error",
-      message: "phonenumber is required",
-      status: "fail",
-    });
-    return;
-  }
-  let user = await users.findOne({PhoneNumber:phonenumber});
-  if(user){
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "phonenumber already exits",
-    });
-    return;
-  } else {
-    let newUser = await users.create({
-      PhoneNumber: phonenumber,
-    });
-    newUser.otp = 12345;
-    await newUser.save();
-    res.status(StatusCodes.OK).json({
-      status: true,
-      message: "Registration Successfull, OTP send to your Phonenumber",
-    });
-  }
-  }
-  catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error:err
-    });
-    return;
-  }
-}
-
 
 // verify OTP
 exports.verifyOtp = async (req, res) => {
@@ -428,3 +327,129 @@ exports.verifyOtp = async (req, res) => {
   return;
 }
 };
+
+
+// update profile picture
+exports.updateProfilePicture = async (req, res) => {
+
+  const userdata = req.user
+
+  let file = req.file;
+  if (file == undefined) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "file is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  const user = await users.findById(userdata.id);
+
+  user.ProfileIcon = req.file.filename;
+  await user.save();
+  return res.status(StatusCodes.OK).json({
+    status: true,
+    message: "Profile Picture update successfully",
+  });
+};
+
+// update profile
+exports.updateProfile = async (req, res) => {
+
+  const userdata = req.user
+
+  const { firstname, lastname, PhoneNumber } = req.body;
+
+  const data = {
+    firstname: firstname,
+    lastname: lastname,
+    PhoneNumber: PhoneNumber,
+  };
+
+  const user = await users.findByIdAndUpdate(
+    { _id: userdata.id },
+    { $set: data },
+    { new: true }
+  );
+
+  if (user) {
+    return res.status(StatusCodes.OK).json({
+      status: true,
+      data: user,
+      message: "Profile updated successfully",
+    });
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "Something went wrong",
+      status: "fail",
+    });
+    return;
+  }
+};
+
+
+// register user
+exports.register = async(req,res)=>{
+  try{
+  let {email} = req.body;
+  if(email == undefined){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      error: "error",
+      message: "email or phonenumber is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  if(email.includes("@")) {
+
+    let user = await users.findOne({email:email});
+    if(user){
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "email already exits",
+      });
+      return;
+    } else {
+      let newUser = await users.create({email:email});
+      newUser.otp = 12345;
+      await newUser.save();
+      res.status(StatusCodes.OK).json({
+        status: true,
+        message: "Registration Successfull, OTP send to your Phonenumber",
+      });
+      return;
+    }
+  } else {
+  
+  const phonenumber = Number(email)
+  let user = await users.findOne({PhoneNumber:phonenumber});
+  if(user){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "phonenumber already exits",
+    });
+    return;
+  } else {
+    let newUser = await users.create({PhoneNumber:phonenumber});
+    newUser.otp = 12345;
+    await newUser.save();
+
+    res.status(StatusCodes.OK).json({
+      status: true,
+      message: "Registration Successfull, OTP send to your Phonenumber",
+    });
+    return;
+  }
+  }
+}
+  catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}
+
