@@ -610,8 +610,23 @@ exports.register = async(req,res)=>{
   
         const user = await users.create(data)
         
+        let token = jwt.sign(
+          {
+            id: user._id,
+            email: user.email,
+          },
+          // Import the secret key from helper file.
+          config.secret_key
+          // {
+          //     expiresIn: "24h", // expires in 24 hours
+          // }
+        );
+
         res.status(StatusCodes.OK).json({
           status: true,
+          userId: user._id,
+          email: user.email,
+          token: token,
           message: "Registration Successfull",
         });
         return;
