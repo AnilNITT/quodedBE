@@ -31,7 +31,6 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
-
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
