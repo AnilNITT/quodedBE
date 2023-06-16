@@ -483,3 +483,33 @@ exports.updateProfile = async (req, res) => {
 };
 
 
+// get login user
+exports.getUser = async(req,res) =>{
+  try {
+  const userdata = req.user
+
+  const user = await users.findById(userdata.id);
+
+  if(user) {
+    return res.status(StatusCodes.OK).json({
+      status: true,
+      data: user,
+      message: "User found",
+    });
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "User not found",
+    });
+    return;
+  }
+
+  } catch(err){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}

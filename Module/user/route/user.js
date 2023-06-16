@@ -45,11 +45,14 @@ router.post('/login',userController.login)
 // otp verify route
 router.post('/verifyotp',userController.verifyOtp)
 
+// get login user
+router.get('/getuser', authendiCate.authenticateToken, userController.getUser)
+
 // Uplaod profile image
 router.post('/updateprofileimage', upload.single('file'),authendiCate.authenticateToken, userController.updateProfilePicture)
 
 // update user profile
-router.post('/updateuser', upload.single('file'),authendiCate.authenticateToken, userController.updateProfile)
+router.post('/updateuser', authendiCate.authenticateToken, userController.updateProfile)
 
 // Search user for start conversation
 router.get('/search',authendiCate.authenticateToken,userController.findUser)
