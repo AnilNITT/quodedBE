@@ -8,6 +8,7 @@ const morgan = require("morgan");
 var user = require("./Module/user/route/user");
 var chat = require("./Module/chat/route/chat");
 var task = require("./Module/task/route/task");
+var templogin = require("./Module/tempLogin/route/templogin")
 var meeting = require("./Module/meeting/route/meeting");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
@@ -55,7 +56,9 @@ app.use(express.static("uploads"));
 app.use("/user", user);
 app.use("/chat", chat);
 app.use("/task", task);
+app.use("/templogin", templogin);
 app.use("/meetings", meeting);
+
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
   const zoomApiUrl = "https://api.zoom.us/v2/users/me/meetings";
@@ -267,8 +270,7 @@ socketIO.on("connection", async (socket) => {
 try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority"
-  );
+    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority");
   var db = mongoose.connection;
   // Added check for DB connection
   if (!db) {

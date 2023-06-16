@@ -12,7 +12,7 @@ var UserSchema = new mongoose.Schema(
     email: { type: String, required: false, default:""},
     PhoneNumber: { type: Number, required: false },
     otp: { type: Number, required: false },
-    ProfileIcon: { type: String, default: "" },
+    ProfileIcon: { type: String, default: ""},
     // Password: { type: String, required: true },
     SocketId: { type: String },
     Status: { type: String, default: "offline" },

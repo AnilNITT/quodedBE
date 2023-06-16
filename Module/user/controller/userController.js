@@ -16,7 +16,6 @@ function comparePassword(password, cpassword) {
   }
 }
 
-
 // Save the user data in mongodb with this function
 async function registerUser(req, res) {
   var user = new users();
@@ -93,7 +92,6 @@ async function registerUser(req, res) {
   }
 };
  */
-
 
 
 // Search the user
@@ -327,7 +325,6 @@ exports.verifyOtp = async (req, res) => {
 }
 };
 
-
 // register user
 exports.register = async(req,res)=>{
   try{
@@ -392,7 +389,6 @@ exports.register = async(req,res)=>{
   }
 }
 
-
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
  try{
@@ -424,7 +420,6 @@ exports.updateProfilePicture = async (req, res) => {
   return;
 }
 };
-
 
 // update profile
 exports.updateProfile = async (req, res) => {
@@ -482,7 +477,6 @@ exports.updateProfile = async (req, res) => {
 }
 };
 
-
 // get login user
 exports.getUser = async(req,res) =>{
   try {
@@ -521,6 +515,14 @@ exports.getUserById = async(req,res) =>{
 
     const{ userId } = req.body;
 
+    if (userId == undefined || userId === "") {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "userId is required",
+      });
+      return;
+    }
+
     const user = await users.findById(userId);
     if(user) {
       return res.status(StatusCodes.OK).json({
@@ -536,6 +538,98 @@ exports.getUserById = async(req,res) =>{
       return;
     }
   } catch(err){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}
+
+
+// update user Online status
+exports.updateOnlineStatus = async(req,res) =>{
+  try{
+
+    const{ userId } = req.body;
+
+    if (userId == undefined || userId === "") {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "userId is required",
+      });
+      return;
+    }
+    const user = await users.findById(userId);
+
+    if(user) {
+      user.Online = true;
+      await user.save();
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "User online",
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "User not found",
+      });
+      return;
+    }
+  } catch(err){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}
+
+
+// register user
+exports.register = async(req,res)=>{
+  try {
+  
+    const { name, email, phonenumber } = req.body;
+  
+    const emailAuth = await users.findOne({email:email.toLowerCase()})
+  
+    const phoneAuth = await users.findOne({PhoneNumber:phonenumber})
+    
+    
+    if(!emailAuth) {
+      if(!phoneAuth) {
+  
+        const data = {
+          name: name,
+          email: email,
+          PhoneNumber: phonenumber,
+        };
+  
+        const user = await users.create(data)
+        
+        res.status(StatusCodes.OK).json({
+          status: true,
+          message: "Registration Successfull",
+        });
+        return;
+      } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "Phone number already used by User",
+        });
+        return;
+      }
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Email already used by User",
+      });
+      return;
+    }
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
       message: "Something went wrong",
