@@ -326,7 +326,7 @@ exports.verifyOtp = async (req, res) => {
 };
 
 // register user
-exports.register = async(req,res)=>{
+/* exports.register = async(req,res)=>{
   try{
   let {email} = req.body;
   if(email == undefined){
@@ -388,7 +388,7 @@ exports.register = async(req,res)=>{
     return;
   }
 }
-
+ */
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
  try{
@@ -598,7 +598,7 @@ exports.register = async(req,res)=>{
   
     const phoneAuth = await users.findOne({PhoneNumber:phonenumber})
     
-    
+
     if(!emailAuth) {
       if(!phoneAuth) {
   
