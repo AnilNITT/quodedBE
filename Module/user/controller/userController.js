@@ -239,7 +239,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-
 // register user
 exports.register = async(req,res)=>{
   try{
