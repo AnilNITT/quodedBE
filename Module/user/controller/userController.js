@@ -406,6 +406,7 @@ exports.updateProfilePicture = async (req, res) => {
   const user = await users.findById(userdata.id);
 
   user.ProfileIcon = req.file.filename;
+
   await user.save();
   return res.status(StatusCodes.OK).json({
     status: true,
@@ -587,7 +588,6 @@ exports.updateOnlineStatus = async(req,res) =>{
   }
 }
 
-
 // register user
 exports.register = async(req,res)=>{
   try {
@@ -597,8 +597,55 @@ exports.register = async(req,res)=>{
     const emailAuth = await users.findOne({email:email.toLowerCase()})
   
     const phoneAuth = await users.findOne({PhoneNumber:phonenumber})
+    if(req.file){
+      if(!emailAuth) {
+        if(!phoneAuth) {
     
-
+          const data = {
+            name: name,
+            email: email,
+            PhoneNumber: phonenumber,
+            ProfileIcon: req.file.filename,
+          };
+    
+          const user = await users.create(data)
+          
+          let token = jwt.sign(
+            {
+              id: user._id,
+              email: user.email,
+            },
+            // Import the secret key from helper file.
+            config.secret_key
+            // {
+            //     expiresIn: "24h", // expires in 24 hours
+            // }
+          );
+  
+          res.status(StatusCodes.OK).json({
+            status: true,
+            userId: user._id,
+            email: user.email,
+            token: token,
+            message: "Registration Successfull",
+          });
+          return;
+        } else {
+          res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            status: "fail",
+            message: "Phone number already used by User",
+          });
+          return;
+        }
+      } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "Email already used by User",
+        });
+        return;
+      }
+    }
+    else{
     if(!emailAuth) {
       if(!phoneAuth) {
   
@@ -644,6 +691,7 @@ exports.register = async(req,res)=>{
       });
       return;
     }
+  }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",

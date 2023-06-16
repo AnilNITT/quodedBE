@@ -26,7 +26,6 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
-
 // JSON type request accept with express json
 app.use(express.json());
 app.use(cors());
@@ -49,7 +48,6 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-
 
 // User router
 app.use(express.static("uploads"));
@@ -89,7 +87,6 @@ try {
   }
 });
 
-
 // Socket connection intialize
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
@@ -107,7 +104,6 @@ socketIO.use(function (socket, next) {
     next(new Error("Authentication error"));
   }
 });
-
 
 socketIO.on("connection", async (socket) => {
   let updateCurrentId = await UserModel.findByIdAndUpdate(
@@ -265,7 +261,6 @@ socketIO.on("connection", async (socket) => {
   });
 });
 
-
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
@@ -284,7 +279,6 @@ try {
 
 // Define the port from helper file
 const PORT = config.app.port;
-
 
 // Server running and listen the port
 http.listen(PORT, () => {

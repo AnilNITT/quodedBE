@@ -37,7 +37,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 // Split the route 
 // Register route.
-router.post('/register',userController.register)
+router.post('/register', upload.single('file'),userController.register)
 
 // Login route.
 router.post('/login',userController.login)
