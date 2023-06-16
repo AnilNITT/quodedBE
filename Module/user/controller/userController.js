@@ -6,6 +6,7 @@ var jwt_decode = require("jwt-decode");
 var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 
+
 // password and confirm password validation here
 function comparePassword(password, cpassword) {
   if (password == cpassword) {
@@ -14,6 +15,7 @@ function comparePassword(password, cpassword) {
     return false;
   }
 }
+
 
 // Save the user data in mongodb with this function
 async function registerUser(req, res) {
@@ -50,6 +52,7 @@ async function registerUser(req, res) {
     console.log(err);
   }
 }
+
 
 // User register with this function
 /* exports.register = async (req, res) => {
@@ -95,18 +98,21 @@ async function registerUser(req, res) {
 
 // User login with this function
 exports.login = async (req, res) => {
-  let { phonenumber } = req.body;
+  try {
+  let { email } = req.body;
   
-  if (phonenumber == undefined) {
+  if (email == undefined) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       error: "error",
-      message: "phonenumber is required",
+      message: "email or phonenumber is required",
       status: "fail",
     });
     return;
   }
 
-  let user = await users.findOne({PhoneNumber:phonenumber});
+  if(email.includes("@")) {
+
+    let user = await users.findOne({email:email});
 
   if (user) {
         let token = jwt.sign(
@@ -135,10 +141,53 @@ exports.login = async (req, res) => {
   } else {
     res.json({
       status: false,
-      message: "Phone number not valid",
+      message: "User not found",
     });
   }
+  } else {
+  let user = await users.findOne({PhoneNumber:Number(email)});
+
+  if (user) {
+        let token = jwt.sign(
+          {
+            id: user._id,
+            email: user.email,
+          },
+          // Import the secret key from helper file.
+          config.secret_key
+          // {
+          //     expiresIn: "24h", // expires in 24 hours
+          // }
+        );
+
+        user.otp = 12345;
+        await user.save();
+
+        res.status(StatusCodes.OK).json({
+          status: true,
+          // userId: user._id,
+          // name: user.firstname + " " + user.lastname,
+          email: user?.email,
+          // token: token,
+          message: "Login Authentication successfull and OTP send successfully",
+        });
+  } else {
+    res.json({
+      status: false,
+      message: "User not found",
+    });
+  }
+  }
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error:err
+  });
+  return;
+}
 };
+
 
 // Search the user
 exports.findUser = (req, res) => {
@@ -180,6 +229,7 @@ exports.findUser = (req, res) => {
     }
   );
 };
+
 
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
@@ -239,6 +289,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+
 // register user
 exports.register = async(req,res)=>{
   try{
@@ -279,6 +330,7 @@ exports.register = async(req,res)=>{
     return;
   }
 }
+
 
 // verify OTP
 exports.verifyOtp = async (req, res) => {
