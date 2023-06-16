@@ -53,7 +53,6 @@ async function registerUser(req, res) {
   }
 }
 
-
 // User register with this function
 /* exports.register = async (req, res) => {
   let { email, password, confirmpassword, phonenumber } = req.body;
@@ -112,7 +111,7 @@ exports.login = async (req, res) => {
 
   if(email.includes("@")) {
 
-    let user = await users.findOne({email:email});
+    let user = await users.findOne({email:email.toLowerCase()});
 
   if (user) {
         let token = jwt.sign(
@@ -334,22 +333,25 @@ exports.register = async(req,res)=>{
 
 // verify OTP
 exports.verifyOtp = async (req, res) => {
-  let { otp, phonenumber } = req.body;
+  try{
+  let { otp, email } = req.body;
 
-  if (otp == undefined || phonenumber == undefined) {
+  if (otp == undefined || email == undefined) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "otp and phonenumber is required",
+      message: "otp and email or phonenumber is required",
       status: "fail",
     });
     return;
   }
 
-  let user = await users.findOne({ PhoneNumber: phonenumber });
+  if(email.includes("@")) {
+  
+    let user = await users.findOne({ email: email.toLowerCase()});
 
   if (!user) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
-      message: "PhoneNumber not found",
+      message: "Email not found",
     });
     return;
   }
@@ -379,4 +381,50 @@ exports.verifyOtp = async (req, res) => {
       message: "OTP Verification successfull",
     });
   }
+  } else {
+
+  let user = await users.findOne({ PhoneNumber: Number(email) });
+
+  if (!user) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "PhoneNumber not found",
+    });
+    return;
+  }
+
+  if (user.otp != otp) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "Invalid otp",
+      status: "fail",
+    });
+    return;
+  } else {
+    let token = jwt.sign(
+      {
+        id: user._id,
+        email: user?.email,
+      },
+      // Import the secret key from helper file.
+      config.secret_key
+      // {
+      //     expiresIn: "24h", // expires in 24 hours
+      // }
+    );
+    res.status(StatusCodes.OK).json({
+      status: true,
+      userId: user._id,
+      token: token,
+      message: "OTP Verification successfull",
+    });
+  }
+}
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error:err
+  });
+  return;
+}
 };
