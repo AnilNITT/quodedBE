@@ -48,6 +48,10 @@ router.post('/verifyotp',userController.verifyOtp)
 // get login user
 router.get('/getuser', authendiCate.authenticateToken, userController.getUser)
 
+// get user By ID
+router.post('/getuserbyid', authendiCate.authenticateToken, userController.getUserById)
+
+
 // Uplaod profile image
 router.post('/updateprofileimage', upload.single('file'),authendiCate.authenticateToken, userController.updateProfilePicture)
 

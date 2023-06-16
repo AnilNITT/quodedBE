@@ -493,8 +493,8 @@ exports.getUser = async(req,res) =>{
   if(user) {
     return res.status(StatusCodes.OK).json({
       status: true,
-      data: user,
       message: "User found",
+      data: user,
     });
   } else {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -504,6 +504,37 @@ exports.getUser = async(req,res) =>{
     return;
   }
 
+  } catch(err){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}
+
+
+// get User By ID
+exports.getUserById = async(req,res) =>{
+  try{
+
+    const{ userId } = req.body;
+
+    const user = await users.findById(userId);
+    if(user) {
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "User found",
+        data: user,
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "User not found",
+      });
+      return;
+    }
   } catch(err){
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
