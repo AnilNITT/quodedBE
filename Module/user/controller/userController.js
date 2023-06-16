@@ -23,6 +23,7 @@ async function registerUser(req, res) {
   user.lastname = req.body.lastname ? req.body.lastname : "";
   user.email = req.body.email ? req.body.email.toLowerCase() : "";
   user.Password = req.body.password ? req.body.password : "";
+  user.PhoneNumber = req.body.phonenumber ? req.body.phonenumber : "";
   
   try{
       await user.save()
@@ -31,9 +32,7 @@ async function registerUser(req, res) {
           id: user._id,
           email: user.email,
         },
-
         // Import the secret key from helper file.
-
         config.secret_key
         // {
         //     // expiresIn: "24h", // expires in 24 hours
@@ -53,7 +52,7 @@ async function registerUser(req, res) {
 }
 
 // User register with this function
-exports.register = async (req, res) => {
+/* exports.register = async (req, res) => {
   let { email, password, confirmpassword, phonenumber } = req.body;
   if (email == undefined && phonenumber == undefined) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -91,55 +90,25 @@ exports.register = async (req, res) => {
     return;
   }
 };
+ */
+
 
 // User login with this function
 exports.login = async (req, res) => {
-  let { email, password } = req.body;
+  let { phonenumber } = req.body;
   
-  if (email == undefined || password == undefined || email === "" || password == "") {
+  if (phonenumber == undefined) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       error: "error",
-      message: "Email and Password is required",
+      message: "phonenumber is required",
       status: "fail",
     });
     return;
   }
 
-  console.log(email.includes("@"));
-  let search
-  if(email.includes("@")){
-    search = {
-      email:email
-    }
-  } else {
-    search = {
-      PhoneNumber: Number(email)
-    }
-  }
-
-  console.log("search",search);
-
-  let user = await users.findOne({email: email});
-
-  console.log(user);
+  let user = await users.findOne({PhoneNumber:phonenumber});
 
   if (user) {
-    bcrypt.compare(password, user.Password, async function (err, isMatch) {
-      if (err) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-          error: "error",
-          message: "Password not valid",
-          status: "fail",
-        });
-        return;
-      } else if (!isMatch) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-          error: "error",
-          message: "Password not valid",
-          status: "fail",
-        });
-        return;
-      } else {
         let token = jwt.sign(
           {
             id: user._id,
@@ -163,12 +132,10 @@ exports.login = async (req, res) => {
           // token: token,
           message: "Login Authentication successfull and OTP send successfully",
         });
-      }
-    });
   } else {
     res.json({
       status: false,
-      message: "Email and password not valid",
+      message: "Phone number not valid",
     });
   }
 };
@@ -212,57 +179,6 @@ exports.findUser = (req, res) => {
       });
     }
   );
-};
-
-// verify OTP
-exports.verifyOtp = async (req, res) => {
-  let { otp, email } = req.body;
-
-  if (otp == undefined || email == undefined) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "otp and email is required",
-      status: "fail",
-    });
-    return;
-  }
-
-  let user = await users.findOne({ email: email.toLowerCase() });
-
-  if (user == undefined) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "Email not found",
-      status: "fail",
-    });
-    return;
-  }
-
-  if (user.otp != otp) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "Invalid otp",
-      status: "fail",
-    });
-    return;
-  } else {
-    let token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-      },
-      // Import the secret key from helper file.
-      config.secret_key
-      // {
-      //     expiresIn: "24h", // expires in 24 hours
-      // }
-    );
-    res.status(StatusCodes.OK).json({
-      status: true,
-      userId: user._id,
-      name: user.firstname + " " + user.lastname,
-      email: user.email,
-      token: token,
-      message: "Login successfull",
-    });
-  }
 };
 
 // update profile picture
@@ -320,5 +236,96 @@ exports.updateProfile = async (req, res) => {
       status: "fail",
     });
     return;
+  }
+};
+
+
+// register user
+exports.register = async(req,res)=>{
+  try{
+  let {phonenumber} = req.body;
+  if(phonenumber == undefined){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      error: "error",
+      message: "phonenumber is required",
+      status: "fail",
+    });
+    return;
+  }
+  let user = await users.findOne({PhoneNumber:phonenumber});
+  if(user){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "phonenumber already exits",
+    });
+    return;
+  } else {
+    let newUser = await users.create({
+      PhoneNumber: phonenumber,
+    });
+    newUser.otp = 12345;
+    await newUser.save();
+    res.status(StatusCodes.OK).json({
+      status: true,
+      message: "Registration Successfull, OTP send to your Phonenumber",
+    });
+  }
+  }
+  catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}
+
+// verify OTP
+exports.verifyOtp = async (req, res) => {
+  let { otp, phonenumber } = req.body;
+
+  if (otp == undefined || phonenumber == undefined) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "otp and phonenumber is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  let user = await users.findOne({ PhoneNumber: phonenumber });
+
+  if (!user) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "PhoneNumber not found",
+    });
+    return;
+  }
+
+  if (user.otp != otp) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "Invalid otp",
+      status: "fail",
+    });
+    return;
+  } else {
+    let token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+      },
+      // Import the secret key from helper file.
+      config.secret_key
+      // {
+      //     expiresIn: "24h", // expires in 24 hours
+      // }
+    );
+    res.status(StatusCodes.OK).json({
+      status: true,
+      userId: user._id,
+      token: token,
+      message: "OTP Verification successfull",
+    });
   }
 };
