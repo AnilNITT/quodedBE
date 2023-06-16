@@ -137,7 +137,6 @@ exports.findUser = (req, res) => {
   );
 };
 
-
 // User login with this function
 exports.login = async (req, res) => {
   try {
@@ -329,65 +328,6 @@ exports.verifyOtp = async (req, res) => {
 };
 
 
-// update profile picture
-exports.updateProfilePicture = async (req, res) => {
-
-  const userdata = req.user
-
-  let file = req.file;
-  if (file == undefined) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "file is required",
-      status: "fail",
-    });
-    return;
-  }
-
-  const user = await users.findById(userdata.id);
-
-  user.ProfileIcon = req.file.filename;
-  await user.save();
-  return res.status(StatusCodes.OK).json({
-    status: true,
-    message: "Profile Picture update successfully",
-  });
-};
-
-// update profile
-exports.updateProfile = async (req, res) => {
-
-  const userdata = req.user
-
-  const { firstname, lastname, PhoneNumber } = req.body;
-
-  const data = {
-    firstname: firstname,
-    lastname: lastname,
-    PhoneNumber: PhoneNumber,
-  };
-
-  const user = await users.findByIdAndUpdate(
-    { _id: userdata.id },
-    { $set: data },
-    { new: true }
-  );
-
-  if (user) {
-    return res.status(StatusCodes.OK).json({
-      status: true,
-      data: user,
-      message: "Profile updated successfully",
-    });
-  } else {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "Something went wrong",
-      status: "fail",
-    });
-    return;
-  }
-};
-
-
 // register user
 exports.register = async(req,res)=>{
   try{
@@ -442,8 +382,7 @@ exports.register = async(req,res)=>{
     return;
   }
   }
-}
-  catch (err) {
+} catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
       message: "Something went wrong",
@@ -452,4 +391,95 @@ exports.register = async(req,res)=>{
     return;
   }
 }
+
+
+// update profile picture
+exports.updateProfilePicture = async (req, res) => {
+ try{
+  const userdata = req.user
+
+  let file = req.file;
+  if (file == undefined) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "file is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  const user = await users.findById(userdata.id);
+
+  user.ProfileIcon = req.file.filename;
+  await user.save();
+  return res.status(StatusCodes.OK).json({
+    status: true,
+    message: "Profile Picture update successfully",
+  });
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error:err
+  });
+  return;
+}
+};
+
+
+// update profile
+exports.updateProfile = async (req, res) => {
+  try {
+  const userdata = req.user
+
+  const { name, email, phonenumber } = req.body;
+
+  const user = await users.findById(userdata.id);
+
+  const emailAuth = await users.findOne({email:email.toLowerCase()})
+
+  const phoneAuth = await users.findOne({PhoneNumber:phonenumber})
+
+  if(!emailAuth || emailAuth.email === user.email) {
+    if(!phoneAuth || phoneAuth.PhoneNumber === user.PhoneNumber) {
+
+      const data = {
+        name: name,
+        email: email,
+        PhoneNumber: phonenumber,
+      };
+
+      const user = await users.findByIdAndUpdate(
+        { _id: userdata.id },
+        { $set: data },
+        { new: true }
+      );
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        data: user,
+        message: "Profile updated successfully",
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Phone number already used by User",
+      });
+      return;
+    }
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Email already used by User",
+    });
+    return;
+  }
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error:err
+  });
+  return;
+}
+};
+
 
