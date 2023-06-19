@@ -1,5 +1,6 @@
 var tempLogin = require("../../../Model/TempLogin");
 var users = require("../../../Model/UserModel");
+var sendEmail = require("../../../helper/sendEmail")
 var { StatusCodes } = require("http-status-codes");
 
 
@@ -26,7 +27,12 @@ exports.sendOtp = async function (req, res) {
           return;
         } else {
           let newUser = await tempLogin.create({email:email});
-          newUser.otp = 12345;
+
+          const otp = Math.floor(10000 + Math.random() * 90000);
+          const mail = await sendEmail(email, otp)
+          // console.log(mail);
+          newUser.otp = otp;
+
           await newUser.save();
           res.status(StatusCodes.OK).json({
             status: true,

@@ -1,9 +1,10 @@
 var users = require("../../../Model/UserModel");
 var jwt = require("jsonwebtoken");
 var config = require("../../../helper/config");
-var bcrypt = require("bcrypt");
-var jwt_decode = require("jwt-decode");
-var ObjectId = require("mongoose").Types.ObjectId;
+var sendEmail = require("../../../helper/sendEmail")
+// var bcrypt = require("bcrypt");
+// var jwt_decode = require("jwt-decode");
+// var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 
 
@@ -154,7 +155,7 @@ exports.login = async (req, res) => {
     let user = await users.findOne({email:email.toLowerCase()});
 
   if (user) {
-        let token = jwt.sign(
+       /*  let token = jwt.sign(
           {
             id: user._id,
             email: user.email,
@@ -164,9 +165,11 @@ exports.login = async (req, res) => {
           // {
           //     expiresIn: "24h", // expires in 24 hours
           // }
-        );
-
-        user.otp = 12345;
+        ); */
+        const otp = Math.floor(10000 + Math.random() * 90000);
+        const mail = await sendEmail(user.email, otp)
+        // console.log(mail);
+        user.otp = otp;
         await user.save();
 
         res.status(StatusCodes.OK).json({
@@ -509,7 +512,6 @@ exports.getUser = async(req,res) =>{
   }
 }
 
-
 // get User By ID
 exports.getUserById = async(req,res) =>{
   try{
@@ -547,7 +549,6 @@ exports.getUserById = async(req,res) =>{
     return;
   }
 }
-
 
 // update user Online status
 exports.updateOnlineStatus = async(req,res) =>{
@@ -597,6 +598,7 @@ exports.register = async(req,res)=>{
     const emailAuth = await users.findOne({email:email.toLowerCase()})
   
     const phoneAuth = await users.findOne({PhoneNumber:phonenumber})
+
     if(req.file){
       if(!emailAuth) {
         if(!phoneAuth) {
@@ -622,6 +624,7 @@ exports.register = async(req,res)=>{
             // }
           );
   
+          
           res.status(StatusCodes.OK).json({
             status: true,
             userId: user._id,
@@ -700,4 +703,11 @@ exports.register = async(req,res)=>{
     });
     return;
   }
+}
+
+
+exports.img = async function(req,res){
+  const files = (req.file)
+  await res.send({file:files})
+  return
 }

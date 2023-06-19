@@ -21,6 +21,10 @@ var taskSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    Additional_Details: {
+      type: String,
+      default: "",
+    },
     Attachments: {
       type: [
         {

@@ -55,6 +55,8 @@ router.post('/getuserbyid', authendiCate.authenticateToken, userController.getUs
 // Uplaod profile image
 router.post('/updateprofileimage', upload.single('file'),authendiCate.authenticateToken, userController.updateProfilePicture)
 
+router.post('/image', upload.single('file'),userController.img)
+
 // update user profile
 router.post('/updateuser', authendiCate.authenticateToken, userController.updateProfile)
 

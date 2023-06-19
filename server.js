@@ -8,7 +8,7 @@ const morgan = require("morgan");
 var user = require("./Module/user/route/user");
 var chat = require("./Module/chat/route/chat");
 var task = require("./Module/task/route/task");
-var templogin = require("./Module/tempLogin/route/templogin")
+var templogin = require("./Module/tempLogin/route/templogin");
 var meeting = require("./Module/meeting/route/meeting");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
@@ -19,6 +19,7 @@ const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const dateFormat = "%Y-%m-%d";
 
+
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
   cors: {
@@ -26,14 +27,15 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
+
 // JSON type request accept with express json
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
-
 
 app.get("/", (request, response) => {
   response.json({
@@ -49,6 +51,7 @@ app.use((req, res, next) => {
   return next();
 });
 
+
 // User router
 app.use(express.static("uploads"));
 app.use("/user", user);
@@ -57,13 +60,14 @@ app.use("/task", task);
 app.use("/templogin", templogin);
 app.use("/meetings", meeting);
 
+
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
   const zoomApiUrl = "https://api.zoom.us/v2/users/me/meetings";
   const jwtToken =
     "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6IlFfeWN3UGFzUmRLR2FjaWgzSkRqUVEiLCJleHAiOjE2NzkyMDc5MjUsImlhdCI6MTY3OTIwMjUyNX0.xNOmYc5i5A1vQEDGZQz_nyu5_xwi2IZbgYdQUN9HMts";
 
-try {
+  try {
     const response = await axios.post(
       zoomApiUrl,
       {
@@ -87,6 +91,7 @@ try {
   }
 });
 
+
 // Socket connection intialize
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
@@ -104,6 +109,7 @@ socketIO.use(function (socket, next) {
     next(new Error("Authentication error"));
   }
 });
+
 
 socketIO.on("connection", async (socket) => {
   let updateCurrentId = await UserModel.findByIdAndUpdate(
@@ -149,6 +155,7 @@ socketIO.on("connection", async (socket) => {
     );
   });
   // Send conversation list
+  
   socket.on("coversation-list", async (data) => {
     Conversation.find(
       {
@@ -261,11 +268,13 @@ socketIO.on("connection", async (socket) => {
   });
 });
 
+
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority");
+    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority"
+  );
   var db = mongoose.connection;
   // Added check for DB connection
   if (!db) {
@@ -277,8 +286,10 @@ try {
   console.error(error);
 }
 
+
 // Define the port from helper file
 const PORT = config.app.port;
+
 
 // Server running and listen the port
 http.listen(PORT, () => {
