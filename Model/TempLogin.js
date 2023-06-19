@@ -12,6 +12,6 @@ var tempLoginSchema = new mongoose.Schema({
         expires: 1, 
         default: Date.now() 
     }
-})
+}) 
 
 module.exports = mongoose.model("tempLogin", tempLoginSchema, "tempLogin");
