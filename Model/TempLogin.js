@@ -9,7 +9,7 @@ var tempLoginSchema = new mongoose.Schema({
     otp:Number,
     createdAt: { 
         type: Date, 
-        expires: 60, 
+        expires: "2m", 
         default: Date.now() 
     }
 })
