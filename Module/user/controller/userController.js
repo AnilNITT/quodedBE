@@ -154,6 +154,7 @@ exports.login = async (req, res) => {
 
     let user = await users.findOne({email:email.toLowerCase()});
 
+  
   if (user) {
        /*  let token = jwt.sign(
           {
