@@ -171,7 +171,6 @@ exports.login = async (req, res) => {
         // console.log(mail);
         user.otp = otp;
         await user.save();
-
         res.status(StatusCodes.OK).json({
           status: true,
           // userId: user._id,
