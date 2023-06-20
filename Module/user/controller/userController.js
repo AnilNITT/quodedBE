@@ -724,7 +724,7 @@ exports.register = async (req, res) => {
 // search user by name and Email
 exports.search = async (req, res) => {
   try{
-    
+
   const {search} = req.query;
 
   const user = await users.aggregate([
@@ -752,7 +752,7 @@ exports.search = async (req, res) => {
     });
     return;
   }
-} catch (e) {
+} catch (err) {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
     status: "fail",
     message: "Something went wrong",

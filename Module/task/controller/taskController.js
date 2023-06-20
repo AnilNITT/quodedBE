@@ -233,19 +233,28 @@ exports.updateTask = async (req, res) => {
       { status: status },
       { new: true }
     );
+  
+  if(!task) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERRO).send({
+      status: "fail",
+      message: "task not found",
+    });
+    return;
+  }
 
-    await MessageModal.findOneAndUpdate(
+  const msgs = await MessageModal.findOneAndUpdate(
       { taskId: taskId },
       { status: status },
       { new: true }
     );
-
+  
     res.status(StatusCodes.OK).send({
-      data: task,
       status: true,
+      message: "task status updated successfully",
+      data: task,
     });
     return;
-  } catch (e) {
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
       message: "Something went wrong",
@@ -277,7 +286,7 @@ exports.acceptTask = async (req, res) => {
           message: "task status updated successfully",
           status: true,
   });
-} catch (e) {
+} catch (err) {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
     status: "fail",
     message: "Something went wrong",
