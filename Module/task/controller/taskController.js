@@ -213,14 +213,14 @@ exports.updateTask = async (req, res) => {
   let { taskId, status } = req.body;
 
   if (req.user.id === undefined) {
-    res.status(500).send({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       error: "error",
       message: "User Id is required",
       status: "fail",
     });
     return;
   } else if (taskId === undefined) {
-    res.status(500).send({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       error: "error",
       message: "task Id is required",
       status: "fail",
