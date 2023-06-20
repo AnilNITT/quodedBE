@@ -19,7 +19,6 @@ const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const dateFormat = "%Y-%m-%d";
 
-
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
   cors: {
@@ -27,16 +26,13 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
-
 // JSON type request accept with express json
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
-
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
-
 
 app.get("/", (request, response) => {
   response.json({
@@ -45,13 +41,11 @@ app.get("/", (request, response) => {
   });
 });
 
-
 // Socket io route implementation
 app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-
 
 // User router
 app.use(express.static("uploads"));
@@ -60,7 +54,6 @@ app.use("/chat", chat);
 app.use("/task", task);
 app.use("/templogin", templogin);
 app.use("/meetings", meeting);
-
 
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
@@ -92,7 +85,6 @@ app.post("/meeting", async function (req, res) {
   }
 });
 
-
 // Socket connection intialize
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
@@ -111,7 +103,6 @@ socketIO.use(function (socket, next) {
   }
 });
 
-
 socketIO.on("connection", async (socket) => {
   let updateCurrentId = await UserModel.findByIdAndUpdate(
     {
@@ -122,65 +113,64 @@ socketIO.on("connection", async (socket) => {
       SocketId: socket.id,
     }
   );
+
   let updateReceived = await MessageModal.updateMany(
     { receiverId: socket.decoded.id, seenStatus: "send" },
     { seenStatus: "received" }
   );
+
   console.log(`⚡: ${socket.id} user just connected!`);
+
   socket.on("users", async (data) => {
     // let users = await userModel.find({ currentStatus: "online" });
     // socket.emit("users", users);
   });
+
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
-    Conversation.findOne(
-      {
-        senderId: socket.decoded.id,
-        receiverId: data.receiverId,
-      },
-      function (err, obj) {
-        if (!obj) {
-          let conversation = new Conversation();
-          conversation.members.push(socket.decoded.id);
-          conversation.members.push(data.receiverId);
-          conversation.senderId = socket.decoded.id;
-          conversation.receiverId = data.receiverId;
-          conversation.save(function (err, user) {
-            console.log(err);
-            socket.emit("coversation-started", user);
-          });
-        } else if (obj) {
-          socket.emit("coversation-started", obj);
-        }
-      }
-    );
+    const obj = Conversation.findOne({
+      senderId: socket.decoded.id,
+      receiverId: data.receiverId,
+    });
+
+    if (!obj) {
+      let conversation = new Conversation();
+      conversation.members.push(socket.decoded.id);
+      conversation.members.push(data.receiverId);
+      conversation.senderId = socket.decoded.id;
+      conversation.receiverId = data.receiverId;
+      const user = await conversation.save();
+      socket.emit("coversation-started", user);
+
+    } else if (obj) {
+      socket.emit("coversation-started", obj);
+    }
   });
   // Send conversation list
 
   socket.on("coversation-list", async (data) => {
-    Conversation.find(
+    const conversations = Conversation.find(
       {
         members: { $in: [socket.decoded.id] },
-      },
-      function (err, user) {
-        console.log("err", err);
-        socket.emit("coversation-list", user);
-      }
-    );
+      });
+
+    socket.emit("coversation-list", conversations);
   });
+
   socket.on("joinRoom", (data) => {
     socket.join(data.roomId);
     socket.emit("joinedRoom", data.roomId);
   });
+
   socket.on("getDetails", async (data) => {
-    UserModel.findOne({ _id: data.id }, function (err, obj) {
-      if (obj) {
-        socket.emit("getDetails", obj);
-      } else {
-        socket.emit("getDetails-faild", "User Not found");
-      }
-    });
+    const obj = UserModel.findOne({ _id: data.id });
+    if (obj) {
+      socket.emit("getDetails", obj);
+    } else {
+      socket.emit("getDetails-faild", "User Not found");
+    }
   });
+
   // Receive the message or task
   socket.on("message", async (data) => {
     console.log("req.body", data);
@@ -214,45 +204,46 @@ socketIO.on("connection", async (socket) => {
       } else {
         message.text = data.text;
       }
-      message.save(function (err, user) {
-        let getAllmessage = MessageModal.find(
-          { roomId: data.roomId },
-          function (err, obj) {
-            socket.emit("message", obj);
-            socket.broadcast.emit("message", obj);
-          }
+      await message.save();
+      let getAllmessage = await MessageModal.find(
+        { roomId: data.roomId },
         )
-          .populate("taskId")
-          .populate("meeting")
-          .populate("senderId", "ProfileIcon Status firstname lastname email")
-          .populate(
-            "receiverId",
-            "ProfileIcon Status firstname lastname email"
-          );
-      });
+        .populate("taskId")
+        .populate("meeting")
+        .populate("senderId", "ProfileIcon Status firstname lastname email")
+        .populate(
+          "receiverId",
+          "ProfileIcon Status firstname lastname email"
+        );
+
+        socket.emit("message", getAllmessage);
+        socket.broadcast.emit("message", getAllmessage);
+
     } else if (data.roomId) {
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
-        { seenStatus: "seened" }
-      );
+        { seenStatus: "seened" });
+
+
       let getAllmessage = MessageModal.find(
         { roomId: data.roomId },
-        function (err, obj) {
-          socket.emit("message", obj);
-          socket.broadcast.emit("message", obj);
-        }
-      )
+        )
         .populate("taskId")
         .populate("meeting")
         .populate("senderId", "ProfileIcon Status firstname lastname email")
         .populate("receiverId", "ProfileIcon Status firstname lastname email");
+
+        socket.emit("message", getAllmessage);
+        socket.broadcast.emit("message", getAllmessage);
     }
   });
+
   // Join personal chat
   socket.on("join", async (data) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
+
   // Disconnect the socket
   socket.on("disconnect", async () => {
     console.log("🔥", socket.id);
@@ -286,24 +277,21 @@ try {
   console.error(error);
 }
 
-
 // Define the port from helper file
 const PORT = config.app.port;
-
 
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
 // Multer image error handler
 function errHandler(err, req, res, next) {
   if (err instanceof multer.MulterError) {
-      res.json({
-          success: 0,
-          message: err.message
-      })
+    res.json({
+      success: 0,
+      message: err.message,
+    });
   }
 }
 

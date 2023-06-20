@@ -65,3 +65,4 @@ router.get('/search',authendiCate.authenticateToken,userController.findUser)
 
 
 module.exports = router
+

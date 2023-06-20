@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
 
 // Define the user collection schema
-
 var meetingSchema = new mongoose.Schema({
     roomId: { 
         type: mongoose.Schema.Types.ObjectId, 
