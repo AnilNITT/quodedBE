@@ -39,8 +39,10 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 // Register route.
 router.post('/register', upload.single('file'),userController.register)
 
+
 // Login route.
 router.post('/login',userController.login)
+
 
 // otp verify route
 router.post('/verifyotp',userController.verifyOtp)
@@ -48,21 +50,27 @@ router.post('/verifyotp',userController.verifyOtp)
 // get login user
 router.get('/getuser', authendiCate.authenticateToken, userController.getUser)
 
+
 // get All user
 router.get('/getalluser', authendiCate.authenticateToken, userController.getAllUser)
+
 
 // get user By ID
 router.post('/getuserbyid', authendiCate.authenticateToken, userController.getUserById)
 
+
 // Uplaod profile image
 router.post('/updateprofileimage', upload.single('file'),authendiCate.authenticateToken, userController.updateProfilePicture)
+
 
 // update user profile
 router.post('/updateuser', authendiCate.authenticateToken, userController.updateProfile)
 
+
 // Search user for start conversation
 // router.get('/search',authendiCate.authenticateToken,userController.findUser)
 router.get('/search',authendiCate.authenticateToken,userController.search)
+
 
 
 module.exports = router

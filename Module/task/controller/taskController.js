@@ -3,6 +3,7 @@ var Conversation = require("../../../Model/Conversation");
 var MessageModal = require("../../../Model/MessageModal");
 var TaskModal = require("../../../Model/TaskModal");
 var CommentsModal = require("../../../Model/TaskComments");
+var { StatusCodes } = require("http-status-codes");
 
 
 exports.conversationList = async (req, res) => {
@@ -30,50 +31,41 @@ exports.conversationList = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
 };
 
-
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
 
-  const conversations =await Conversation.findOne(
-    {
-      senderId: req.user.id,
-      receiverId: receiverId,
-    }
-      )
+  const conversations = await Conversation.findOne({
+    senderId: req.user.id,
+    receiverId: receiverId,
+  })
     .populate("senderId", "ProfileIcon Status firstname lastname email")
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
 
+  if (!conversations) {
+    let conversation = new Conversation();
+    conversation.members.push(req.user.id);
+    conversation.members.push(receiverId);
+    conversation.senderId = req.user.id;
+    conversation.receiverId = receiverId;
+    await conversation.save();
+    const data = await Conversation.findOne({ _id: conversation._id })
+      .populate("senderId", "ProfileIcon Status firstname lastname email")
+      .populate("receiverId", "ProfileIcon Status firstname lastname email");
 
-    if (!conversations) {
-          let conversation = new Conversation();
-          conversation.members.push(req.user.id);
-          conversation.members.push(receiverId);
-          conversation.senderId = req.user.id;
-          conversation.receiverId = receiverId;
-          await conversation.save();
-          const data = await Conversation.findOne({ _id: conversation._id })
-              .populate("senderId", "ProfileIcon Status firstname lastname email")
-              .populate(
-                "receiverId",
-                "ProfileIcon Status firstname lastname email"
-              );
-
-            res.json({
-                status: true,
-                data: data,
-                message: "Founded results",
-              });
-              return;
-
-        } else if (conversations) {
-          res.json({
-            status: true,
-            data: conversations,
-            message: "Founded results",
-          });
-        }
+    res.json({
+      status: true,
+      data: data,
+      message: "Founded results",
+    });
+    return;
+  } else if (conversations) {
+    res.json({
+      status: true,
+      data: conversations,
+      message: "Founded results",
+    });
+  }
 };
-
 
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
@@ -98,7 +90,6 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-
 exports.taskDetails = async (req, res) => {
   let { taskId } = req.query;
   if (taskId === undefined) {
@@ -119,7 +110,6 @@ exports.taskDetails = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
-
 
 exports.getAllTaskwithRoomId = async (req, res) => {
   let { roomId } = req.query;
@@ -145,7 +135,6 @@ exports.getAllTaskwithRoomId = async (req, res) => {
   }
 };
 
-
 exports.getAllTaskwithUserId = async (req, res) => {
   if (req.user.id === undefined) {
     res.status(500).send({
@@ -165,7 +154,6 @@ exports.getAllTaskwithUserId = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
-
 
 exports.getTaskComments = async (req, res) => {
   let { taskId } = req.query;
@@ -188,7 +176,6 @@ exports.getTaskComments = async (req, res) => {
   }
 };
 
-
 exports.getTaskAttchments = async (req, res) => {
   let { taskId } = req.query;
   if (taskId === undefined) {
@@ -209,7 +196,6 @@ exports.getTaskAttchments = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
-
 
 exports.postComments = async (req, res) => {
   let { taskId, roomId, senderId, commentstext } = req.body;
@@ -243,10 +229,10 @@ exports.postComments = async (req, res) => {
   }
 };
 
-
 exports.updateTask = async (req, res) => {
-  console.log("req.nbody", req.body);
+  try{
   let { taskId, status } = req.body;
+
   if (req.user.id === undefined) {
     res.status(500).send({
       error: "error",
@@ -261,37 +247,43 @@ exports.updateTask = async (req, res) => {
       status: "fail",
     });
     return;
-  } else {
-    TaskModal.findByIdAndUpdate(
+  } 
+
+  const task = await TaskModal.findByIdAndUpdate(
       { _id: taskId },
       { status: status },
-      { new: true },
-      function (err, obj) {
-        MessageModal.findOneAndUpdate(
-          {
-            taskId: taskId,
-          },
-          {
-            status: status,
-          },
-          { new: true },
-          function (err, messagobj) {
-            res.status(200).send({
-              message: obj,
-              status: true,
-            });
-            return;
-          }
-        );
-      }
+      { new: true }
     );
+
+    await MessageModal.findOneAndUpdate(
+      { taskId: taskId },
+      { status: status },
+      { new: true }
+    );
+
+    res.status(StatusCodes.OK).send({
+      data: task,
+      status: true,
+    });
+    return;
+  } catch (e) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
   }
 };
 
 
-exports.addTask = async(req,res) => {
-
-  let { roomId, senderId, receiverId, description,endTime, Additional_Details } = req.body;
-
-  
-}
+exports.addTask = async (req, res) => {
+  let {
+    roomId,
+    senderId,
+    receiverId,
+    description,
+    endTime,
+    Additional_Details,
+  } = req.body;
+};

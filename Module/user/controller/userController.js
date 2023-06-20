@@ -96,7 +96,7 @@ async function registerUser(req, res) {
 // Search the user
 exports.findUser = (req, res) => {
   let { email } = req.query;
-  
+
   if (email == undefined) {
     res.status(500).send({
       error: "error",
@@ -720,9 +720,11 @@ exports.register = async (req, res) => {
   }
 };
 
+
 // search user by name and Email
 exports.search = async (req, res) => {
-
+  try{
+    
   const {search} = req.query;
 
   const user = await users.aggregate([
@@ -735,6 +737,8 @@ exports.search = async (req, res) => {
       },
     },
   ]);
+
+
   if (user) {
     return res.status(StatusCodes.OK).json({
       status: true,
@@ -748,4 +752,12 @@ exports.search = async (req, res) => {
     });
     return;
   }
+} catch (e) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
