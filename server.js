@@ -103,6 +103,7 @@ socketIO.use(function (socket, next) {
   }
 });
 
+
 socketIO.on("connection", async (socket) => {
   let updateCurrentId = await UserModel.findByIdAndUpdate(
     {
