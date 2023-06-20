@@ -67,28 +67,6 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-exports.acceptTask = async (req, res) => {
-  let { messageId } = req.body;
-  if (messageId == undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "messageId is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    MessageModal.findByIdAndUpdate(
-      { _id: messageId, type: "task" },
-      { status: "In-progress" },
-      function (err, obj) {
-        res.status(200).send({
-          message: "task status updated success",
-          status: true,
-        });
-      }
-    );
-  }
-};
 
 exports.taskDetails = async (req, res) => {
   let { taskId } = req.query;
@@ -231,6 +209,7 @@ exports.postComments = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   try{
+
   let { taskId, status } = req.body;
 
   if (req.user.id === undefined) {
@@ -276,14 +255,34 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+exports.acceptTask = async (req, res) => {
+  try{
+  let { messageId } = req.body;
 
-exports.addTask = async (req, res) => {
-  let {
-    roomId,
-    senderId,
-    receiverId,
-    description,
-    endTime,
-    Additional_Details,
-  } = req.body;
+  if (messageId == undefined) {
+    res.status(500).send({
+      error: "error",
+      message: "messageId is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  const message = await MessageModal.findByIdAndUpdate(
+      { _id: messageId, type: "task" },
+      { status: "In-progress" });
+  
+  
+  res.status(StatusCodes.OK).send({
+          message: "task status updated successfully",
+          status: true,
+  });
+} catch (e) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
