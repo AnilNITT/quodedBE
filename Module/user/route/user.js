@@ -61,7 +61,8 @@ router.post('/updateprofileimage', upload.single('file'),authendiCate.authentica
 router.post('/updateuser', authendiCate.authenticateToken, userController.updateProfile)
 
 // Search user for start conversation
-router.get('/search',authendiCate.authenticateToken,userController.findUser)
+// router.get('/search',authendiCate.authenticateToken,userController.findUser)
+router.get('/search',authendiCate.authenticateToken,userController.search)
 
 
 module.exports = router
