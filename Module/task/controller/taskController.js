@@ -214,14 +214,12 @@ exports.updateTask = async (req, res) => {
 
   if (req.user.id === undefined) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      error: "error",
       message: "User Id is required",
       status: "fail",
     });
     return;
   } else if (taskId === undefined) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      error: "error",
       message: "task Id is required",
       status: "fail",
     });
@@ -235,7 +233,7 @@ exports.updateTask = async (req, res) => {
     );
   
   if(!task) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERRO).send({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
       message: "task not found",
     });
