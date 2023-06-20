@@ -23,6 +23,11 @@ var messageSchema = new mongoose.Schema({
       ref: "tasks",
       default: null,
     },
+    shiftId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "shifts",
+      default: null,
+    },
     meeting: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "meeting",

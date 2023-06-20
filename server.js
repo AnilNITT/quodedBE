@@ -17,6 +17,7 @@ const Conversation = require("./Model/Conversation");
 const MessageModal = require("./Model/MessageModal");
 const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
+const shifts = require("./Model/Shift");
 const dateFormat = "%Y-%m-%d";
 
 // Define the origin for cross origin block
@@ -181,7 +182,10 @@ socketIO.on("connection", async (socket) => {
       message.roomId = data.roomId;
       message.senderId = data.senderId;
       message.receiverId = data.receiverId;
+      
+
       if (data.type === "task") {
+
         let Task = new TaskModal();
         Task.roomId = data.roomId;
         Task.senderId = data.senderId;
@@ -191,7 +195,10 @@ socketIO.on("connection", async (socket) => {
         Task.Attachments.push(data.filePath ? data.filePath : "");
         let taskDetails = await Task.save();
         message.taskId = taskDetails._id;
+
+
       } else if (data.type === "meeting") {
+
         console.log("data", data);
         let meeting = new Meeting();
         meeting.roomId = data.roomId;
@@ -202,15 +209,33 @@ socketIO.on("connection", async (socket) => {
         meeting.Attachments.push(data.filePath ? data.filePath : "");
         let meetingDetails = await meeting.save();
         message.meeting = meetingDetails._id;
+
+
+      } else if (data.type === "shift") {
+        
+        console.log("data", data);
+        let shift = new shifts();
+        shift.roomId = data.roomId;
+        shift.senderId = data.senderId;
+        shift.receiverId = data.receiverId;
+        shift.description = data.text;
+        shift.startTime = data.startTime;
+        shift.endTime = data.endTime;
+
+        let shiftDetails = await shifts.save();
+        message.shiftId = shiftDetails._id;
+
       } else {
         message.text = data.text;
       }
+
       await message.save();
       let getAllmessage = await MessageModal.find(
         { roomId: data.roomId },
         )
         .populate("taskId")
         .populate("meeting")
+        .populate("shiftId")
         .populate("senderId", "ProfileIcon Status firstname lastname email")
         .populate(
           "receiverId",
