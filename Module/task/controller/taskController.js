@@ -30,6 +30,7 @@ exports.conversationList = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
 };
 
+
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
 
@@ -73,6 +74,7 @@ exports.coversationStart = async (req, res) => {
         }
 };
 
+
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
@@ -96,6 +98,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 exports.taskDetails = async (req, res) => {
   let { taskId } = req.query;
   if (taskId === undefined) {
@@ -116,6 +119,7 @@ exports.taskDetails = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
+
 
 exports.getAllTaskwithRoomId = async (req, res) => {
   let { roomId } = req.query;
@@ -141,6 +145,7 @@ exports.getAllTaskwithRoomId = async (req, res) => {
   }
 };
 
+
 exports.getAllTaskwithUserId = async (req, res) => {
   if (req.user.id === undefined) {
     res.status(500).send({
@@ -160,6 +165,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
+
 
 exports.getTaskComments = async (req, res) => {
   let { taskId } = req.query;
@@ -182,6 +188,7 @@ exports.getTaskComments = async (req, res) => {
   }
 };
 
+
 exports.getTaskAttchments = async (req, res) => {
   let { taskId } = req.query;
   if (taskId === undefined) {
@@ -202,6 +209,7 @@ exports.getTaskAttchments = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
+
 
 exports.postComments = async (req, res) => {
   let { taskId, roomId, senderId, commentstext } = req.body;
@@ -234,6 +242,7 @@ exports.postComments = async (req, res) => {
     });
   }
 };
+
 
 exports.updateTask = async (req, res) => {
   console.log("req.nbody", req.body);
@@ -279,7 +288,10 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-/* exports.addTask = async(req,res) => {
-  let { roomId, senderId, receiverId, description,endTime,Additional_Details } = req.body;
 
-} */
+exports.addTask = async(req,res) => {
+
+  let { roomId, senderId, receiverId, description,endTime, Additional_Details } = req.body;
+
+  
+}

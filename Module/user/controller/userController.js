@@ -152,8 +152,7 @@ exports.login = async (req, res) => {
 
   if(email.includes("@")) {
 
-    let user = await users.findOne({email:email.toLowerCase()});
-
+  let user = await users.findOne({email:email.toLowerCase()});
   
   if (user) {
        /*  let token = jwt.sign(
@@ -392,6 +391,8 @@ exports.verifyOtp = async (req, res) => {
   }
 }
  */
+
+
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
  try{
@@ -480,6 +481,36 @@ exports.updateProfile = async (req, res) => {
   return;
 }
 };
+
+// get All user
+exports.getAllUser = async(req,res) =>{
+  try {
+
+  const user = await users.find(req.query);
+
+  if(user) {
+    return res.status(StatusCodes.OK).json({
+      status: true,
+      message: "Users found",
+      data: user,
+    });
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "No User found",
+    });
+    return;
+  }
+
+  } catch(err){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error:err
+    });
+    return;
+  }
+}
 
 // get login user
 exports.getUser = async(req,res) =>{
@@ -703,11 +734,4 @@ exports.register = async(req,res)=>{
     });
     return;
   }
-}
-
-
-exports.img = async function(req,res){
-  const files = (req.file)
-  await res.send({file:files})
-  return
 }

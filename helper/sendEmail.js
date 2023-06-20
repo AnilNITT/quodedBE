@@ -13,6 +13,7 @@ async function sendEmail (email, otp){
         pass: "agfA7cHajK8sF1VUKk",
       }, */
   
+      
       // zoho mail
       host: "smtp.zoho.com",
       port: 465,
