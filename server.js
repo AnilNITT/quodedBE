@@ -329,7 +329,8 @@ socketIO.on("connection", async (socket) => {
 try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority"
+    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority"
+    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority"
   );
   var db = mongoose.connection;
   // Added check for DB connection
