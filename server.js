@@ -50,7 +50,8 @@ app.get("/", async(request, response) => {
   // console.log(getAllmessage);
   const data = getAllmessage.map((msg) =>{
     msg.text = cryptoen.decryption(msg.text);
-    return msg
+    console.log(msg.text);
+    return msg;
   })
 
 response.json({
@@ -199,7 +200,7 @@ socketIO.on("connection", async (socket) => {
   // Receive the message or task
   socket.on("message", async (data) => {
 
-    console.log("req.body", data);
+    // console.log("req.body", data);
 
     if (data.type) {
       let message = new MessageModal();
@@ -256,6 +257,7 @@ socketIO.on("connection", async (socket) => {
       }
 
       await message.save();
+
       let getAllmessage = await MessageModal.find(
         { roomId: data.roomId },
         )
@@ -268,8 +270,13 @@ socketIO.on("connection", async (socket) => {
           "ProfileIcon Status firstname lastname email"
         );
 
-        socket.emit("message", getAllmessage);
-        socket.broadcast.emit("message", getAllmessage);
+        const data = getAllmessage.map((msg) =>{
+          msg.text = cryptoen.decryption(msg.text);
+          return msg
+        });
+
+        socket.emit("message", data);
+        socket.broadcast.emit("message", data);
 
     } else if (data.roomId) {
 
@@ -289,7 +296,7 @@ socketIO.on("connection", async (socket) => {
         const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
-        })
+        });
       
         socket.emit("message", data);
         socket.broadcast.emit("message", data);
