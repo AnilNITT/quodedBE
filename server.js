@@ -188,7 +188,9 @@ socketIO.on("connection", async (socket) => {
     const conversations = Conversation.find(
       {
         members: { $in: [socket.decoded.id] },
-      });
+      })
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
 
     socket.emit("coversation-list", conversations);
   });

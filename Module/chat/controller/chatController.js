@@ -5,12 +5,14 @@ const TaskModal = require("../../../Model/TaskModal");
 var ObjectId = require("mongoose").Types.ObjectId;
 
 exports.conversationList = async (req, res) => {
+
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
   })
-    .populate("senderId", "ProfileIcon Status firstname lastname email")
-    .populate("receiverId", "ProfileIcon Status firstname lastname email");
+    .populate("senderId", "ProfileIcon Status name email")
+    .populate("receiverId", "ProfileIcon Status name email");
 
+  
   if (conversation) {
     res.json({
       status: true,
@@ -26,6 +28,7 @@ exports.conversationList = async (req, res) => {
   }
 };
 
+
 exports.coversationStart = async (req, res) => {
   
   let { receiverId } = req.body;
@@ -37,7 +40,8 @@ exports.coversationStart = async (req, res) => {
     .populate("senderId", "ProfileIcon Status firstname lastname email")
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
  */
-  const conversations = await Conversation.aggregate([
+
+const conversations = await Conversation.aggregate([
       {$match:{
           $or:[
               {'senderId':new ObjectId(req.user.id), 'receiverId':new ObjectId(receiverId)},
@@ -76,6 +80,7 @@ exports.coversationStart = async (req, res) => {
       return;
     }
 };
+
 
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
