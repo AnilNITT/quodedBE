@@ -148,7 +148,7 @@ socketIO.on("connection", async (socket) => {
     // let users = await userModel.find({ currentStatus: "online" });
     // socket.emit("users", users);
   });
-
+  
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
 
@@ -181,9 +181,7 @@ socketIO.on("connection", async (socket) => {
 
   });
 
-
   // Send conversation list
-
   socket.on("coversation-list", async (data) => {
     const conversations = Conversation.find(
       {
@@ -344,6 +342,8 @@ try {
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority"
     "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority"
   );
+  
+
   var db = mongoose.connection;
   // Added check for DB connection
   if (!db) {

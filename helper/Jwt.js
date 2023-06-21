@@ -10,7 +10,7 @@ exports.authenticateToken = (req, res, next) => {
             message: "Token is required",
         })
     }
-
+    
     try{
         jwt.verify(token, config.secret_key, (err, user) => {
             if (err) {

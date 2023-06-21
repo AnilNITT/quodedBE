@@ -264,10 +264,10 @@ exports.verifyOtp = async (req, res) => {
             email: user.email,
           },
           // Import the secret key from helper file.
-          config.secret_key
-          // {
-          //     expiresIn: "24h", // expires in 24 hours
-          // }
+          config.secret_key,
+          {
+              expiresIn: "48h", // expires in 24 hours
+          }
         );
         res.status(StatusCodes.OK).json({
           status: true,
@@ -617,7 +617,7 @@ exports.register = async (req, res) => {
     const emailAuth = await users.findOne({ email: email.toLowerCase() });
 
     const phoneAuth = await users.findOne({ PhoneNumber: phonenumber });
-
+    
     if (req.file) {
       if (!emailAuth) {
         if (!phoneAuth) {
@@ -636,10 +636,10 @@ exports.register = async (req, res) => {
               email: user.email,
             },
             // Import the secret key from helper file.
-            config.secret_key
-            // {
-            //     expiresIn: "24h", // expires in 24 hours
-            // }
+            config.secret_key,
+            {
+                expiresIn: "24h", // expires in 24 hours
+            }
           );
 
           res.status(StatusCodes.OK).json({

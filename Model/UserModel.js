@@ -9,7 +9,7 @@ var UserSchema = new mongoose.Schema(
     // lastname:{type:String, required : false},
     name: { type: String, required: false },
     userName: { type: String, required: false },
-    email: { type: String, required: false, unique: true},
+    email: { type: String, required: false},
     PhoneNumber: { type: Number, required: false },
     otp: { type: Number, required: false },
     ProfileIcon: { type: String, default: ""},
@@ -20,6 +20,7 @@ var UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 
 // Encrypt the password and save to the password with bcrypt.
 
