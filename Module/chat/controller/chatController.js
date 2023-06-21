@@ -12,7 +12,6 @@ exports.conversationList = async (req, res) => {
     .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email");
 
-  
   if (conversation) {
     res.json({
       status: true,
@@ -69,8 +68,8 @@ const conversations = await Conversation.aggregate([
       await conversation.save();
       console.log(conversation._id);
       const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
-        .populate("senderId", "ProfileIcon Status firstname lastname email")
-        .populate("receiverId", "ProfileIcon Status firstname lastname email");
+        .populate("senderId", "ProfileIcon Status name email")
+        .populate("receiverId", "ProfileIcon Status name email");
   
       res.json({
         status: true,
