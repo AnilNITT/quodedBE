@@ -38,16 +38,24 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static("uploads"));
 
 app.get("/", async(request, response) => {
+  const roomId = "64913d254dcbc0a84147f8e2"
+  let getAllmessage = await MessageModal.find(
+    { roomId: roomId },
+    )
+    .populate("taskId")
+    .populate("meeting")
+    .populate("senderId", "ProfileIcon Status firstname lastname email")
+    .populate("receiverId", "ProfileIcon Status firstname lastname email");
+  
+  // console.log(getAllmessage);
+  const data = getAllmessage.map((msg) =>{
+    msg.text = cryptoen.decryption(msg.text);
+    return msg
+  })
 
-const data = cryptoen.encryption("hii my name is anil")
-
-const datas = cryptoen.decryption(data);
-
-console.log(typeof datas);
 response.json({
     status: true,
-    encrypt: data,
-    decrypt: datas,
+    msg: data,
     message: "Quoded Server runing",
   });
 });
@@ -264,12 +272,13 @@ socketIO.on("connection", async (socket) => {
         socket.broadcast.emit("message", getAllmessage);
 
     } else if (data.roomId) {
+
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
         { seenStatus: "seened" });
 
 
-      let getAllmessage = MessageModal.find(
+      let getAllmessage = await MessageModal.find(
         { roomId: data.roomId },
         )
         .populate("taskId")
@@ -277,8 +286,13 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status firstname lastname email")
         .populate("receiverId", "ProfileIcon Status firstname lastname email");
 
-        socket.emit("message", getAllmessage);
-        socket.broadcast.emit("message", getAllmessage);
+        const data = getAllmessage.map((msg) =>{
+          msg.text = cryptoen.decryption(msg.text);
+          return msg
+        })
+      
+        socket.emit("message", data);
+        socket.broadcast.emit("message", data);
     }
   });
 
