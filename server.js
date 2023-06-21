@@ -151,24 +151,34 @@ socketIO.on("connection", async (socket) => {
 
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
-    
-    const obj = Conversation.findOne({
-      senderId: socket.decoded.id,
-      receiverId: data.receiverId,
-    });
 
-    if (!obj) {
+    const conversations = await Conversation.aggregate([
+      {$match:{
+          $or:[
+              {'senderId':new ObjectId(socket.decoded.id), 'receiverId':new ObjectId(data.receiverId)},
+              {'receiverId':new ObjectId(socket.decoded.id), 'senderId':new ObjectId(data.receiverId)}
+          ]
+          }
+    }])
+
+    if(conversations.length > 0){
+      await Conversation.populate(conversations,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
+      socket.emit("coversation-started", conversations);
+    } else {
       let conversation = new Conversation();
       conversation.members.push(socket.decoded.id);
       conversation.members.push(data.receiverId);
       conversation.senderId = socket.decoded.id;
       conversation.receiverId = data.receiverId;
-      const user = await conversation.save();
-      socket.emit("coversation-started", user);
+      await conversation.save();
+      await Conversation.populate(conversation,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
+      socket.emit("coversation-started", conversation);
 
-    } else if (obj) {
-      socket.emit("coversation-started", obj);
+     /*  const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
+        .populate("senderId", "ProfileIcon Status firstname lastname email")
+        .populate("receiverId", "ProfileIcon Status firstname lastname email"); */
     }
+
   });
 
 

@@ -27,40 +27,54 @@ exports.conversationList = async (req, res) => {
 };
 
 exports.coversationStart = async (req, res) => {
+  
   let { receiverId } = req.body;
 
-  const conversations = await Conversation.findOne({
+/*   const conversations = await Conversation.findOne({
     senderId: req.user.id,
     receiverId: receiverId,
   })
     .populate("senderId", "ProfileIcon Status firstname lastname email")
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
+ */
+  const conversations = await Conversation.aggregate([
+      {$match:{
+          $or:[
+              {'senderId':new ObjectId(req.user.id), 'receiverId':new ObjectId(receiverId)},
+              {'receiverId':new ObjectId(req.user.id), 'senderId':new ObjectId(receiverId)}
+          ]
+          }
+          }])
 
-  if (!conversations) {
-    let conversation = new Conversation();
-    conversation.members.push(req.user.id);
-    conversation.members.push(receiverId);
-    conversation.senderId = req.user.id;
-    conversation.receiverId = receiverId;
-    await conversation.save();
-    console.log(conversation._id);
-    const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
-      .populate("senderId", "ProfileIcon Status firstname lastname email")
-      .populate("receiverId", "ProfileIcon Status firstname lastname email");
+    if(conversations.length > 0){
 
-    res.json({
-      status: true,
-      data: data,
-      message: "Founded results",
-    });
-    return;
-  } else if (conversations) {
-    res.json({
-      status: true,
-      data: conversations,
-      message: "Founded results",
-    });
-  }
+      await Conversation.populate(conversations,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
+
+      res.json({
+        status: true,
+        data: conversations,
+        message: "Founded results",
+      });
+
+    } else {
+      let conversation = new Conversation();
+      conversation.members.push(req.user.id);
+      conversation.members.push(receiverId);
+      conversation.senderId = req.user.id;
+      conversation.receiverId = receiverId;
+      await conversation.save();
+      console.log(conversation._id);
+      const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
+        .populate("senderId", "ProfileIcon Status firstname lastname email")
+        .populate("receiverId", "ProfileIcon Status firstname lastname email");
+  
+      res.json({
+        status: true,
+        data: data,
+        message: "Founded results",
+      });
+      return;
+    }
 };
 
 exports.acceptTask = async (req, res) => {
