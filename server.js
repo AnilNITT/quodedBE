@@ -18,6 +18,8 @@ const MessageModal = require("./Model/MessageModal");
 const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/Shift");
+const multer = require('multer');
+const cryptoen = require("./helper/Crypto");
 const dateFormat = "%Y-%m-%d";
 
 // Define the origin for cross origin block
@@ -35,12 +37,21 @@ app.use(morgan("dev"));
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-app.get("/", (request, response) => {
-  response.json({
+app.get("/", async(request, response) => {
+
+const data = cryptoen.encryption("hii my name is anil")
+
+const datas = cryptoen.decryption(data);
+
+console.log(typeof datas);
+response.json({
     status: true,
+    encrypt: data,
+    decrypt: datas,
     message: "Quoded Server runing",
   });
 });
+
 
 // Socket io route implementation
 app.use((req, res, next) => {
@@ -106,6 +117,7 @@ socketIO.use(function (socket, next) {
 
 
 socketIO.on("connection", async (socket) => {
+ 
   let updateCurrentId = await UserModel.findByIdAndUpdate(
     {
       _id: socket.decoded.id,
@@ -130,6 +142,7 @@ socketIO.on("connection", async (socket) => {
 
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
+    
     const obj = Conversation.findOne({
       senderId: socket.decoded.id,
       receiverId: data.receiverId,
@@ -148,6 +161,8 @@ socketIO.on("connection", async (socket) => {
       socket.emit("coversation-started", obj);
     }
   });
+
+
   // Send conversation list
 
   socket.on("coversation-list", async (data) => {
@@ -175,7 +190,9 @@ socketIO.on("connection", async (socket) => {
 
   // Receive the message or task
   socket.on("message", async (data) => {
+
     console.log("req.body", data);
+
     if (data.type) {
       let message = new MessageModal();
       message.type = data.type;
@@ -226,7 +243,8 @@ socketIO.on("connection", async (socket) => {
         message.shiftId = shiftDetails._id;
 
       } else {
-        message.text = data.text;
+        // encrypt the message
+        message.text = cryptoen.encryption(data.text);
       }
 
       await message.save();
@@ -320,5 +338,7 @@ function errHandler(err, req, res, next) {
     });
   }
 }
+
+
 
 app.use(errHandler);

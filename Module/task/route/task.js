@@ -47,7 +47,7 @@ router.get('/all-task-depends-chat', authendiCate.authenticateToken, taskControl
 router.get('/all-task-depends-user', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 router.get('/get-task-comments', authendiCate.authenticateToken, taskController.getTaskComments);
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
-router.post('/update-tesk', authendiCate.authenticateToken, taskController.updateTask);
+router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
 
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 

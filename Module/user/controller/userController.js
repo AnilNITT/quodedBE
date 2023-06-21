@@ -720,7 +720,6 @@ exports.register = async (req, res) => {
   }
 };
 
-
 // search user by name and Email
 exports.search = async (req, res) => {
   try{
@@ -737,7 +736,6 @@ exports.search = async (req, res) => {
       },
     },
   ]);
-
 
   if (user) {
     return res.status(StatusCodes.OK).json({
