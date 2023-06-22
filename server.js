@@ -267,8 +267,8 @@ socketIO.on("connection", async (socket) => {
 
       } else {
         // encrypt the message
-        message.text = cryptoen.encryption(data.text);
-        // message.text =data.text;
+        // message.text = cryptoen.encryption(data.text);
+        message.text =data.text;
       }
 
       await message.save();
@@ -284,7 +284,6 @@ socketIO.on("connection", async (socket) => {
           "receiverId",
           "ProfileIcon Status name email"
         );
-
 
         /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
@@ -309,7 +308,7 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
-/*         const data = getAllmessage.map((msg) =>{
+        /* const data = getAllmessage.map((msg) =>{
           const keys = config.crypto_key;
           // msg.text = cryptoen.decryption(msg.text);
           msg.text = CryptoJS.AES.decrypt(msg.text, keys).toString(CryptoJS.enc.Utf8);;

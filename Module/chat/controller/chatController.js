@@ -119,15 +119,15 @@ exports.getconversation = async(req,res) => {
     /* let updateReceived = await MessageModal.updateMany(
       { receiverId: req.user.id, roomId: roomId },
       { seenStatus: "seened" });
- */
+    */
 
     let getAllmessage = await MessageModal.find({ roomId:new ObjectId(roomId)})
       .populate("taskId")
       .populate("meeting")
       .populate("senderId", "ProfileIcon Status name email")
-      .populate("receiverId", "ProfileIcon Status name email");
+      .populate("receiverId", "ProfileIcon Status name email")
 
-      const data = getAllmessage.map((msg) =>{
+      let data = getAllmessage.map((msg) =>{
         msg.text = cryptoen.decryption(msg.text);
         return msg
       });
