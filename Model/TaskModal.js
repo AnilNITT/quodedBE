@@ -17,6 +17,10 @@ var taskSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
     },
+    members:[{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"users"
+    }],
     description: {
       type: String,
       default: "",
@@ -26,8 +30,7 @@ var taskSchema = new mongoose.Schema(
       default: "",
     },
     Attachments: {
-      type: [
-        {
+      type: [{
           type: String,
         },
       ],

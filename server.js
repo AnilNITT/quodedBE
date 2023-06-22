@@ -202,6 +202,7 @@ socketIO.on("connection", async (socket) => {
     socket.emit("joinedRoom", data.roomId);
   });
 
+  
   socket.on("getDetails", async (data) => {
     const obj = UserModel.findOne({ _id: data.id });
     if (obj) {
@@ -278,7 +279,7 @@ socketIO.on("connection", async (socket) => {
       socket.emit("message", getAllmessage);
       socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
-      
+
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
         { seenStatus: "seened" }

@@ -205,6 +205,7 @@ exports.postComments = async (req, res) => {
   }
 };
 
+
 exports.updateTask = async (req, res) => {
   try {
     let { taskId, status } = req.body;
@@ -259,6 +260,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+
 exports.acceptTask = async (req, res) => {
   try {
     let { messageId } = req.body;
@@ -291,9 +293,10 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 exports.addTask = async (req, res) => {
 
-  const {roomId, type, senderId, receiverId, description, endTime } = req.body;
+  const {roomId, type, senderId, receiverId, members, description, endTime } = req.body;
 
   const msgdata= {
     type: type,
@@ -322,5 +325,5 @@ exports.addTask = async (req, res) => {
   await message.save();
 
   res.send(Task)
-  
+
 };

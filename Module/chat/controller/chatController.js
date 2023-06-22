@@ -50,7 +50,6 @@ const conversations = await Conversation.aggregate([
           ]
           }
           }])
-
     if(conversations.length > 0){
 
       await Conversation.populate(conversations,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
@@ -68,9 +67,11 @@ const conversations = await Conversation.aggregate([
       conversation.senderId = req.user.id;
       conversation.receiverId = receiverId;
       await conversation.save();
-      const data = Conversation.findOne({ _id: new ObjectId(conversation._id) })
-        .populate("senderId", "ProfileIcon Status name email")
-        .populate("receiverId", "ProfileIcon Status name email");
+
+      const data = await Conversation.populate(conversation, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
   
       res.json({
         status: true,
