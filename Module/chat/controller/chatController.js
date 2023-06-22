@@ -81,7 +81,7 @@ const conversations = await Conversation.aggregate([
 };
 
 
-exports.acceptTask = async (req, res) => {
+exports.acceptTask = async(req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
     res.status(500).send({
@@ -110,3 +110,24 @@ exports.acceptTask = async (req, res) => {
     );
   }
 };
+
+
+exports.getconversation = async(req,res) => {
+
+    const {roomId} = req.body;
+
+    /* let updateReceived = await MessageModal.updateMany(
+      { receiverId: req.user.id, roomId: roomId },
+      { seenStatus: "seened" });
+ */
+
+    let getAllmessage = await MessageModal.find({ roomId :roomId});
+
+    console.log(getAllmessage);
+      /* const data = getAllmessage.map((msg) =>{
+        msg.text = cryptoen.decryption(msg.text);
+        return msg
+      }); */
+
+      res.json({data:getAllmessage})
+}
