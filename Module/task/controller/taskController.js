@@ -206,6 +206,87 @@ exports.postComments = async (req, res) => {
 };
 
 
+exports.acceptTask = async (req, res) => {
+  try {
+    let { messageId } = req.body;
+
+    if (messageId == undefined) {
+      res.status(500).send({
+        error: "error",
+        message: "messageId is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    const message = await MessageModal.findByIdAndUpdate(
+      { _id: messageId, type: "task" },
+      { status: "In-progress" }
+    );
+
+    res.status(StatusCodes.OK).send({
+      message: "task status updated successfully",
+      status: true,
+    });
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+// Add Task
+exports.addTask = async (req, res) => {
+
+  const {roomId, type, senderId, receiverId, members, description, endTime } = req.body;
+
+  const msgdata= {
+    type: type,
+    roomId: roomId,
+    senderId: senderId,
+    receiverId: receiverId,
+  }
+
+  let message = await MessageModal.create(msgdata);
+  
+  const task = {
+    roomId: roomId,
+    senderId: senderId,
+    receiverId: receiverId,
+    description: description,
+    endTime: endTime,
+  }
+
+  let Task = await TaskModal.create(task);
+
+  if(members){
+    Task.members = members;
+    /* for(const member of members){
+      Task.members.push(member)
+    } */
+  }
+
+  Task.Attachments.push(req.file ? req.file.filename : "");
+  
+  await Task.save();
+  
+  message.taskId = Task._id;
+  await message.save();
+
+
+  res.status(StatusCodes.OK).send({
+    status: true,
+    message: "task added successfully",
+    data: Task,
+  });
+  return;
+
+};
+
+// update the task or Task status
 exports.updateTask = async (req, res) => {
   try {
     let { taskId, status } = req.body;
@@ -216,6 +297,7 @@ exports.updateTask = async (req, res) => {
         status: "fail",
       });
       return;
+
     } else if (taskId === undefined) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         message: "task Id is required",
@@ -258,72 +340,4 @@ exports.updateTask = async (req, res) => {
     });
     return;
   }
-};
-
-
-exports.acceptTask = async (req, res) => {
-  try {
-    let { messageId } = req.body;
-
-    if (messageId == undefined) {
-      res.status(500).send({
-        error: "error",
-        message: "messageId is required",
-        status: "fail",
-      });
-      return;
-    }
-
-    const message = await MessageModal.findByIdAndUpdate(
-      { _id: messageId, type: "task" },
-      { status: "In-progress" }
-    );
-
-    res.status(StatusCodes.OK).send({
-      message: "task status updated successfully",
-      status: true,
-    });
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
-};
-
-
-exports.addTask = async (req, res) => {
-
-  const {roomId, type, senderId, receiverId, members, description, endTime } = req.body;
-
-  const msgdata= {
-    type: type,
-    roomId: roomId,
-    senderId: senderId,
-    receiverId: receiverId,
-  }
-
-  let message = await MessageModal.create(msgdata);
-  
-  const task = {
-    roomId: roomId,
-    senderId: senderId,
-    receiverId: receiverId,
-    description: description,
-    endTime: endTime,
-  }
-
-  let Task = await TaskModal.create(task);
-
-  Task.Attachments.push(req.file ? req.file.filename : "");
-
-  await Task.save();
-  
-  message.taskId = taskDetails._id;
-  await message.save();
-
-  res.send(Task)
-
 };

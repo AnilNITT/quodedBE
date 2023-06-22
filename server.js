@@ -233,6 +233,7 @@ socketIO.on("connection", async (socket) => {
         Task.Attachments.push(data.filePath ? data.filePath : "");
         let taskDetails = await Task.save();
         message.taskId = taskDetails._id;
+        
       } else if (data.type === "meeting") {
         console.log("data", data);
         let meeting = new Meeting();
