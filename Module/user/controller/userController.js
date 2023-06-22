@@ -726,12 +726,14 @@ exports.search = async (req, res) => {
 
   const {search} = req.query;
 
+  console.log(Number(search));
   const user = await users.aggregate([
     {
       $match: {
         $or: [
           { name: { $regex: `${search}`, $options: "i" } },
           { email: { $regex: `${search}`, $options: "i" } },
+          { PhoneNumber: Number(search)},
         ],
       },
     },
