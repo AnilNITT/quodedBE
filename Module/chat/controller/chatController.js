@@ -111,7 +111,7 @@ exports.acceptTask = async(req, res) => {
   }
 };
 
-
+/* 
 exports.getconversation = async(req,res) => {
 
     const {roomId} = req.body;
@@ -130,4 +130,4 @@ exports.getconversation = async(req,res) => {
       }); */
 
       res.json({data:getAllmessage})
-}
+} */
