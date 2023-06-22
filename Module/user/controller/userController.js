@@ -726,7 +726,6 @@ exports.search = async (req, res) => {
 
   const {search} = req.query;
 
-  console.log(Number(search));
   const user = await users.aggregate([
     {
       $match: {
@@ -760,4 +759,196 @@ exports.search = async (req, res) => {
   });
   return;
 }
+};
+
+
+// register user
+exports.registerOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (email == undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "email or phonenumber is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    if (email.includes("@")) {
+
+      let user = await users.findOne({ email: email.toLowerCase() });
+
+      if (user) {
+
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "Email already exist",
+        });
+        return;
+
+      } else {
+        const user = await users.create(data);
+
+          let token = jwt.sign({ id: user._id },
+            // Import the secret key from helper file.
+            config.secret_key,
+            { expiresIn: "48h" } // expires in 24 hours
+          );
+
+          res.status(StatusCodes.OK).json({
+            status: true,
+            userId: user._id,
+            token: token,
+            message: "Registration Successfull and OTP send successfully",
+          });
+          return;
+
+        res.status(StatusCodes.OK).json({
+          status: true,
+          message: "OTP send successfully... plz check your Email",
+        });
+      }
+
+    } else {
+
+      let user = await users.findOne({ PhoneNumber: Number(email) });
+
+      if (user) {
+
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "Phone number already exist",
+        });
+        return;
+
+      } else {
+        res.status(StatusCodes.OK).json({
+          status: true,
+          message: "OTP send successfully... plz check your Mobile",
+        });
+      }
+
+    }
+
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+// register user
+exports.registration = async (req, res) => {
+  try {
+    const { email, phonenumber } = req.body;
+
+    const emailAuth = await users.findOne({ email: email.toLowerCase() });
+
+    const phoneAuth = await users.findOne({ PhoneNumber: phonenumber });
+    
+    if (req.file) {
+      if (!emailAuth) {
+        if (!phoneAuth) {
+          const data = {
+            name: name,
+            email: email,
+            PhoneNumber: phonenumber,
+            ProfileIcon: req.file.filename,
+          };
+
+          const user = await users.create(data);
+
+          let token = jwt.sign(
+            {
+              id: user._id,
+              email: user.email,
+            },
+            // Import the secret key from helper file.
+            config.secret_key,
+            {
+                expiresIn: "24h", // expires in 24 hours
+            }
+          );
+
+          res.status(StatusCodes.OK).json({
+            status: true,
+            userId: user._id,
+            email: user.email,
+            token: token,
+            message: "Registration Successfull",
+          });
+          return;
+        } else {
+          res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            status: "fail",
+            message: "Phone number already used by User",
+          });
+          return;
+        }
+      } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "Email already used by User",
+        });
+        return;
+      }
+    } else {
+      if (!emailAuth) {
+        if (!phoneAuth) {
+          const data = {
+            name: name,
+            email: email,
+            PhoneNumber: phonenumber,
+          };
+
+          const user = await users.create(data);
+
+          let token = jwt.sign(
+            {
+              id: user._id,
+              email: user.email,
+            },
+            // Import the secret key from helper file.
+            config.secret_key
+            // {
+            //     expiresIn: "24h", // expires in 24 hours
+            // }
+          );
+
+          res.status(StatusCodes.OK).json({
+            status: true,
+            userId: user._id,
+            email: user.email,
+            token: token,
+            message: "Registration Successfull",
+          });
+          return;
+        } else {
+          res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+            status: "fail",
+            message: "Phone number already used by User",
+          });
+          return;
+        }
+      } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "Email already used by User",
+        });
+        return;
+      }
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
 };

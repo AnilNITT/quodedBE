@@ -136,6 +136,7 @@ socketIO.on("connection", async (socket) => {
       SocketId: socket.id,
     }
   );
+  
 
   let updateReceived = await MessageModal.updateMany(
     { receiverId: socket.decoded.id, seenStatus: "send" },
@@ -264,7 +265,8 @@ socketIO.on("connection", async (socket) => {
 
       } else {
         // encrypt the message
-        message.text = cryptoen.encryption(data.text);
+        // message.text = cryptoen.encryption(data.text);
+        message.text =data.text;
       }
 
       await message.save();
@@ -281,13 +283,13 @@ socketIO.on("connection", async (socket) => {
           "ProfileIcon Status name email"
         );
 
-        const data = getAllmessage.map((msg) =>{
+        /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
-        });
+        }); */
 
-        socket.emit("message", data);
-        socket.broadcast.emit("message", data);
+        socket.emit("message", getAllmessage);
+        socket.broadcast.emit("message", getAllmessage);
 
     } else if (data.roomId) {
 
@@ -304,13 +306,13 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
-        const data = getAllmessage.map((msg) =>{
+        /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
-        });
+        }); */
       
-        socket.emit("message", data);
-        socket.broadcast.emit("message", data);
+        socket.emit("message", getAllmessage);
+        socket.broadcast.emit("message", getAllmessage);
     }
 
   });
@@ -378,4 +380,4 @@ function errHandler(err, req, res, next) {
 
 
 
-app.use(errHandler);
+app.use(errHandler); 
