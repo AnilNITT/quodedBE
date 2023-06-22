@@ -18,9 +18,10 @@ const MessageModal = require("./Model/MessageModal");
 const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/Shift");
-const multer = require('multer');
+const multer = require("multer");
 const cryptoen = require("./helper/Crypto");
 var CryptoJS = require("crypto-js");
+const crypto = require("crypto");
 
 const dateFormat = "%Y-%m-%d";
 
@@ -39,26 +40,13 @@ app.use(morgan("dev"));
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-app.get("/", async(request, response) => {
-  const roomId = "64913d254dcbc0a84147f8e2"
-  let getAllmessage = await MessageModal.find(
-    { roomId: roomId },
-    )
-    .populate("taskId")
-    .populate("meeting")
-    .populate("senderId", "ProfileIcon Status name email")
-    .populate("receiverId", "ProfileIcon Status name email");
+app.get("/", async (request, response) => {
   
-  // console.log(getAllmessage);
-  const data = getAllmessage.map((msg) =>{
-    msg.text = cryptoen.decryption(msg.text);
-    console.log(msg.text);
-    return msg;
-  })
+  const uuid = crypto.randomUUID();
 
-response.json({
+  response.json({
     status: true,
-    msg: data,
+    id:uuid,
     message: "Quoded Server runing",
   });
 });
@@ -128,7 +116,7 @@ socketIO.use(function (socket, next) {
 
 
 socketIO.on("connection", async (socket) => {
- 
+
   let updateCurrentId = await UserModel.findByIdAndUpdate(
     {
       _id: socket.decoded.id,
@@ -138,7 +126,7 @@ socketIO.on("connection", async (socket) => {
       SocketId: socket.id,
     }
   );
-  
+
 
   let updateReceived = await MessageModal.updateMany(
     { receiverId: socket.decoded.id, seenStatus: "send" },
@@ -151,21 +139,33 @@ socketIO.on("connection", async (socket) => {
     // let users = await userModel.find({ currentStatus: "online" });
     // socket.emit("users", users);
   });
-  
+
+
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
 
     const conversations = await Conversation.aggregate([
-      {$match:{
-          $or:[
-              {'senderId':new ObjectId(socket.decoded.id), 'receiverId':new ObjectId(data.receiverId)},
-              {'receiverId':new ObjectId(socket.decoded.id), 'senderId':new ObjectId(data.receiverId)}
-          ]
-          }
-    }])
+      {
+        $match: {
+          $or: [
+            {
+              senderId: new ObjectId(socket.decoded.id),
+              receiverId: new ObjectId(data.receiverId),
+            },
+            {
+              receiverId: new ObjectId(socket.decoded.id),
+              senderId: new ObjectId(data.receiverId),
+            },
+          ],
+        },
+      },
+    ]);
 
-    if(conversations.length > 0){
-      await Conversation.populate(conversations,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
+    if (conversations.length > 0) {
+      await Conversation.populate(conversations, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
       socket.emit("coversation-started", conversations);
     } else {
       let conversation = new Conversation();
@@ -174,22 +174,23 @@ socketIO.on("connection", async (socket) => {
       conversation.senderId = socket.decoded.id;
       conversation.receiverId = data.receiverId;
       await conversation.save();
-      await Conversation.populate(conversation,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
+      await Conversation.populate(conversation, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
       socket.emit("coversation-started", conversation);
 
-     /*  const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
+      /*  const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
         .populate("senderId", "ProfileIcon Status firstname lastname email")
         .populate("receiverId", "ProfileIcon Status firstname lastname email"); */
     }
-
   });
 
   // Send conversation list
   socket.on("coversation-list", async (data) => {
-    const conversations = Conversation.find(
-      {
-        members: { $in: [socket.decoded.id] },
-      })
+    const conversations = Conversation.find({
+      members: { $in: [socket.decoded.id] },
+    })
       .populate("senderId", "ProfileIcon Status name email")
       .populate("receiverId", "ProfileIcon Status name email");
 
@@ -210,10 +211,8 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
-
   // Receive the message or task
   socket.on("message", async (data) => {
-
     // console.log("req.body", data);
 
     if (data.type) {
@@ -222,10 +221,8 @@ socketIO.on("connection", async (socket) => {
       message.roomId = data.roomId;
       message.senderId = data.senderId;
       message.receiverId = data.receiverId;
-      
 
       if (data.type === "task") {
-
         let Task = new TaskModal();
         Task.roomId = data.roomId;
         Task.senderId = data.senderId;
@@ -235,10 +232,7 @@ socketIO.on("connection", async (socket) => {
         Task.Attachments.push(data.filePath ? data.filePath : "");
         let taskDetails = await Task.save();
         message.taskId = taskDetails._id;
-
-
       } else if (data.type === "meeting") {
-
         console.log("data", data);
         let meeting = new Meeting();
         meeting.roomId = data.roomId;
@@ -249,10 +243,7 @@ socketIO.on("connection", async (socket) => {
         meeting.Attachments.push(data.filePath ? data.filePath : "");
         let meetingDetails = await meeting.save();
         message.meeting = meetingDetails._id;
-
-
       } else if (data.type === "shift") {
-
         console.log("data", data);
         let shift = new shifts();
         shift.roomId = data.roomId;
@@ -264,61 +255,51 @@ socketIO.on("connection", async (socket) => {
 
         let shiftDetails = await shifts.save();
         message.shiftId = shiftDetails._id;
-
       } else {
         // encrypt the message
         // message.text = cryptoen.encryption(data.text);
-        message.text =data.text;
+        message.text = data.text;
       }
 
       await message.save();
 
-      let getAllmessage = await MessageModal.find(
-        { roomId: data.roomId },
-        )
+      let getAllmessage = await MessageModal.find({ roomId: data.roomId })
         .populate("taskId")
         .populate("meeting")
         .populate("shiftId")
         .populate("senderId", "ProfileIcon Status name email")
-        .populate(
-          "receiverId",
-          "ProfileIcon Status name email"
-        );
+        .populate("receiverId", "ProfileIcon Status name email");
 
-        /* const data = getAllmessage.map((msg) =>{
+      /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
         }); */
 
-        socket.emit("message", getAllmessage);
-        socket.broadcast.emit("message", getAllmessage);
-
+      socket.emit("message", getAllmessage);
+      socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
-
+      
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
-        { seenStatus: "seened" });
+        { seenStatus: "seened" }
+      );
 
-
-      let getAllmessage = await MessageModal.find(
-        { roomId: data.roomId },
-        )
+      let getAllmessage = await MessageModal.find({ roomId: data.roomId })
         .populate("taskId")
         .populate("meeting")
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
-        /* const data = getAllmessage.map((msg) =>{
+      /* const data = getAllmessage.map((msg) =>{
           const keys = config.crypto_key;
           // msg.text = cryptoen.decryption(msg.text);
           msg.text = CryptoJS.AES.decrypt(msg.text, keys).toString(CryptoJS.enc.Utf8);;
           return msg
         }); */
 
-        socket.emit("message", getAllmessage);
-        socket.broadcast.emit("message", getAllmessage);
+      socket.emit("message", getAllmessage);
+      socket.broadcast.emit("message", getAllmessage);
     }
-
   });
 
   // Join personal chat
@@ -343,7 +324,6 @@ socketIO.on("connection", async (socket) => {
   });
 });
 
-
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
@@ -351,7 +331,6 @@ try {
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority"
     "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority"
   );
-  
 
   var db = mongoose.connection;
   // Added check for DB connection
@@ -382,6 +361,4 @@ function errHandler(err, req, res, next) {
   }
 }
 
-
-
-app.use(errHandler); 
+app.use(errHandler);

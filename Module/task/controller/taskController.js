@@ -5,7 +5,6 @@ var TaskModal = require("../../../Model/TaskModal");
 var CommentsModal = require("../../../Model/TaskComments");
 var { StatusCodes } = require("http-status-codes");
 
-
 exports.conversationList = async (req, res) => {
   Conversation.find(
     {
@@ -66,7 +65,6 @@ exports.coversationStart = async (req, res) => {
     });
   }
 };
-
 
 exports.taskDetails = async (req, res) => {
   let { taskId } = req.query;
@@ -208,44 +206,43 @@ exports.postComments = async (req, res) => {
 };
 
 exports.updateTask = async (req, res) => {
-  try{
+  try {
+    let { taskId, status } = req.body;
 
-  let { taskId, status } = req.body;
+    if (req.user.id === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        message: "User Id is required",
+        status: "fail",
+      });
+      return;
+    } else if (taskId === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        message: "task Id is required",
+        status: "fail",
+      });
+      return;
+    }
 
-  if (req.user.id === undefined) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "User Id is required",
-      status: "fail",
-    });
-    return;
-  } else if (taskId === undefined) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      message: "task Id is required",
-      status: "fail",
-    });
-    return;
-  } 
-
-  const task = await TaskModal.findByIdAndUpdate(
+    const task = await TaskModal.findByIdAndUpdate(
       { _id: taskId },
       { status: status },
       { new: true }
     );
-  
-  if(!task) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "task not found",
-    });
-    return;
-  }
 
-  const msgs = await MessageModal.findOneAndUpdate(
+    if (!task) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "task not found",
+      });
+      return;
+    }
+
+    const msgs = await MessageModal.findOneAndUpdate(
       { taskId: taskId },
       { status: status },
       { new: true }
     );
-  
+
     res.status(StatusCodes.OK).send({
       status: true,
       message: "task status updated successfully",
@@ -263,33 +260,67 @@ exports.updateTask = async (req, res) => {
 };
 
 exports.acceptTask = async (req, res) => {
-  try{
-  let { messageId } = req.body;
+  try {
+    let { messageId } = req.body;
 
-  if (messageId == undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "messageId is required",
+    if (messageId == undefined) {
+      res.status(500).send({
+        error: "error",
+        message: "messageId is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    const message = await MessageModal.findByIdAndUpdate(
+      { _id: messageId, type: "task" },
+      { status: "In-progress" }
+    );
+
+    res.status(StatusCodes.OK).send({
+      message: "task status updated successfully",
+      status: true,
+    });
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
     return;
   }
+};
 
-  const message = await MessageModal.findByIdAndUpdate(
-      { _id: messageId, type: "task" },
-      { status: "In-progress" });
+exports.addTask = async (req, res) => {
+
+  const {roomId, type, senderId, receiverId, description, endTime } = req.body;
+
+  const msgdata= {
+    type: type,
+    roomId: roomId,
+    senderId: senderId,
+    receiverId: receiverId,
+  }
+
+  let message = await MessageModal.create(msgdata);
   
+  const task = {
+    roomId: roomId,
+    senderId: senderId,
+    receiverId: receiverId,
+    description: description,
+    endTime: endTime,
+  }
+
+  let Task = await TaskModal.create(task);
+
+  Task.Attachments.push(req.file ? req.file.filename : "");
+
+  await Task.save();
   
-  res.status(StatusCodes.OK).send({
-          message: "task status updated successfully",
-          status: true,
-  });
-} catch (err) {
-  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-    status: "fail",
-    message: "Something went wrong",
-    error: err,
-  });
-  return;
-}
+  message.taskId = taskDetails._id;
+  await message.save();
+
+  res.send(Task)
+  
 };

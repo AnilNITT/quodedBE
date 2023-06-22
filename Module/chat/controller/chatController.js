@@ -5,6 +5,7 @@ const TaskModal = require("../../../Model/TaskModal");
 var ObjectId = require("mongoose").Types.ObjectId;
 var cryptoen = require("../../../helper/Crypto")
 
+
 exports.conversationList = async (req, res) => {
 
   const conversation = await Conversation.find({
@@ -127,10 +128,10 @@ exports.getconversation = async(req,res) => {
       .populate("senderId", "ProfileIcon Status name email")
       .populate("receiverId", "ProfileIcon Status name email")
 
-      let data = getAllmessage.map((msg) =>{
+      /* let data = getAllmessage.map((msg) =>{
         msg.text = cryptoen.decryption(msg.text);
         return msg
-      });
+      }); */
 
-      res.json({data:data})
+      res.json({data:getAllmessage})
 }

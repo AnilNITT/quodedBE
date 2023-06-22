@@ -42,6 +42,7 @@ router.post('/task-attachement', upload.single('file'), function (req, res, next
   });
 });
 
+
 router.get('/task-details-get', authendiCate.authenticateToken, taskController.taskDetails);
 router.get('/all-task-depends-chat', authendiCate.authenticateToken, taskController.getAllTaskwithRoomId);
 router.get('/all-task-depends-user', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
@@ -49,9 +50,12 @@ router.get('/get-task-comments', authendiCate.authenticateToken, taskController.
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
 
+router.post('/add-task', authendiCate.authenticateToken, taskController.updateTask);
+
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 
 router.post('/multiple-task-attchments', uploadMultiple.single('file'), function (req, res) { 
+  
   let { taskId } = req.body;
   let attachmentsValue = req.file.destination.replace('uploads', '') + req.file.filename;
   TaskModal.updateOne(
@@ -69,5 +73,6 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
 });
 
 router.get('/get-task-attchments', authendiCate.authenticateToken, taskController.getTaskAttchments);
+
 
 module.exports = router;
