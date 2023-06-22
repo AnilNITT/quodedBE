@@ -309,15 +309,15 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
-        const data = getAllmessage.map((msg) =>{
+/*         const data = getAllmessage.map((msg) =>{
           const keys = config.crypto_key;
           // msg.text = cryptoen.decryption(msg.text);
           msg.text = CryptoJS.AES.decrypt(msg.text, keys).toString(CryptoJS.enc.Utf8);;
           return msg
-        });
+        }); */
 
-        socket.emit("message", data);
-        socket.broadcast.emit("message", data);
+        socket.emit("message", getAllmessage);
+        socket.broadcast.emit("message", getAllmessage);
     }
 
   });
