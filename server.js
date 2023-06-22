@@ -265,8 +265,8 @@ socketIO.on("connection", async (socket) => {
 
       } else {
         // encrypt the message
-        // message.text = cryptoen.encryption(data.text);
-        message.text =data.text;
+        message.text = cryptoen.encryption(data.text);
+        //message.text =data.text;
       }
 
       await message.save();
