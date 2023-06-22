@@ -3,7 +3,7 @@ var UserModel = require("../../../Model/UserModel");
 var MessageModal = require("../../../Model/MessageModal");
 const TaskModal = require("../../../Model/TaskModal");
 var ObjectId = require("mongoose").Types.ObjectId;
-
+var cryptoen = require("../../../helper/Crypto")
 
 exports.conversationList = async (req, res) => {
 
@@ -121,13 +121,16 @@ exports.getconversation = async(req,res) => {
       { seenStatus: "seened" });
  */
 
-    let getAllmessage = await MessageModal.find({ roomId :roomId});
+    let getAllmessage = await MessageModal.find({ roomId:new ObjectId(roomId)})
+      .populate("taskId")
+      .populate("meeting")
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
 
-    console.log(getAllmessage);
-      /* const data = getAllmessage.map((msg) =>{
+      const data = getAllmessage.map((msg) =>{
         msg.text = cryptoen.decryption(msg.text);
         return msg
-      }); */
+      });
 
-      res.json({data:getAllmessage})
+      res.json({data:data})
 }

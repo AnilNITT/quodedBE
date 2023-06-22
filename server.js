@@ -20,6 +20,8 @@ const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/Shift");
 const multer = require('multer');
 const cryptoen = require("./helper/Crypto");
+var CryptoJS = require("crypto-js");
+
 const dateFormat = "%Y-%m-%d";
 
 // Define the origin for cross origin block
@@ -283,6 +285,7 @@ socketIO.on("connection", async (socket) => {
           "ProfileIcon Status name email"
         );
 
+
         /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
@@ -306,13 +309,15 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
-/*         const data = getAllmessage.map((msg) =>{
-          msg.text = cryptoen.decryption(msg.text);
+        const data = getAllmessage.map((msg) =>{
+          const keys = config.crypto_key;
+          // msg.text = cryptoen.decryption(msg.text);
+          msg.text = CryptoJS.AES.decrypt(msg.text, keys).toString(CryptoJS.enc.Utf8);;
           return msg
-        }); */
-      
-        socket.emit("message", getAllmessage);
-        socket.broadcast.emit("message", getAllmessage);
+        });
+
+        socket.emit("message", data);
+        socket.broadcast.emit("message", data);
     }
 
   });
