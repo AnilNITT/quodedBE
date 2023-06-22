@@ -67,8 +67,7 @@ const conversations = await Conversation.aggregate([
       conversation.senderId = req.user.id;
       conversation.receiverId = receiverId;
       await conversation.save();
-      console.log(conversation._id);
-      const data = Conversation.findOne({ _id: ObjectId(conversation._id) })
+      const data = Conversation.findOne({ _id: new ObjectId(conversation._id) })
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
   

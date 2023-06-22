@@ -44,8 +44,8 @@ app.get("/", async(request, response) => {
     )
     .populate("taskId")
     .populate("meeting")
-    .populate("senderId", "ProfileIcon Status firstname lastname email")
-    .populate("receiverId", "ProfileIcon Status firstname lastname email");
+    .populate("senderId", "ProfileIcon Status name email")
+    .populate("receiverId", "ProfileIcon Status name email");
   
   // console.log(getAllmessage);
   const data = getAllmessage.map((msg) =>{
@@ -207,6 +207,7 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
+
   // Receive the message or task
   socket.on("message", async (data) => {
 
@@ -335,6 +336,7 @@ socketIO.on("connection", async (socket) => {
     // socketIO.emit("newUserResponse", "disconnect")
   });
 });
+
 
 // Mongodb connection setup
 try {
