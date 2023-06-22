@@ -274,10 +274,10 @@ socketIO.on("connection", async (socket) => {
         .populate("taskId")
         .populate("meeting")
         .populate("shiftId")
-        .populate("senderId", "ProfileIcon Status firstname lastname email")
+        .populate("senderId", "ProfileIcon Status name email")
         .populate(
           "receiverId",
-          "ProfileIcon Status firstname lastname email"
+          "ProfileIcon Status name email"
         );
 
         const data = getAllmessage.map((msg) =>{
@@ -300,8 +300,8 @@ socketIO.on("connection", async (socket) => {
         )
         .populate("taskId")
         .populate("meeting")
-        .populate("senderId", "ProfileIcon Status firstname lastname email")
-        .populate("receiverId", "ProfileIcon Status firstname lastname email");
+        .populate("senderId", "ProfileIcon Status name email")
+        .populate("receiverId", "ProfileIcon Status name email");
 
         const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
@@ -311,6 +311,7 @@ socketIO.on("connection", async (socket) => {
         socket.emit("message", data);
         socket.broadcast.emit("message", data);
     }
+
   });
 
   // Join personal chat
