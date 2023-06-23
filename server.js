@@ -19,11 +19,11 @@ const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/Shift");
 const multer = require("multer");
-const cryptoen = require("./helper/Crypto");
-var CryptoJS = require("crypto-js");
+// const cryptoen = require("./helper/Crypto");
+// var CryptoJS = require("crypto-js");
 const crypto = require("crypto");
-
 const dateFormat = "%Y-%m-%d";
+
 
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
@@ -145,7 +145,6 @@ socketIO.on("connection", async (socket) => {
     // socket.emit("users", users);
   });
 
-
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
 
@@ -237,6 +236,7 @@ socketIO.on("connection", async (socket) => {
         Task.receiverId = data.receiverId;
         Task.description = data.description;
         Task.endTime = data.endTime;
+        
         Task.Attachments.push(data.filePath ? data.filePath : "");
         let taskDetails = await Task.save();
         message.taskId = taskDetails._id;
@@ -317,6 +317,8 @@ socketIO.on("connection", async (socket) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
+
+
 
   // Disconnect the socket
   socket.on("disconnect", async () => {

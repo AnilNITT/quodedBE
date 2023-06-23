@@ -66,27 +66,6 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-exports.taskDetails = async (req, res) => {
-  let { taskId } = req.query;
-  if (taskId === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "task Id is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    TaskModal.findOne({ _id: taskId }, function (err, obj) {
-      res.status(200).send({
-        status: true,
-        taskDetails: obj,
-      });
-    })
-      .populate("senderId", "ProfileIcon Status firstname lastname email")
-      .populate("receiverId", "ProfileIcon Status firstname lastname email");
-  }
-};
-
 exports.getAllTaskwithRoomId = async (req, res) => {
   let { roomId } = req.query;
   if (roomId === undefined) {
@@ -132,6 +111,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
 };
 
 exports.getTaskComments = async (req, res) => {
+  
   let { taskId } = req.query;
   if (taskId === undefined) {
     res.status(500).send({
@@ -173,37 +153,6 @@ exports.getTaskAttchments = async (req, res) => {
   }
 };
 
-exports.postComments = async (req, res) => {
-  let { taskId, roomId, senderId, commentstext } = req.body;
-  if (req.user.id === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "User Id is required",
-      status: "fail",
-    });
-    return;
-  } else if (taskId === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "task Id is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    let comments = new CommentsModal();
-    comments.senderId = req.user.id;
-    comments.commentstext = commentstext;
-    comments.taskId = taskId;
-    comments.save(function (err, obj) {
-      console.log(err);
-      res.status(200).send({
-        message: obj,
-        status: true,
-      });
-      return;
-    });
-  }
-};
 
 exports.acceptTask = async (req, res) => {
   try {
@@ -236,7 +185,6 @@ exports.acceptTask = async (req, res) => {
     return;
   }
 };
-
 
 // Add Task
 exports.addTask = async (req, res) => {
@@ -285,7 +233,6 @@ exports.addTask = async (req, res) => {
   return;
 
 };
-
 
 // update the task or Task status
 exports.updateTask = async (req, res) => {
@@ -343,14 +290,12 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-
 // upload Task Attachments
 exports.uploadTaskAttachments = async(req,res) =>{
    try{
 
-    console.log(req.files);
     const imagespath = [];
-      if(req.files){
+    if(req.files){
         for(image of req.files){
           imagespath.push(image.filename)
         }
@@ -359,7 +304,8 @@ exports.uploadTaskAttachments = async(req,res) =>{
               status: true,
               data: imagespath,
               message: "task attachments uploaded successfully",
-      });
+    });
+    
    } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -369,3 +315,64 @@ exports.uploadTaskAttachments = async(req,res) =>{
     return;
   }
 }
+
+
+exports.getTaskDetails = async (req, res) => {
+
+  let { taskId } = req.params;
+
+  if (taskId === undefined || taskId.length < 24) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      error: "error",
+      message: "Incorrect task Id",
+      status: "fail",
+    });
+    return;
+  } else {
+    const task = await TaskModal.findOne({ _id: taskId })
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
+
+    res.status(StatusCodes.OK).send({
+        status: true,
+        taskDetails: task,
+    });
+  }
+};
+
+
+exports.postComments = async (req, res) => {
+
+  let { taskId, roomId, receiverId, commentstext } = req.body;
+
+  if (req.user.id === undefined) {
+    res.status(500).send({
+      error: "error",
+      message: "User Id is required",
+      status: "fail",
+    });
+    return;
+  } else if (taskId === undefined) {
+    res.status(500).send({
+      error: "error",
+      message: "task Id is required",
+      status: "fail",
+    });
+    return;
+  } else {
+
+    let comments = new CommentsModal();
+    comments.senderId = req.user.id;
+    comments.receiverId = receiverId;
+    comments.roomId = roomId;
+    comments.commentstext = commentstext;
+    comments.taskId = taskId;
+
+    await comments.save();
+    res.status(200).send({
+      status: true,
+      message: comments,
+    });
+    return;
+  }
+};

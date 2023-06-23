@@ -391,7 +391,7 @@ exports.verifyOtp = async (req, res) => {
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
   try {
-    
+
     const userdata = req.user;
 
     let file = req.file;
@@ -747,6 +747,7 @@ exports.search = async (req, res) => {
     },
   ]);
 
+  
   if(user.length > 0) {
     const index = user.findIndex(element =>{
       return element._id.toString() === req.user.id
