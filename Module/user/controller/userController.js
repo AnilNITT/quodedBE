@@ -4,7 +4,7 @@ var config = require("../../../helper/config");
 var sendEmail = require("../../../helper/sendEmail");
 // var bcrypt = require("bcrypt");
 // var jwt_decode = require("jwt-decode");
-// var ObjectId = require("mongoose").Types.ObjectId;
+var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 
 // password and confirm password validation here
@@ -479,9 +479,17 @@ exports.updateProfile = async (req, res) => {
 // get All user
 exports.getAllUser = async (req, res) => {
   try {
+
     const user = await users.find(req.query);
 
     if (user) {
+
+      const index = user.findIndex(element =>{
+        return element.id === req.user.id
+      })
+
+      user.splice(index,1);
+      
       return res.status(StatusCodes.OK).json({
         status: true,
         message: "Users found",
@@ -723,7 +731,7 @@ exports.register = async (req, res) => {
 // search user by name and Email
 exports.search = async (req, res) => {
   try{
-
+    
   const {search} = req.query;
 
   const user = await users.aggregate([
@@ -738,7 +746,15 @@ exports.search = async (req, res) => {
     },
   ]);
 
-  if (user) {
+  if(user.length > 0) {
+    const index = user.findIndex(element =>{
+      return element._id.toString() === req.user.id
+    })
+    user.splice(index,1);
+  } 
+
+  if (user.length > 0) {
+
     return res.status(StatusCodes.OK).json({
       status: true,
       message: "User found",

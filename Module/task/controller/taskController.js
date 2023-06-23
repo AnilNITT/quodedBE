@@ -238,6 +238,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 // Add Task
 exports.addTask = async (req, res) => {
 
@@ -263,7 +264,7 @@ exports.addTask = async (req, res) => {
   let Task = await TaskModal.create(task);
 
   if(members){
-    Task.members = members;
+    Task.members.push(...members);
     /* for(const member of members){
       Task.members.push(member)
     } */
@@ -285,6 +286,7 @@ exports.addTask = async (req, res) => {
   return;
 
 };
+
 
 // update the task or Task status
 exports.updateTask = async (req, res) => {

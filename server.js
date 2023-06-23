@@ -37,6 +37,7 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
@@ -57,6 +58,7 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
+
 
 // User router
 app.use(express.static("uploads"));
@@ -304,11 +306,13 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
+
   // Join personal chat
   socket.on("join", async (data) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
+
 
   // Disconnect the socket
   socket.on("disconnect", async () => {
@@ -325,6 +329,7 @@ socketIO.on("connection", async (socket) => {
     // socketIO.emit("newUserResponse", "disconnect")
   });
 });
+
 
 // Mongodb connection setup
 try {
