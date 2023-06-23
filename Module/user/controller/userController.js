@@ -4,7 +4,7 @@ var config = require("../../../helper/config");
 var sendEmail = require("../../../helper/sendEmail");
 // var bcrypt = require("bcrypt");
 // var jwt_decode = require("jwt-decode");
-var ObjectId = require("mongoose").Types.ObjectId;
+// var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 
 // password and confirm password validation here
@@ -391,6 +391,7 @@ exports.verifyOtp = async (req, res) => {
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
   try {
+    
     const userdata = req.user;
 
     let file = req.file;
@@ -731,7 +732,7 @@ exports.register = async (req, res) => {
 // search user by name and Email
 exports.search = async (req, res) => {
   try{
-    
+
   const {search} = req.query;
 
   const user = await users.aggregate([
@@ -776,7 +777,6 @@ exports.search = async (req, res) => {
   return;
 }
 };
-
 
 // register user
 exports.registerOTP = async (req, res) => {

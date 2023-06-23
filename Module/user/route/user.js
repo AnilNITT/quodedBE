@@ -10,6 +10,7 @@ const allowedFileTypes = ['png', 'jpg', 'jpeg', 'gif', "pdf"];
 
 // Create a function to validate the file type
 function fileFilter(req, file, cb) {
+
   if (allowedFileTypes.includes(file.originalname.split('.')[1])) {
     // Allow the file to be uploaded
     cb(null, true);
@@ -27,7 +28,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const filename = file.originalname.split('.')[0];
+      const filename = file.originalname.split('.')[0].replace(" ","-");
       cb(null, filename + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
     }
   });

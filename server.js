@@ -68,6 +68,7 @@ app.use("/task", task);
 app.use("/templogin", templogin);
 app.use("/meetings", meeting);
 
+
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
   const zoomApiUrl = "https://api.zoom.us/v2/users/me/meetings";
@@ -119,6 +120,8 @@ socketIO.use(function (socket, next) {
 
 socketIO.on("connection", async (socket) => {
 
+
+  // "socket.decoded.id"   login user id
   let updateCurrentId = await UserModel.findByIdAndUpdate(
     {
       _id: socket.decoded.id,
@@ -188,6 +191,7 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
+
   // Send conversation list
   socket.on("coversation-list", async (data) => {
     const conversations = Conversation.find({
@@ -198,6 +202,7 @@ socketIO.on("connection", async (socket) => {
 
     socket.emit("coversation-list", conversations);
   });
+
 
   socket.on("joinRoom", (data) => {
     socket.join(data.roomId);
@@ -247,6 +252,7 @@ socketIO.on("connection", async (socket) => {
         meeting.Attachments.push(data.filePath ? data.filePath : "");
         let meetingDetails = await meeting.save();
         message.meeting = meetingDetails._id;
+
       } else if (data.type === "shift") {
         console.log("data", data);
         let shift = new shifts();
@@ -306,13 +312,11 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
-
   // Join personal chat
   socket.on("join", async (data) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
-
 
   // Disconnect the socket
   socket.on("disconnect", async () => {
@@ -350,13 +354,16 @@ try {
   console.error(error);
 }
 
+
 // Define the port from helper file
 const PORT = config.app.port;
+
 
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 
 // Multer image error handler
 function errHandler(err, req, res, next) {

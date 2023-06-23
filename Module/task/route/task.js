@@ -4,6 +4,7 @@ var authendiCate = require("../../../helper/Jwt");
 var taskController = require("../controller/taskController");
 const multer = require('multer');
 const TaskModal = require('../../../Model/TaskModal');
+var fs = require("fs-extra");
 
 // Define the allowed file types
 const allowedFileTypes = ['png', 'jpg', 'jpeg', 'gif', "pdf"];
@@ -21,11 +22,14 @@ function fileFilter(req, file, cb) {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/task/');
+        var path = `uploads/task/`;
+        fs.mkdirsSync(path);
+        cb(null, path);
   },
+
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const filename = file.originalname.split('.')[0];
+    const filename = file.originalname.split('.')[0].replace(" ","-");
     cb(null, filename + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
   }
 });
@@ -50,6 +54,7 @@ router.get('/get-task-comments', authendiCate.authenticateToken, taskController.
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
 
+
 router.post('/add-task', authendiCate.authenticateToken, taskController.addTask);
 
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
@@ -57,7 +62,9 @@ const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 router.post('/multiple-task-attchments', uploadMultiple.single('file'), function (req, res) { 
   
   let { taskId } = req.body;
+
   let attachmentsValue = req.file.destination.replace('uploads', '') + req.file.filename;
+  
   TaskModal.updateOne(
     { _id: taskId },
     { "$push": { "Attachments": attachmentsValue } }
@@ -74,5 +81,7 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
 
 router.get('/get-task-attchments', authendiCate.authenticateToken, taskController.getTaskAttchments);
 
+// upload task attachments
+router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
 
 module.exports = router;

@@ -205,7 +205,6 @@ exports.postComments = async (req, res) => {
   }
 };
 
-
 exports.acceptTask = async (req, res) => {
   try {
     let { messageId } = req.body;
@@ -343,3 +342,30 @@ exports.updateTask = async (req, res) => {
     return;
   }
 };
+
+
+// upload Task Attachments
+exports.uploadTaskAttachments = async(req,res) =>{
+   try{
+
+    console.log(req.files);
+    const imagespath = [];
+      if(req.files){
+        for(image of req.files){
+          imagespath.push(image.filename)
+        }
+      }
+      res.status(StatusCodes.OK).send({
+              status: true,
+              data: imagespath,
+              message: "task attachments uploaded successfully",
+      });
+   } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+}
