@@ -3,11 +3,11 @@ var UserModel = require("../../../Model/UserModel");
 var MessageModal = require("../../../Model/MessageModal");
 const TaskModal = require("../../../Model/TaskModal");
 var ObjectId = require("mongoose").Types.ObjectId;
-var cryptoen = require("../../../helper/Crypto")
+// var cryptoen = require("../../../helper/Crypto");
+var { StatusCodes } = require("http-status-codes");
 
 
 exports.conversationList = async (req, res) => {
-
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
   })
@@ -31,10 +31,9 @@ exports.conversationList = async (req, res) => {
 
 
 exports.coversationStart = async (req, res) => {
-  
   let { receiverId } = req.body;
 
-/*   const conversations = await Conversation.findOne({
+  /*   const conversations = await Conversation.findOne({
     senderId: req.user.id,
     receiverId: receiverId,
   })
@@ -42,48 +41,57 @@ exports.coversationStart = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
  */
 
-const conversations = await Conversation.aggregate([
-      {$match:{
-          $or:[
-              {'senderId':new ObjectId(req.user.id), 'receiverId':new ObjectId(receiverId)},
-              {'receiverId':new ObjectId(req.user.id), 'senderId':new ObjectId(receiverId)}
-          ]
-          }
-          }])
-    if(conversations.length > 0){
+  const conversations = await Conversation.aggregate([
+    {
+      $match: {
+        $or: [
+          {
+            senderId: new ObjectId(req.user.id),
+            receiverId: new ObjectId(receiverId),
+          },
+          {
+            receiverId: new ObjectId(req.user.id),
+            senderId: new ObjectId(receiverId),
+          },
+        ],
+      },
+    },
+  ]);
+  if (conversations.length > 0) {
+    await Conversation.populate(conversations, {
+      path: "senderId receiverId",
+      select: ["ProfileIcon", "Status", "email", "name"],
+    });
 
-      await Conversation.populate(conversations,{path: "senderId receiverId",select: ['ProfileIcon','Status', 'email','name']})
+    res.json({
+      status: true,
+      data: conversations,
+      message: "Founded results",
+    });
+  } else {
+    let conversation = new Conversation();
+    conversation.members.push(req.user.id);
+    conversation.members.push(receiverId);
+    conversation.senderId = req.user.id;
+    conversation.receiverId = receiverId;
+    await conversation.save();
 
-      res.json({
-        status: true,
-        data: conversations,
-        message: "Founded results",
-      });
+    const data = await Conversation.populate(conversation, {
+      path: "senderId receiverId",
+      select: ["ProfileIcon", "Status", "email", "name"],
+    });
 
-    } else {
-      let conversation = new Conversation();
-      conversation.members.push(req.user.id);
-      conversation.members.push(receiverId);
-      conversation.senderId = req.user.id;
-      conversation.receiverId = receiverId;
-      await conversation.save();
-
-      const data = await Conversation.populate(conversation, {
-        path: "senderId receiverId",
-        select: ["ProfileIcon", "Status", "email", "name"],
-      });
-  
-      res.json({
-        status: true,
-        data: data,
-        message: "Founded results",
-      });
-      return;
-    }
+    res.json({
+      status: true,
+      data: data,
+      message: "Founded results",
+    });
+    return;
+  }
 };
 
 
-exports.acceptTask = async(req, res) => {
+exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
     res.status(500).send({
@@ -114,25 +122,61 @@ exports.acceptTask = async(req, res) => {
 };
 
 
-exports.getconversation = async(req,res) => {
+exports.getconversation = async (req, res) => {
+  const { roomId } = req.body;
 
-    const {roomId} = req.body;
-
-    /* let updateReceived = await MessageModal.updateMany(
+  /* let updateReceived = await MessageModal.updateMany(
       { receiverId: req.user.id, roomId: roomId },
       { seenStatus: "seened" });
     */
 
-    let getAllmessage = await MessageModal.find({ roomId:new ObjectId(roomId)})
-      .populate("taskId")
-      .populate("meeting")
-      .populate("senderId", "ProfileIcon Status name email")
-      .populate("receiverId", "ProfileIcon Status name email")
+  let getAllmessage = await MessageModal.find({ roomId: new ObjectId(roomId) })
+    .populate("taskId")
+    .populate("meeting")
+    .populate("senderId", "ProfileIcon Status name email")
+    .populate("receiverId", "ProfileIcon Status name email");
 
-      /* let data = getAllmessage.map((msg) =>{
+  /* let data = getAllmessage.map((msg) =>{
         msg.text = cryptoen.decryption(msg.text);
         return msg
       }); */
 
-      res.json({data:getAllmessage})
-}
+  res.json({ data: getAllmessage });
+};
+
+
+exports.sendMultimediaMessage = async (req, res) => {
+  try {
+    const { roomId, type, senderId, receiverId, text } = req.body;
+
+    let message = new MessageModal();
+    message.type = type;
+    message.roomId = roomId;
+    message.senderId = senderId;
+    message.receiverId = receiverId;
+    message.text = text || "";
+
+    if (req.files) {
+      for (image of req.files) {
+        message.Attachments.push(image.filename);
+      }
+    }
+
+    await message.save();
+
+    res.status(StatusCodes.OK).send({
+      status: true,
+      data: message,
+      message: "message send successfully",
+    });
+    return;
+
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};

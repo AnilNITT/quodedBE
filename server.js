@@ -32,6 +32,7 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
+
 // JSON type request accept with express json
 app.use(express.json());
 app.use(cors());
@@ -40,6 +41,7 @@ app.use(morgan("dev"));
 
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
+
 
 app.get("/", async (request, response) => {
   
@@ -99,6 +101,7 @@ app.post("/meeting", async function (req, res) {
   }
 });
 
+
 // Socket connection intialize
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
@@ -145,6 +148,7 @@ socketIO.on("connection", async (socket) => {
     // socket.emit("users", users);
   });
 
+
   // Receive conversation save to database
   socket.on("coversation-start", async (data) => {
 
@@ -188,6 +192,7 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status firstname lastname email")
         .populate("receiverId", "ProfileIcon Status firstname lastname email"); */
     }
+
   });
 
 
@@ -218,6 +223,7 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
+  
   // Receive the message or task
   socket.on("message", async (data) => {
     // console.log("req.body", data);

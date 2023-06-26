@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
       const filename = file.originalname.split('.')[0].replace(" ","-");
       cb(null, filename + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
     }
-  });
+});
   
 const upload = multer({ storage: storage, fileFilter: fileFilter });
   

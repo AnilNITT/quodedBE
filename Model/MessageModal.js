@@ -37,6 +37,12 @@ var messageSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
+    Attachments: {
+      type: [{
+          type: String,
+        },
+      ],
+    },
     seenStatus: {
       type: String,
       enum: ["send", "received", "seened"],
@@ -48,7 +54,7 @@ var messageSchema = new mongoose.Schema({
       default: "Pending",
     },
 },
-{ 
+{
     timestamps: true 
 }
 );
