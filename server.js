@@ -25,6 +25,18 @@ const crypto = require("crypto");
 const dateFormat = "%Y-%m-%d";
 
 
+
+app.all("*", function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+  // res.header("Access-Control-Allow-Headers", "Content-Type",'Authorization');
+  res.header("Access-Control-Allow-Headers", " Origin, X-Requested-With, Content-Type, Accept, form-data,Authorization");
+  // res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
+});
+
+
+
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
   cors: {
@@ -236,6 +248,7 @@ socketIO.on("connection", async (socket) => {
       message.receiverId = data.receiverId;
 
       if (data.type === "task") {
+
         let Task = new TaskModal();
         Task.roomId = data.roomId;
         Task.senderId = data.senderId;
@@ -244,6 +257,7 @@ socketIO.on("connection", async (socket) => {
         Task.endTime = data.endTime;
         
         Task.Attachments.push(data.filePath ? data.filePath : "");
+        
         let taskDetails = await Task.save();
         message.taskId = taskDetails._id;
         
@@ -286,20 +300,24 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
+
       /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
         }); */
 
+
       socket.emit("message", getAllmessage);
       socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
+
 
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
         { seenStatus: "seened" }
       );
 
+      
       let getAllmessage = await MessageModal.find({ roomId: data.roomId })
         .populate("taskId")
         .populate("meeting")

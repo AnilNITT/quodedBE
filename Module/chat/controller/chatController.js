@@ -8,6 +8,7 @@ var { StatusCodes } = require("http-status-codes");
 
 
 exports.conversationList = async (req, res) => {
+
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
   })
@@ -15,8 +16,12 @@ exports.conversationList = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status name email");
 
   if (conversation) {
+
+    const message = await MessageModal.find({receiverId: req.user.id})
+    
     res.json({
       status: true,
+      messages:message,
       data: conversation,
       message: "Founded results",
     });

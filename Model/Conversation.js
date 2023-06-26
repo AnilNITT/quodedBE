@@ -13,8 +13,12 @@ var ConversationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'users'
     },
+    counts:{
+        type: Number,
+        default: 0,
+    }
 },  
-{ 
+{
     timestamps: true 
 }
 );

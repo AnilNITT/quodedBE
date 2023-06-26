@@ -55,7 +55,7 @@ router.get('/get-task-comments', authendiCate.authenticateToken, taskController.
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
 
-router.post('/add-task', authendiCate.authenticateToken, taskController.addTask);
+router.post('/add-task', upload.array('files'),authendiCate.authenticateToken, taskController.addTask);
 
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 

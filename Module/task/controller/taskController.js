@@ -189,7 +189,7 @@ exports.acceptTask = async (req, res) => {
 // Add Task
 exports.addTask = async (req, res) => {
 
-  const {roomId, type, senderId, receiverId, members, description, endTime } = req.body;
+  const {roomId, type, senderId, receiverId, members, attachments,additional_details, description, endTime } = req.body;
 
   const msgdata= {
     type: type,
@@ -198,13 +198,24 @@ exports.addTask = async (req, res) => {
     receiverId: receiverId,
   }
 
-  let message = await MessageModal.create(msgdata);
+  
+  let a = []
+  console.log(members);
+  console.log(...members);
+  a.push(...members)
+  console.log(a);
+  // console.log(req.files);
+  res.send("ok");
+
+
+/* let message = await MessageModal.create(msgdata);
   
   const task = {
     roomId: roomId,
     senderId: senderId,
     receiverId: receiverId,
     description: description,
+    additional_details: additional_details,
     endTime: endTime,
   }
 
@@ -212,12 +223,15 @@ exports.addTask = async (req, res) => {
 
   if(members){
     Task.members.push(...members);
-    /* for(const member of members){
-      Task.members.push(member)
-    } */
+    // for(const member of members){
+    //   Task.members.push(member)
+    // }
   }
 
-  Task.Attachments.push(req.file ? req.file.filename : "");
+  if(attachments){
+    // Task.Attachments.push(req.file ? req.file.filename : "");
+    Task.Attachments.push(...attachments);
+  }
   
   await Task.save();
   
@@ -230,7 +244,7 @@ exports.addTask = async (req, res) => {
     message: "task added successfully",
     data: Task,
   });
-  return;
+  return; */
 
 };
 
