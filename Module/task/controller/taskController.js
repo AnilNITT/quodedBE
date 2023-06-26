@@ -110,27 +110,6 @@ exports.getAllTaskwithUserId = async (req, res) => {
   }
 };
 
-exports.getTaskComments = async (req, res) => {
-  
-  let { taskId } = req.query;
-  if (taskId === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "task id is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    CommentsModal.find({ taskId: taskId }, function (err, obj) {
-      res.status(200).send({
-        status: true,
-        taskDetails: obj,
-      });
-    })
-      .populate("senderId", "ProfileIcon Status firstname lastname email")
-      .populate("receiverId", "ProfileIcon Status firstname lastname email");
-  }
-};
 
 exports.getTaskAttchments = async (req, res) => {
   let { taskId } = req.query;
@@ -329,6 +308,7 @@ exports.postComments = async (req, res) => {
   }
 };
 
+
 // Add Task
 exports.addTask = async(req, res) => {
   try{
@@ -391,5 +371,45 @@ exports.addTask = async(req, res) => {
     error: err,
   });
   return;
+}};
+
+
+// get Task Comments
+exports.getTaskComments = async (req, res) => {
+  try{
+  let { taskId } = req.params;
+
+  if (taskId === undefined || taskId.length < 24) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      error: "error",
+      message: "task id is required",
+      status: "fail",
+    });
+    return;
+  } 
+  const comments = await CommentsModal.find({ taskId: taskId })
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
+
+  if(comments.length > 0) {
+    res.status(StatusCodes.OK).send({
+      status: true,
+      comments: comments,
+    });
+  return;
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "false",
+      comments: comments,
+      message: "No comments found",
+    });
+  }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
 }
-};
