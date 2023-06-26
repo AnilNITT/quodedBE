@@ -186,67 +186,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-// Add Task
-exports.addTask = async (req, res) => {
 
-  const {roomId, type, senderId, receiverId, members, attachments,additional_details, description, endTime } = req.body;
-
-  const msgdata= {
-    type: type,
-    roomId: roomId,
-    senderId: senderId,
-    receiverId: receiverId,
-  }
-
-  
-  let a = []
-  console.log(members);
-  console.log(...members);
-  a.push(...members)
-  console.log(a);
-  // console.log(req.files);
-  res.send("ok");
-
-
-/* let message = await MessageModal.create(msgdata);
-  
-  const task = {
-    roomId: roomId,
-    senderId: senderId,
-    receiverId: receiverId,
-    description: description,
-    additional_details: additional_details,
-    endTime: endTime,
-  }
-
-  let Task = await TaskModal.create(task);
-
-  if(members){
-    Task.members.push(...members);
-    // for(const member of members){
-    //   Task.members.push(member)
-    // }
-  }
-
-  if(attachments){
-    // Task.Attachments.push(req.file ? req.file.filename : "");
-    Task.Attachments.push(...attachments);
-  }
-  
-  await Task.save();
-  
-  message.taskId = Task._id;
-  await message.save();
-
-
-  res.status(StatusCodes.OK).send({
-    status: true,
-    message: "task added successfully",
-    data: Task,
-  });
-  return; */
-
-};
 
 // update the task or Task status
 exports.updateTask = async (req, res) => {
@@ -389,4 +329,113 @@ exports.postComments = async (req, res) => {
     });
     return;
   }
+};
+
+// Add Task
+exports.addTask = async(req, res) => {
+
+  const {roomId, type, senderId, receiverId, attachments,additional_details, description, endTime } = req.body;
+
+  let counts = 0;
+  let lengths = roomId.length;
+  
+  roomId.forEach(async(rooms,index) => {
+    receiverId.forEach(async(receivers,rindex) => {
+      if(index === rindex){
+
+        const msgdata= {
+          type: type,
+          roomId: rooms,
+          senderId: senderId,
+          receiverId: receivers,
+        }
+
+        let message = await MessageModal.create(msgdata);
+
+        const task = {
+          roomId: rooms,
+          senderId: senderId,
+          receiverId: receivers,
+          description: description,
+          additional_details: additional_details,
+          endTime: endTime,
+        }
+      
+        let Task = await TaskModal.create(task);
+
+        if(attachments){
+          // Task.Attachments.push(req.file ? req.file.filename : "");
+          Task.Attachments.push(...attachments);
+        }
+
+        await Task.save();
+
+        message.taskId = Task._id;
+        await message.save();
+
+        counts++;
+
+        if(lengths === counts){
+          res.status(StatusCodes.OK).send({
+            status: true,
+            message: "task added successfully",
+          });
+          return;
+        }
+      }
+    })
+  })
+
+/* 
+  const msgdata= {
+    type: type,
+    roomId: roomId,
+    senderId: senderId,
+    receiverId: receiverId,
+  }
+
+  // let message = await MessageModal.create(msgdata);
+  
+
+  const task = {
+    roomId: roomId,
+    senderId: senderId,
+    receiverId: receiverId,
+    description: description,
+    additional_details: additional_details,
+    endTime: endTime,
+  }
+
+  // console.log(task);
+
+  // res.send("ok");
+
+
+  let Task = await TaskModal.create(task);
+
+  if(members){
+    Task.members.push(...members);
+    // for(const member of members){
+    //   Task.members.push(member)
+    // }
+  }
+
+  if(attachments){
+    // Task.Attachments.push(req.file ? req.file.filename : "");
+    Task.Attachments.push(...attachments);
+  }
+  
+  await Task.save();
+  
+  message.taskId = Task._id;
+  await message.save();
+
+
+  res.status(StatusCodes.OK).send({
+    status: true,
+    message: "task added successfully",
+    data: Task,
+  });
+  return; */
+
 };

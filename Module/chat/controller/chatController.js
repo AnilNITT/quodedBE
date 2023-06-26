@@ -17,11 +17,11 @@ exports.conversationList = async (req, res) => {
 
   if (conversation) {
 
-    const message = await MessageModal.find({receiverId: req.user.id})
-    
+    // const message = await MessageModal.find({receiverId: req.user.id})
+
     res.json({
       status: true,
-      messages:message,
+      // messages:message,
       data: conversation,
       message: "Founded results",
     });

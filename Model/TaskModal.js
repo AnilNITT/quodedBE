@@ -17,10 +17,10 @@ var taskSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
     },
-    members:[{
+/*     members:[{
       type:mongoose.Schema.Types.ObjectId,
       ref:"users"
-    }],
+    }], */
     description: {
       type: String,
       default: "",

@@ -42,7 +42,6 @@ router.get('/conversation-list',authendiCate.authenticateToken,chatController.co
 router.post('/coversation-start',authendiCate.authenticateToken,chatController.coversationStart)
 router.post('/task-accept',authendiCate.authenticateToken,chatController.acceptTask)
 
-
 router.post('/getconversation',authendiCate.authenticateToken,chatController.getconversation)
 
 // send image auido vedio files in messages

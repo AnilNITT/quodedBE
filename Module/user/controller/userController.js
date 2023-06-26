@@ -969,3 +969,33 @@ exports.registration = async (req, res) => {
     return;
   }
 };
+
+
+// get All user
+exports.getAllUsers = async (req, res) => {
+  try {
+
+    const user = await users.find(req.query);
+
+    if (user) {
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "Users found",
+        data: user,
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "No User found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};

@@ -56,6 +56,7 @@ router.get('/getuser', authendiCate.authenticateToken, userController.getUser)
 // get All user
 router.get('/getalluser', authendiCate.authenticateToken, userController.getAllUser)
 
+router.get('/getallusers', userController.getAllUsers)
 
 // get user By ID
 router.post('/getuserbyid', authendiCate.authenticateToken, userController.getUserById)
