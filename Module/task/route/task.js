@@ -52,7 +52,7 @@ router.post('/task-attachement', upload.single('file'), function (req, res, next
 router.get('/get-task-comments/:taskId', authendiCate.authenticateToken, taskController.getTaskComments);
 
 router.get('/get-task-details/:taskId', authendiCate.authenticateToken, taskController.getTaskDetails);
-router.get('/all-task-depends-chat', authendiCate.authenticateToken, taskController.getAllTaskwithRoomId);
+router.get('/chat-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithRoomId);
 router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
