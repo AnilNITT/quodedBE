@@ -122,7 +122,6 @@ exports.acceptTask = async (req, res) => {
 
 
 
-
 // update the task or Task status
 exports.updateTask = async (req, res) => {
   try {

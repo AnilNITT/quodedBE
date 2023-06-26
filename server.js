@@ -181,6 +181,7 @@ socketIO.on("connection", async (socket) => {
       },
     ]);
 
+    
     if (conversations.length > 0) {
       await Conversation.populate(conversations, {
         path: "senderId receiverId",

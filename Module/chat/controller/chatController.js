@@ -16,15 +16,65 @@ exports.conversationList = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status name email");
 
   if (conversation) {
+      
 
-    // const message = await MessageModal.find({receiverId: req.user.id})
+      const message = await MessageModal.find({receiverId: req.user.id}).sort("roomId")
+
+
+    /*  const message = await MessageModal.aggregate([
+      { $match : {"receiverId": new ObjectId(req.user.id) }},
+      {$group: { _id: '$roomId', count: {$sum: 1}}},
+    ]) */
+
+
+    // const message = await MessageModal.aggregate().sortByCount("roomId")
+
+    /* const userList = await Conversation.aggregate([
+      {
+          $match: { $or:[
+            
+            { senderId: {$ne:new ObjectId(req.user.id) } },
+            { receiverId: {$ne:new ObjectId(req.user.id) } }
+          ]}
+      },
+      { $lookup: 
+          {
+              from: 'messages',
+              let: { 'receiverId':new ObjectId(req.user.id) },
+              pipeline: [
+                  { 
+                      $match: 
+                      { $or: [
+                        {
+                          'seenStatus': "send",
+                          $expr: { $eq: [ '$$receiverId', '$receiverId' ] }
+                        },
+                        {
+                          'seenStatus': "received",
+                          $expr: { $eq: [ '$$receiverId', '$receiverId' ] }
+                        },
+                      ]},
+                  },
+                  { $count: 'count' }
+              ],
+              as: 'messages'    
+          }
+      },
+      { 
+          $addFields: 
+          {
+              'unreadTotal': { $sum: '$messages.count' }
+          }
+      }
+    ]);
+ */
 
     res.json({
       status: true,
-      // messages:message,
-      data: conversation,
+      data: message,
       message: "Founded results",
     });
+
   } else {
     res.json({
       status: true,

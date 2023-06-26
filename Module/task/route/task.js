@@ -35,8 +35,10 @@ const storage = multer.diskStorage({
   }
 });
 
+
 // const upload = multer({ storage: storage, fileFilter: fileFilter });
 const upload = multer({ storage: storage });
+
 
 router.post('/task-attachement', upload.single('file'), function (req, res, next) {
   res.json({
@@ -48,16 +50,33 @@ router.post('/task-attachement', upload.single('file'), function (req, res, next
   });
 });
 
-
+// get task comments
 router.get('/get-task-comments/:taskId', authendiCate.authenticateToken, taskController.getTaskComments);
 
+// get task details by taskID
 router.get('/get-task-details/:taskId', authendiCate.authenticateToken, taskController.getTaskDetails);
+
+// get single chat all task
 router.get('/chat-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithRoomId);
+
+// get Login user All tasks
 router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
+
+// Add comments to task
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
+
+// update task of change the status of task
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
 
+// add task
 router.post('/add-task', upload.array('files'),authendiCate.authenticateToken, taskController.addTask);
+
+// get task attachments
+router.get('/get-task-attchments', authendiCate.authenticateToken, taskController.getTaskAttchments);
+
+// upload task attachments
+router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
+
 
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 
@@ -80,10 +99,4 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
       });
     });
 });
-
-router.get('/get-task-attchments', authendiCate.authenticateToken, taskController.getTaskAttchments);
-
-// upload task attachments
-router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
-
 module.exports = router;
