@@ -53,7 +53,7 @@ router.get('/get-task-comments/:taskId', authendiCate.authenticateToken, taskCon
 
 router.get('/get-task-details/:taskId', authendiCate.authenticateToken, taskController.getTaskDetails);
 router.get('/all-task-depends-chat', authendiCate.authenticateToken, taskController.getAllTaskwithRoomId);
-router.get('/all-task-depends-user', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
+router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);
 

@@ -90,25 +90,7 @@ exports.getAllTaskwithRoomId = async (req, res) => {
   }
 };
 
-exports.getAllTaskwithUserId = async (req, res) => {
-  if (req.user.id === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "User id is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    TaskModal.find({ receiverId: req.user.id }, function (err, obj) {
-      res.status(200).send({
-        status: true,
-        taskDetails: obj,
-      });
-    })
-      .populate("senderId", "ProfileIcon Status firstname lastname email")
-      .populate("receiverId", "ProfileIcon Status firstname lastname email");
-  }
-};
+
 
 
 exports.getTaskAttchments = async (req, res) => {
@@ -248,6 +230,7 @@ exports.uploadTaskAttachments = async(req,res) =>{
 }
 
 
+// get task details
 exports.getTaskDetails = async (req, res) => {
 
   let { taskId } = req.params;
@@ -272,6 +255,7 @@ exports.getTaskDetails = async (req, res) => {
 };
 
 
+// add post comments
 exports.postComments = async (req, res) => {
 
   let { taskId, roomId, receiverId, commentstext } = req.body;
@@ -413,3 +397,34 @@ exports.getTaskComments = async (req, res) => {
     return;
   }
 }
+
+
+// get Perticular User Assign Task
+exports.getAllTaskwithUserId = async (req, res) => {
+  try{
+    const task = await TaskModal.find({ receiverId: req.user.id })
+      .populate("senderId", "ProfileIcon Status firstname lastname email")
+      .populate("receiverId", "ProfileIcon Status firstname lastname email");
+
+    if(task.length > 0) {
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+      });
+    return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
