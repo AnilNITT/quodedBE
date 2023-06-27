@@ -9,7 +9,10 @@ var authendiCate = require("../../../helper/Jwt");
 router.get('/get-meetings',authendiCate.authenticateToken,meetingController.getMeetings)
 // router.get('/change-meetings',authendiCate.authenticateToken,meetingController.getMeetings)
 
-// create a new meeting
-router.post('/create-meeting',meetingController.createMeeting);
+
+// Add meeting
+router.post('/add-meetings',authendiCate.authenticateToken,meetingController.addMeeting)
+
+router.post('/update-meetings',authendiCate.authenticateToken,meetingController.updateMeeting)
 
 module.exports = router

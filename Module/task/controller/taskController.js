@@ -119,6 +119,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 // update the task or Task status
 exports.updateTask = async (req, res) => {
   try {
@@ -138,32 +139,34 @@ exports.updateTask = async (req, res) => {
       return;
     }
 
-    const task = await TaskModal.findByIdAndUpdate(
-      { _id: taskId },
-      { status: status },
-      { new: true }
-    );
+    const task = await TaskModal.findById(taskId);
 
-    if (!task) {
+    if(task) {
+      const task = await TaskModal.findByIdAndUpdate(
+        { _id: taskId },
+        { status: status },
+        { new: true }
+      );
+  
+      const msgs = await MessageModal.findOneAndUpdate(
+        { taskId: taskId },
+        { status: status },
+        { new: true }
+      );
+  
+      res.status(StatusCodes.OK).send({
+        status: true,
+        message: "task status updated successfully",
+        data: task,
+      });
+      return; 
+    } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "fail",
         message: "task not found",
       });
       return;
     }
-
-    const msgs = await MessageModal.findOneAndUpdate(
-      { taskId: taskId },
-      { status: status },
-      { new: true }
-    );
-
-    res.status(StatusCodes.OK).send({
-      status: true,
-      message: "task status updated successfully",
-      data: task,
-    });
-    return;
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -173,6 +176,7 @@ exports.updateTask = async (req, res) => {
     return;
   }
 };
+
 
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
@@ -197,6 +201,7 @@ exports.uploadTaskAttachments = async (req, res) => {
     return;
   }
 };
+
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
@@ -247,6 +252,7 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
+
 // add post comments
 exports.postComments = async (req, res) => {
   try{
@@ -283,6 +289,7 @@ exports.postComments = async (req, res) => {
   return;
 }
 };
+
 
 // Add Task
 exports.addTask = async (req, res) => {

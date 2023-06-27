@@ -1,8 +1,11 @@
 var Meeting = require("../../../Model/Meeting");
+var MessageModal = require("../../../Model/MessageModal");
 var jwt = require("jsonwebtoken");
 var config = require("../../../helper/config");
 var bcrypt = require("bcrypt");
 var ObjectId = require("mongoose").Types.ObjectId;
+var { StatusCodes } = require("http-status-codes");
+
 // password and confirm password validation here
 
 // Search the user
@@ -20,18 +23,6 @@ exports.getMeetings = (req, res) => {
     }
   );
 };
-
-
-// change meeting status
-// exports.changeMeetings = (req, res) => {
-//     Meeting.findByIdAndUpdate({ _id : req.body.taskId },{ status :  } ,function (err, obj) {
-//         res.json({
-//             status: true,
-//             meeting: obj,
-//             message: "Founded results",
-//         });
-//     })
-// }
 
 
 // Add Meeting
@@ -77,7 +68,7 @@ exports.addMeeting = async (req, res) => {
             Task.Attachments.push(...attachments);
         } */
 
-          message.taskId = meeting._id;
+          message.meeting = meeting._id;
           await message.save();
 
           counts++;
@@ -111,31 +102,61 @@ exports.addMeeting = async (req, res) => {
 };
 
 
-//
-exports.createMeeting = async(req,res) => {
-  const { topic, start_time, duration } = req.body;
+// update the task or Task status
+exports.updateMeeting = async (req, res) => {
+  try {
+    let { meetingId, status } = req.body;
 
-  const zoomApiUrl = "https://api.zoom.us/v2/users/me/meetings";
-  const jwtToken =
-    "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6IlFfeWN3UGFzUmRLR2FjaWgzSkRqUVEiLCJleHAiOjE2NzkyMDc5MjUsImlhdCI6MTY3OTIwMjUyNX0.xNOmYc5i5A1vQEDGZQz_nyu5_xwi2IZbgYdQUN9HMts";
+    if (req.user.id === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        message: "User Id is required",
+        status: "fail",
+      });
+      return;
+    } else if (meetingId === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        message: "meeting Id is required",
+        status: "fail",
+      });
+      return;
+    }
 
-    const response = await axios.post(
-      zoomApiUrl,
-      {
-        topic,
-        type: 2,
-        start_time,
-        duration,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    
-    console.log(response);
-    res.json(response.data);
+    const meeting = await Meeting.findById(meetingId);
 
-}
+    if(meeting) {
+
+      const meetings = await Meeting.findByIdAndUpdate(
+        { _id: meetingId },
+        { status: status },
+        { new: true }
+      );
+  
+      /* const msgs = await MessageModal.findOneAndUpdate(
+        { taskId: meetingId },
+        { status: status },
+        { new: true }
+      ); */
+  
+      res.status(StatusCodes.OK).send({
+        status: true,
+        message: "meeting status updated successfully",
+        data: meetings,
+      });
+      return; 
+
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "meeting not found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
