@@ -2,6 +2,9 @@ var mongoose = require('mongoose');
 
 // Define the user collection schema
 var meetingSchema = new mongoose.Schema({
+    name :{
+        type : String,
+    },
     roomId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'conversations' , 
@@ -17,14 +20,15 @@ var meetingSchema = new mongoose.Schema({
         ref: 'users', 
         default : null 
     },
+    location: {
+        type: String
+    },
+    link: {
+        type: String
+    },
     description: { 
         type: String, 
         default: "" 
-    },
-    Attachments: {
-        type: [{
-            type: String
-        }]
     },
     startTime : {
         type :Date, 
@@ -36,7 +40,7 @@ var meetingSchema = new mongoose.Schema({
     },
     status: { 
         type: String, 
-        enum: ['Pending', 'In Process', 'Completed', 'Overdue'], 
+        enum: ['Pending', 'RSVP', 'Revise Date', 'Deny Meeting'], 
         default: "Pending" 
     }
 },

@@ -83,7 +83,9 @@ app.use("/meetings", meeting);
 
 
 app.post("/meeting", async function (req, res) {
+  
   const { topic, start_time, duration } = req.body;
+
   const zoomApiUrl = "https://api.zoom.us/v2/users/me/meetings";
   const jwtToken =
     "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6IlFfeWN3UGFzUmRLR2FjaWgzSkRqUVEiLCJleHAiOjE2NzkyMDc5MjUsImlhdCI6MTY3OTIwMjUyNX0.xNOmYc5i5A1vQEDGZQz_nyu5_xwi2IZbgYdQUN9HMts";
@@ -105,6 +107,7 @@ app.post("/meeting", async function (req, res) {
       }
     );
 
+    
     res.json(response.data);
   } catch (error) {
     console.error(error);
