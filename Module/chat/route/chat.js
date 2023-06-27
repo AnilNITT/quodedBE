@@ -47,4 +47,7 @@ router.post('/getconversation',authendiCate.authenticateToken,chatController.get
 // send image auido vedio files in messages
 router.post('/send-multimedia-message',upload.array('files'),authendiCate.authenticateToken,chatController.sendMultimediaMessage)
 
+// get all  image auido vedio files in messages
+router.get('/get-files', authendiCate.authenticateToken,chatController.getFiles)
+
 module.exports = router;

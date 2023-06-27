@@ -36,7 +36,6 @@ app.all("*", function (req, res, next) {
 });
 
 
-
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
   cors: {
@@ -152,6 +151,7 @@ socketIO.on("connection", async (socket) => {
     { receiverId: socket.decoded.id, seenStatus: "send" },
     { seenStatus: "received" }
   );
+
 
   console.log(`⚡: ${socket.id} user just connected!`);
 

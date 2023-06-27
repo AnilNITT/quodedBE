@@ -119,9 +119,6 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-
-
-
 // update the task or Task status
 exports.updateTask = async (req, res) => {
   try {
@@ -203,60 +200,88 @@ exports.uploadTaskAttachments = async (req, res) => {
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
-  let { taskId } = req.params;
+  try {
+    let { taskId } = req.params;
 
-  if (taskId === undefined || taskId.length < 24) {
+    if (taskId === undefined || taskId.length < 24) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "Incorrect task Id",
+        status: "fail",
+      });
+      return;
+    } else {
+      const task = await TaskModal.findOne({ _id: taskId })
+        .populate("senderId", "ProfileIcon Status name email")
+        .populate("receiverId", "ProfileIcon Status name email");
+
+      if (task) {
+
+        if(new Date().getTime() > new Date(task.endTime).getTime()){
+          if(task.status != "Completed"){
+            task.status = "Overdue";
+            await task.save();
+          }
+        }
+
+        res.status(StatusCodes.OK).send({
+          status: true,
+          taskDetails: task,
+        });
+        return;
+      } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "false",
+          message: "No Task found",
+        });
+        return;
+      }
+    }
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      error: "error",
-      message: "Incorrect task Id",
       status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
     return;
-  } else {
-    const task = await TaskModal.findOne({ _id: taskId })
-      .populate("senderId", "ProfileIcon Status name email")
-      .populate("receiverId", "ProfileIcon Status name email");
-
-    res.status(StatusCodes.OK).send({
-      status: true,
-      taskDetails: task,
-    });
   }
 };
 
 // add post comments
 exports.postComments = async (req, res) => {
-  let { taskId, roomId, receiverId, commentstext } = req.body;
+  try{
+  let { taskId, roomId, senderId, receiverId, commentstext } = req.body;
 
-  if (req.user.id === undefined) {
-    res.status(500).send({
+  if (receiverId === undefined || taskId === undefined) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       error: "error",
-      message: "User Id is required",
+      message: "User Id and Task Id is required",
       status: "fail",
-    });
-    return;
-  } else if (taskId === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "task Id is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    let comments = new CommentsModal();
-    comments.senderId = req.user.id;
-    comments.receiverId = receiverId;
-    comments.roomId = roomId;
-    comments.commentstext = commentstext;
-    comments.taskId = taskId;
-
-    await comments.save();
-    res.status(200).send({
-      status: true,
-      message: comments,
     });
     return;
   }
+
+  let comments = new CommentsModal();
+  comments.senderId = senderId;
+  comments.receiverId = receiverId;
+  comments.roomId = roomId;
+  comments.commentstext = commentstext;
+  comments.taskId = taskId;
+
+  await comments.save();
+  res.status(StatusCodes.OK).send({
+    status: true,
+    message: comments,
+  });
+  return;
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
 
 // Add Task
@@ -403,36 +428,44 @@ exports.getAllTaskwithUserId = async (req, res) => {
   }
 };
 
+
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
+  try {
+    let { roomId } = req.query;
 
-  let { roomId } = req.query;
+    if (roomId === undefined || roomId.length < 24) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "Room Id is required",
+        status: "fail",
+      });
+      return;
+    }
 
-  if (roomId === undefined || roomId.length < 24) {
+    const task = await TaskModal.find({ roomId: roomId })
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
+
+    if (task.length > 0) {
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      error: "error",
-      message: "Room Id is required",
       status: "fail",
-    });
-    return;
-  }
-
-  const task = await TaskModal.find({ roomId: roomId })
-    .populate("senderId", "ProfileIcon Status name email")
-    .populate("receiverId", "ProfileIcon Status name email");
-
-  if (task.length > 0) {
-    res.status(StatusCodes.OK).send({
-      status: true,
-      tasks: task,
-    });
-    return;
-
-  } else {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "false",
-      tasks: task,
-      message: "No Task found",
+      message: "Something went wrong",
+      error: err,
     });
     return;
   }

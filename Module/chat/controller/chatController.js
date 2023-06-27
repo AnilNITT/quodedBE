@@ -6,9 +6,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
 
-
 exports.conversationList = async (req, res) => {
-
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
   })
@@ -16,16 +14,14 @@ exports.conversationList = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status name email");
 
   if (conversation) {
-      
-
-      const message = await MessageModal.find({receiverId: req.user.id}).sort("roomId")
-
+    const message = await MessageModal.find({ receiverId: req.user.id }).sort(
+      "roomId"
+    );
 
     /*  const message = await MessageModal.aggregate([
       { $match : {"receiverId": new ObjectId(req.user.id) }},
       {$group: { _id: '$roomId', count: {$sum: 1}}},
     ]) */
-
 
     // const message = await MessageModal.aggregate().sortByCount("roomId")
 
@@ -74,7 +70,6 @@ exports.conversationList = async (req, res) => {
       data: message,
       message: "Founded results",
     });
-
   } else {
     res.json({
       status: true,
@@ -83,7 +78,6 @@ exports.conversationList = async (req, res) => {
     });
   }
 };
-
 
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
@@ -145,7 +139,6 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
@@ -199,7 +192,7 @@ exports.getconversation = async (req, res) => {
   res.json({ data: getAllmessage });
 };
 
-
+// send image auido vedio files in messages
 exports.sendMultimediaMessage = async (req, res) => {
   try {
     const { roomId, type, senderId, receiverId, text } = req.body;
@@ -225,7 +218,58 @@ exports.sendMultimediaMessage = async (req, res) => {
       message: "message send successfully",
     });
     return;
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
 
+
+// get single conversation all multimedia files
+exports.getFiles = async (req, res) => {
+  try {
+    const { roomId } = req.query;
+    if (roomId === undefined || roomId.length < 24) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "Room Id is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    const messages = await MessageModal.aggregate([
+      {
+        $match: {
+          $and: [
+            {
+              roomId: new ObjectId(roomId),
+            },
+            {
+              type: "file",
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (messages.length > 0) {
+      res.status(StatusCodes.OK).send({
+        status: true,
+        files: messages,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        message: "No file found",
+      });
+      return;
+    }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
