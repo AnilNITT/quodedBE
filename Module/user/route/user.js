@@ -75,6 +75,8 @@ router.post('/updateuser', authendiCate.authenticateToken, userController.update
 router.get('/search',authendiCate.authenticateToken,userController.search)
 
 
+router.post('/test',authendiCate.authenticateToken,userController.findtesting)
+
 
 module.exports = router
 

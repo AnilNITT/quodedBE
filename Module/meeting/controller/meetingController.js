@@ -10,8 +10,6 @@ var { StatusCodes } = require("http-status-codes");
 // Search the user meetings list
 exports.getMeetings = (req, res) => {
 
-  console.log("userid", req.user.id);
-
   console.log({ senderId: ObjectId(req.user.id) }, { receiverId: req.user.id });
 
   Meeting.find(
@@ -25,7 +23,6 @@ exports.getMeetings = (req, res) => {
     }
   );
 };
-
 
 // Add Meeting
 exports.addMeeting = async (req, res) => {
@@ -103,7 +100,6 @@ exports.addMeeting = async (req, res) => {
   }
 };
 
-
 // update the task or Task status
 exports.updateMeetingStatus = async (req, res) => {
   try {
@@ -156,7 +152,6 @@ exports.updateMeetingStatus = async (req, res) => {
     return;
   }
 };
-
 
 // update the meeting time
 exports.reviseMeetingDate = async (req, res) => {
@@ -218,6 +213,63 @@ exports.reviseMeetingDate = async (req, res) => {
   }
 };
 
+// deny the meeting
+exports.denyMeeting = async (req, res) => {
+  try {
+    let { meetingId, description } = req.body;
+
+    if (meetingId === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        message: "meeting Id is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    const meeting = await Meeting.findById(meetingId);
+
+    if(meeting) {
+
+      const data = {
+        description:description,
+        status: "Deny Meeting"
+      }
+
+      const meetings = await Meeting.findByIdAndUpdate(
+        { _id: meetingId },
+        { $set: data },
+        { new: true }
+      );
+  
+      /* const msgs = await MessageModal.findOneAndUpdate(
+        { taskId: meetingId },
+        { status: status },
+        { new: true }
+      ); */
+  
+      res.status(StatusCodes.OK).send({
+        status: true,
+        message: "meeting deny successfully",
+        data: meetings,
+      });
+      return; 
+
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "meeting not found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
 
 // get single meeting details
 exports.getmeetingDetails = async (req, res) => {
@@ -258,6 +310,7 @@ exports.getmeetingDetails = async (req, res) => {
         return;
       }
     }
+
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -267,3 +320,5 @@ exports.getmeetingDetails = async (req, res) => {
     return;
   }
 };
+
+
