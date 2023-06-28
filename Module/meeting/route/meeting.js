@@ -9,10 +9,17 @@ var authendiCate = require("../../../helper/Jwt");
 router.get('/get-meetings',authendiCate.authenticateToken,meetingController.getMeetings)
 // router.get('/change-meetings',authendiCate.authenticateToken,meetingController.getMeetings)
 
-
 // Add meeting
 router.post('/add-meetings',authendiCate.authenticateToken,meetingController.addMeeting)
 
-router.post('/update-meetings',authendiCate.authenticateToken,meetingController.updateMeeting)
+// update meeting status
+router.post('/update-meetings-status',authendiCate.authenticateToken,meetingController.updateMeetingStatus)
+
+// update meeting time
+router.post('/revised-meetings-time',authendiCate.authenticateToken,meetingController.reviseMeetingDate)
+
+// get single meeting details by taskID
+router.get('/get-meeting-details/:meetingId', authendiCate.authenticateToken, meetingController.getmeetingDetails);
+
 
 module.exports = router
