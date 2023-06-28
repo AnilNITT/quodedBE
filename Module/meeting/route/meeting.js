@@ -4,8 +4,6 @@ var meetingController = require("./../controller/meetingController")
 var authendiCate = require("../../../helper/Jwt");
  // Split the route 
 
-// Search user for start conversation
-
 router.get('/get-meetings',authendiCate.authenticateToken,meetingController.getMeetings)
 // router.get('/change-meetings',authendiCate.authenticateToken,meetingController.getMeetings)
 
@@ -18,8 +16,7 @@ router.post('/update-meetings-status',authendiCate.authenticateToken,meetingCont
 // update meeting time
 router.post('/revised-meetings-time',authendiCate.authenticateToken,meetingController.reviseMeetingDate)
 
-// get single meeting details by taskID
+// get single meeting details by meetingId
 router.get('/get-meeting-details/:meetingId', authendiCate.authenticateToken, meetingController.getmeetingDetails);
 
-
-module.exports = router
+module.exports = router;

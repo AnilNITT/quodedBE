@@ -254,8 +254,8 @@ exports.getTaskDetails = async (req, res) => {
 };
 
 
-// add post comments
-exports.postComments = async (req, res) => {
+// add task comments
+exports.taskComments = async (req, res) => {
   try{
   let { taskId, roomId, senderId, receiverId, commentstext } = req.body;
 

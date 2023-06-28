@@ -63,7 +63,7 @@ router.get('/chat-all-task', authendiCate.authenticateToken, taskController.getA
 router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 
 // Add comments to task
-router.post('/post-task-comments', authendiCate.authenticateToken, taskController.postComments);
+router.post('/add-task-comments', authendiCate.authenticateToken, taskController.taskComments);
 
 // update task of change the status of task
 router.post('/update-task', authendiCate.authenticateToken, taskController.updateTask);

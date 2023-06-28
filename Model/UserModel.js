@@ -13,7 +13,15 @@ var UserSchema = new mongoose.Schema(
     PhoneNumber: { type: Number, required: false },
     otp: { type: Number, required: false },
     ProfileIcon: { type: String, default: ""},
+    job_title :{
+      type: String, default: ""
+    },
+
+    // abc:[ { type: String, default :""}],
+    // abc:{ type: [{type:String, default :""}]},
+    // abc :{ type : Array , "default" : [] },
     // Password: { type: String, required: true },
+    
     SocketId: { type: String },
     Status: { type: String, default: "offline" },
     profileType: { type: String, default: "public" },
