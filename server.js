@@ -357,7 +357,6 @@ socketIO.on("connection", async (socket) => {
         { $set: { seenStatus: "seened"} }
         // { seenStatus: "seened" }
       );
-
       
       let getAllmessage = await MessageModal.find({ roomId: data.roomId })
         .populate("taskId")
