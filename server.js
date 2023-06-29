@@ -227,13 +227,7 @@ socketIO.on("connection", async (socket) => {
   // Send conversation list
   socket.on("coversation-list", async (data) => {
       
-    await MessageModal.updateMany(
-      { receiverId: socket.decoded.id, seenStatus: "send" },
-      { $set: { seenStatus: "received"} }
-      // { seenStatus: "received" }
-    );
-
-    
+  
     const conversations = Conversation.find({
         members: { $in: [socket.decoded.id] },
       }).sort({createdAt: -1})
@@ -358,10 +352,10 @@ socketIO.on("connection", async (socket) => {
       socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
 
-
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
-        { seenStatus: "seened" }
+        { $set: { seenStatus: "seened"} }
+        // { seenStatus: "seened" }
       );
 
       
