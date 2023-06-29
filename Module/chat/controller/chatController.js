@@ -11,7 +11,8 @@ exports.conversationList = async (req, res) => {
     members: { $in: [req.user.id] },
   })
     .populate("senderId", "ProfileIcon Status name email")
-    .populate("receiverId", "ProfileIcon Status name email");
+    .populate("receiverId", "ProfileIcon Status name email")
+    .sort({createdAt: -1})
 
   if (conversation) {
     /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
