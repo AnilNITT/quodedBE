@@ -213,7 +213,7 @@ socketIO.on("connection", async (socket) => {
 
 
   // Send conversation list
-  socket.on("coversation-list", async (data) => {
+/*   socket.on("coversation-list", async (data) => {
     const conversations = Conversation.find({
       members: { $in: [socket.decoded.id] },
     })
@@ -221,6 +221,41 @@ socketIO.on("connection", async (socket) => {
       .populate("receiverId", "ProfileIcon Status name email");
 
     socket.emit("coversation-list", conversations);
+  }); */
+
+  // Send conversation list
+  socket.on("coversation-list", async (data) => {
+      
+    const conversations = Conversation.find({
+        members: { $in: [socket.decoded.id] },
+      }).sort({createdAt: -1})
+       
+  
+      if (conversations.length > 0) {
+  
+        conversations.map(async(data) => {
+  
+        const senderId = data.senderId == socket.decoded.id ? data.receiverId : data.senderId;
+        const message = await MessageModal.aggregate([
+            {
+                $match: { $and:[
+                  { senderId: senderId },
+                  { receiverId:new ObjectId(socket.decoded.id)},
+                ]}
+          }])
+    
+          data.counts = message.filter(data => data.seenStatus === "send" || data.seenStatus === "received").length
+          await data.save();
+        });
+  
+        await Conversation.populate(conversations, {
+          path: "senderId receiverId",
+          select: ["ProfileIcon", "Status", "email", "name"],
+        });
+        socket.emit("coversation-list", conversations);
+      } else {
+        socket.emit("coversation-list", conversations);
+      }
   });
 
 
@@ -345,7 +380,6 @@ socketIO.on("connection", async (socket) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
-
 
 
   // Disconnect the socket

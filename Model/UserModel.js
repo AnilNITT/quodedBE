@@ -17,7 +17,7 @@ var UserSchema = new mongoose.Schema(
       type: String, default: ""
     },
 
-    abc:[ { type: String, default :""}],
+    // abc:[ { type: String, default :""}],
     // abc:{ type: [{type:String, default :""}]},
     // abc :{ type : Array , "default" : [] },
     // Password: { type: String, required: true },

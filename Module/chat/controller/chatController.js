@@ -6,7 +6,6 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
 
-
 exports.conversationList = async (req, res) => {
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
@@ -15,8 +14,7 @@ exports.conversationList = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status name email");
 
   if (conversation) {
-
-/*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
+    /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
       "roomId"
     ); */
 
@@ -83,7 +81,6 @@ exports.conversationList = async (req, res) => {
   }
 };
 
-
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
 
@@ -144,7 +141,6 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
@@ -175,7 +171,6 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-
 exports.getconversation = async (req, res) => {
   const { roomId } = req.body;
 
@@ -197,7 +192,6 @@ exports.getconversation = async (req, res) => {
 
   res.json({ data: getAllmessage });
 };
-
 
 // send image auido vedio files in messages
 exports.sendMultimediaMessage = async (req, res) => {
@@ -225,7 +219,6 @@ exports.sendMultimediaMessage = async (req, res) => {
       message: "message send successfully",
     });
     return;
-
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -235,7 +228,6 @@ exports.sendMultimediaMessage = async (req, res) => {
     return;
   }
 };
-
 
 // get single conversation all multimedia files
 exports.getFiles = async (req, res) => {
@@ -285,5 +277,135 @@ exports.getFiles = async (req, res) => {
       error: err,
     });
     return;
+  }
+};
+
+
+exports.sendTextMessage = async (req, res) => {
+  const { type, text, roomId, senderId, receiverId } = req.body;
+
+  let message = new MessageModal();
+  message.type = type;
+  message.roomId = roomId;
+  message.senderId = senderId;
+  message.receiverId = receiverId;
+  message.text = text;
+
+  await message.save();
+
+  res.status(StatusCodes.OK).send({
+    status: true,
+    data: message,
+  });
+  return;
+};
+
+
+
+exports.conversatioUnseenCount = async (req, res) => {
+
+  let conversation = await Conversation.find({
+    members: { $in: [req.user.id] },
+  })
+  .sort({createdAt: -1})
+  /* .populate("senderId", "ProfileIcon Status name email")
+    .populate("receiverId", "ProfileIcon Status name email"); */
+
+  if (conversation) {
+    conversation.map(async(data) => {
+
+      const senderId = data.senderId == req.user.id ? data.receiverId : data.senderId;
+      // console.log(data.senderId == req.user.id);
+      // console.log(data.senderId);
+      // console.log(data.receiverId);
+      // console.log("sender :", senderId);
+
+      const message = await MessageModal.aggregate([
+        {
+            $match: { $and:[
+              { senderId: senderId },
+              { receiverId:new ObjectId(req.user.id)},
+              // {seenStatus: 'send'},
+            ]}
+      }])
+      // .sort({createdAt: -1});
+
+
+      data.counts = message.filter(data => data.seenStatus === "send" || data.seenStatus === "received").length
+      await data.save();
+      // console.log(message.length);
+      // console.log(message);
+      console.log("================================");
+      // return;
+    });
+
+    await Conversation.populate(conversation, {
+      path: "senderId receiverId",
+      select: ["ProfileIcon", "Status", "email", "name"],
+    });
+
+    res.json({
+      status: true,
+      data: conversation,
+      message: "Founded results",
+    });
+    /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
+      "roomId"
+    ); */
+
+    // const message = await MessageModal.find({ receiverId: req.user.id })
+
+    /*  const message = await MessageModal.aggregate([
+      { $match : {"receiverId": new ObjectId(req.user.id) }},
+      {$group: { _id: '$roomId', count: {$sum: 1}}},
+    ]) */
+
+    // const message = await MessageModal.aggregate().sortByCount("roomId")
+
+    /* const userList = await Conversation.aggregate([
+      {
+          $match: { $or:[
+            
+            { senderId: {$ne:new ObjectId(req.user.id) } },
+            { receiverId: {$ne:new ObjectId(req.user.id) } }
+          ]}
+      },
+      { $lookup: 
+          {
+              from: 'messages',
+              let: { 'receiverId':new ObjectId(req.user.id) },
+              pipeline: [
+                  { 
+                      $match: 
+                      { $or: [
+                        {
+                          'seenStatus': "send",
+                          $expr: { $eq: [ '$$receiverId', '$receiverId' ] }
+                        },
+                        {
+                          'seenStatus': "received",
+                          $expr: { $eq: [ '$$receiverId', '$receiverId' ] }
+                        },
+                      ]},
+                  },
+                  { $count: 'count' }
+              ],
+              as: 'messages'    
+          }
+      },
+      { 
+          $addFields: 
+          {
+              'unreadTotal': { $sum: '$messages.count' }
+          }
+      }
+    ]);
+ */
+  } else {
+    res.json({
+      status: true,
+      data: "No conversation found",
+      message: "Founded results",
+    });
   }
 };

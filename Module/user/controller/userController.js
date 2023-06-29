@@ -1001,14 +1001,12 @@ exports.getAllUsers = async (req, res) => {
 };
 
 
-
 // find user
 exports.findtesting = async(req,res) =>{
 
   const {name} = req.body
-
   console.log(typeof `${name}`);
   const user = await users.find({ "abc": { "$in": name } })
   res.send(user);
-  
+
 }
