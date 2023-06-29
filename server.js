@@ -151,7 +151,7 @@ socketIO.on("connection", async (socket) => {
 
 
   let updateReceived = await MessageModal.updateMany(
-    { receiverId: new ObjectId(socket.decoded.id), seenStatus: "send" },
+    { receiverId: socket.decoded.id, seenStatus: "send" },
     { $set: { seenStatus: "received"} }
     // { seenStatus: "received" }
   );
