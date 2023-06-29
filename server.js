@@ -152,8 +152,8 @@ socketIO.on("connection", async (socket) => {
 
   let updateReceived = await MessageModal.updateMany(
     { receiverId: socket.decoded.id, seenStatus: "send" },
-    { $set: { seenStatus: "received"} }
-    // { seenStatus: "received" }
+    // { $set: { seenStatus: "received"} }
+    { seenStatus: "received" }
   );
 
 
@@ -354,8 +354,8 @@ socketIO.on("connection", async (socket) => {
 
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
-        { $set: { seenStatus: "seened"} }
-        // { seenStatus: "seened" }
+        // { $set: { seenStatus: "seened"} }
+        { seenStatus: "seened" }
       );
       
       let getAllmessage = await MessageModal.find({ roomId: data.roomId })
