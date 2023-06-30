@@ -33,6 +33,11 @@ var messageSchema = new mongoose.Schema({
       ref: "meeting",
       default: null,
     },
+    checkId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "checkin",
+      default: null,
+    },
     text: {
       type: String,
       default: "",

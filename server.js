@@ -10,6 +10,8 @@ var chat = require("./Module/chat/route/chat");
 var task = require("./Module/task/route/task");
 var templogin = require("./Module/tempLogin/route/templogin");
 var meeting = require("./Module/meeting/route/meeting");
+const check = require("./Module/checkinout/route/checkinout")
+
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
 const UserModel = require("./Model/UserModel");
@@ -17,7 +19,7 @@ const Conversation = require("./Model/Conversation");
 const MessageModal = require("./Model/MessageModal");
 const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
-const shifts = require("./Model/Shift");
+const shifts = require("./Model/ShiftModal");
 const multer = require("multer");
 // const cryptoen = require("./helper/Crypto");
 // var CryptoJS = require("crypto-js");
@@ -80,6 +82,7 @@ app.use("/chat", chat);
 app.use("/task", task);
 app.use("/templogin", templogin);
 app.use("/meetings", meeting);
+app.use("/check", check);
 
 
 app.post("/meeting", async function (req, res) {
@@ -152,7 +155,6 @@ socketIO.on("connection", async (socket) => {
 
   let updateReceived = await MessageModal.updateMany(
     { receiverId: socket.decoded.id, seenStatus: "send" },
-    // { $set: { seenStatus: "received"} }
     { seenStatus: "received" }
   );
 
@@ -227,7 +229,12 @@ socketIO.on("connection", async (socket) => {
   // Send conversation list
   socket.on("coversation-list", async (data) => {
       
-  
+    let updateReceived = await MessageModal.updateMany(
+      { receiverId: socket.decoded.id, seenStatus: "send" },
+      { seenStatus: "received" }
+    );
+
+    
     const conversations = Conversation.find({
         members: { $in: [socket.decoded.id] },
       }).sort({createdAt: -1})
@@ -338,6 +345,7 @@ socketIO.on("connection", async (socket) => {
         .populate("taskId")
         .populate("meeting")
         .populate("shiftId")
+        .populate("checkId")
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
@@ -354,13 +362,14 @@ socketIO.on("connection", async (socket) => {
 
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
-        // { $set: { seenStatus: "seened"} }
         { seenStatus: "seened" }
       );
       
       let getAllmessage = await MessageModal.find({ roomId: data.roomId })
         .populate("taskId")
         .populate("meeting")
+        .populate("shiftId")
+        .populate("checkId")
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 

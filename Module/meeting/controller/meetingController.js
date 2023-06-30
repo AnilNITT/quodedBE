@@ -320,5 +320,3 @@ exports.getmeetingDetails = async (req, res) => {
     return;
   }
 };
-
-

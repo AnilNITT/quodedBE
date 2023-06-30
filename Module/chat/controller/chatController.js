@@ -282,6 +282,7 @@ exports.getFiles = async (req, res) => {
 };
 
 
+/* 
 exports.sendTextMessage = async (req, res) => {
   const { type, text, roomId, senderId, receiverId } = req.body;
 
@@ -300,7 +301,7 @@ exports.sendTextMessage = async (req, res) => {
   });
   return;
 };
-
+*/
 
 
 exports.conversatioUnseenCount = async (req, res) => {
