@@ -5,7 +5,6 @@ var TaskModal = require("../../../Model/TaskModal");
 var CommentsModal = require("../../../Model/TaskComments");
 var { StatusCodes } = require("http-status-codes");
 
-
 exports.conversationList = async (req, res) => {
   Conversation.find(
     {
@@ -120,7 +119,6 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-
 // update the task or Task status
 exports.updateTask = async (req, res) => {
   try {
@@ -142,25 +140,25 @@ exports.updateTask = async (req, res) => {
 
     const task = await TaskModal.findById(taskId);
 
-    if(task) {
+    if (task) {
       const task = await TaskModal.findByIdAndUpdate(
         { _id: taskId },
         { status: status },
         { new: true }
       );
-  
+
       const msgs = await MessageModal.findOneAndUpdate(
         { taskId: taskId },
         { status: status },
         { new: true }
       );
-  
+
       res.status(StatusCodes.OK).send({
         status: true,
         message: "task status updated successfully",
         data: task,
       });
-      return; 
+      return;
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "fail",
@@ -177,7 +175,6 @@ exports.updateTask = async (req, res) => {
     return;
   }
 };
-
 
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
@@ -203,7 +200,6 @@ exports.uploadTaskAttachments = async (req, res) => {
   }
 };
 
-
 // get task details
 exports.getTaskDetails = async (req, res) => {
   try {
@@ -222,9 +218,8 @@ exports.getTaskDetails = async (req, res) => {
         .populate("receiverId", "ProfileIcon Status name email");
 
       if (task) {
-
-        if(new Date().getTime() > new Date(task.endTime).getTime()){
-          if(task.status != "Completed"){
+        if (new Date().getTime() > new Date(task.endTime).getTime()) {
+          if (task.status != "Completed") {
             task.status = "Overdue";
             await task.save();
           }
@@ -253,44 +248,42 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
-
 // add task comments
 exports.taskComments = async (req, res) => {
-  try{
-  let { taskId, roomId, senderId, receiverId, commentstext } = req.body;
+  try {
+    let { taskId, roomId, senderId, receiverId, commentstext } = req.body;
 
-  if (receiverId === undefined || taskId === undefined) {
+    if (receiverId === undefined || taskId === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "User Id and Task Id is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    let comments = new CommentsModal();
+    comments.senderId = senderId;
+    comments.receiverId = receiverId;
+    comments.roomId = roomId;
+    comments.commentstext = commentstext;
+    comments.taskId = taskId;
+
+    await comments.save();
+    res.status(StatusCodes.OK).send({
+      status: true,
+      message: comments,
+    });
+    return;
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      error: "error",
-      message: "User Id and Task Id is required",
       status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
     return;
   }
-
-  let comments = new CommentsModal();
-  comments.senderId = senderId;
-  comments.receiverId = receiverId;
-  comments.roomId = roomId;
-  comments.commentstext = commentstext;
-  comments.taskId = taskId;
-
-  await comments.save();
-  res.status(StatusCodes.OK).send({
-    status: true,
-    message: comments,
-  });
-  return;
-} catch (err) {
-  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-    status: "fail",
-    message: "Something went wrong",
-    error: err,
-  });
-  return;
-}
 };
-
 
 // Add Task
 exports.addTask = async (req, res) => {
@@ -436,7 +429,6 @@ exports.getAllTaskwithUserId = async (req, res) => {
   }
 };
 
-
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
   try {
@@ -474,6 +466,280 @@ exports.getAllTaskwithRoomId = async (req, res) => {
       status: "fail",
       message: "Something went wrong",
       error: err,
+    });
+    return;
+  }
+};
+
+// get All task with RoomID
+exports.getAllTasks = async (req, res) => {
+  /* 
+    const task = await TaskModal.find()
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email"); 
+    */
+
+  // to Join the two table
+  const task = await TaskModal.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "senderId",
+        foreignField: "_id",
+        as: "Sender",
+      },
+    },
+    {
+      $project: {
+        roomId: 1, // 1 means show n 0 means not show
+        senderId: 1,
+        receiverId: 1,
+        description: 1,
+        "Sender.name": 1,
+        "Sender.email": 1,
+        "Sender.Status": 1,
+        "Sender.ProfileIcon": 1,
+      },
+    },
+  ]);
+
+  if (task.length > 0) {
+    res.status(StatusCodes.OK).send({
+      status: true,
+      tasks: task,
+    });
+    return;
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "false",
+      tasks: task,
+      message: "No Task found",
+    });
+    return;
+  }
+};
+
+// All task groupby dates
+exports.getAllTask = async (req, res) => {
+  /* 
+    const task = await TaskModal.find()
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email"); 
+    */
+
+
+
+  // to group the table
+  /*   const task = await TaskModal.aggregate([
+    {$group:{
+      _id:"$endTime",
+      data: {$push:"$description"} // show onlt perticular params
+    }},
+    {$sort:{endTime:1}},
+  ])
+  // .sort({endTime:1}) */
+
+
+
+
+  /* 
+  const task = await TaskModal.aggregate([
+    {$group:{
+      _id:"$endTime",
+      data: {$push:"$$ROOT"}, // show all params
+      count:{$sum:1}
+    }},
+    {$sort:{count:-1}}, // sort by count   no of user in one group
+  ])
+  // .sort({endTime:1}) */
+
+
+
+
+  /*   // max time find data
+  const task = await TaskModal.aggregate([
+    {$group:{
+      _id:"$endTime",
+      data: {$push:"$$ROOT"}, // show all params
+      count:{$sum:1}
+    }},
+    {$sort:{count:-1}}, // sort by count   no of user in one group
+    {$group:{
+      _id:null,
+      max: {$max:"$count"}, // show max time present data
+    }},
+  ])
+  // .sort({endTime:1})
+ */
+
+
+
+
+  /*     // sum of ages of employees
+    const task = await TaskModal.aggregate([
+      {$group:{
+        _id:"$age",
+        // data: {$push:"$$ROOT"}, // show all params
+        count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      }},
+    ]) */
+
+
+
+
+  // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
+  /*   const task = await TaskModal.aggregate([
+    {
+      $unwind: "$Attachments",
+    },
+    {
+      $group: {
+        _id: null,  // _id null measns all the data become one
+        data: { $push: "$Attachments" }, // show all params
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+
+
+
+  /*   // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
+  const task = await TaskModal.aggregate([
+    {
+      $unwind: "$Attachments",
+    },
+    {
+      $group: {
+        _id: "$roomId",
+        data: { $push: "$Attachments" }, // show all params
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+
+
+
+  /*     // count the no of attachments (1st Way)
+    const task = await TaskModal.aggregate([
+      {
+        $unwind: "$Attachments",
+      },
+      {
+        $group: {
+          _id: "$roomId",
+          count:{$sum:1},// count the no of attachments
+          data: { $push: "$Attachments" }, // show all params
+          // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+        },
+      },
+    ]); */
+
+
+
+
+  /*   // count the no of attachments (2nd Way)
+  const task = await TaskModal.aggregate([
+    {
+      $group: {
+        _id: null,
+        // data: { $push: "$Attachments" }, // show all params
+        count: {$sum:{$size:"$Attachments"}}, // count the no of attachments
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+
+
+
+  // count the no of attachments (3rd Way)  if some attachments are null then
+  /*   const task = await TaskModal.aggregate([
+    {
+      $group: {
+        _id: null,
+        // data: { $push: "$Attachments" }, // show all params
+        count: { $sum: { $size: {$ifNull:["$Attachments",[]]} } }, // count the no of attachments
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+
+
+
+  /*   // All attachments
+    const task = await TaskModal.aggregate([
+      {
+        $unwind: "$Attachments",
+      },
+      {
+        $group: {
+          _id: null,
+          data: { $push: "$Attachments" }, // show all params also show duplicate
+          // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+        },
+      },
+    ]); */
+
+
+
+
+  // All attachments
+   const task = await TaskModal.aggregate([
+    {
+      $unwind: "$Attachments",
+    },
+    {
+      $group: {
+        _id: null,
+        data: { $addToSet: "$Attachments" }, // show all params but remove all duplicate
+      },
+    },
+  ]);
+
+
+
+
+  // average of score of students whose age is greater than 20
+/*   const task = await TaskModal.aggregate([
+    {
+      $group: {
+        _id: null,
+        avgScore:{
+          $avg :{
+            $filter :{
+              input:"$scores", // param name
+              as: "score",
+              cond: { $gt : ["$age", 20] }
+            }
+          }
+        }
+      },
+    },
+  ]); */
+
+
+
+  
+  // even age student
+/*   const task = await students.find({age:{$mod:[2,0]}}); */   // divied by 2 and remaining 0
+
+
+
+
+  if (task.length > 0) {
+    res.status(StatusCodes.OK).send({
+      status: true,
+      tasks: task,
+    });
+    return;
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "false",
+      tasks: task,
+      message: "No Task found",
     });
     return;
   }

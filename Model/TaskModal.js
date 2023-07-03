@@ -24,6 +24,7 @@ var taskSchema = new mongoose.Schema(
     description: {
       type: String,
       default: "",
+      // text: true
     },
     Additional_Details: {
       type: String,

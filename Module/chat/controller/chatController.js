@@ -109,6 +109,7 @@ exports.coversationStart = async (req, res) => {
       },
     },
   ]);
+
   if (conversations.length > 0) {
     await Conversation.populate(conversations, {
       path: "senderId receiverId",
@@ -314,13 +315,10 @@ exports.conversatioUnseenCount = async (req, res) => {
     .populate("receiverId", "ProfileIcon Status name email"); */
 
   if (conversation) {
+
     conversation.map(async(data) => {
 
       const senderId = data.senderId == req.user.id ? data.receiverId : data.senderId;
-      // console.log(data.senderId == req.user.id);
-      // console.log(data.senderId);
-      // console.log(data.receiverId);
-      // console.log("sender :", senderId);
 
       const message = await MessageModal.aggregate([
         {
@@ -332,13 +330,8 @@ exports.conversatioUnseenCount = async (req, res) => {
       }])
       // .sort({createdAt: -1});
 
-
       data.counts = message.filter(data => data.seenStatus === "send" || data.seenStatus === "received").length
       await data.save();
-      // console.log(message.length);
-      // console.log(message);
-      console.log("================================");
-      // return;
     });
 
     await Conversation.populate(conversation, {

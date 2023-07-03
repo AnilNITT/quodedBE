@@ -78,6 +78,10 @@ router.get('/get-task-attchments', authendiCate.authenticateToken, taskControlle
 router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
 
 
+// get task attachments
+router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAllTask);
+
+
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 
 router.post('/multiple-task-attchments', uploadMultiple.single('file'), function (req, res) { 

@@ -27,7 +27,6 @@ const crypto = require("crypto");
 const dateFormat = "%Y-%m-%d";
 
 
-
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
@@ -161,6 +160,7 @@ socketIO.on("connection", async (socket) => {
 
   console.log(`⚡: ${socket.id} user just connected!`);
 
+
   socket.on("users", async (data) => {
     // let users = await userModel.find({ currentStatus: "online" });
     // socket.emit("users", users);
@@ -225,6 +225,7 @@ socketIO.on("connection", async (socket) => {
 
     socket.emit("coversation-list", conversations);
   }); */
+
 
   // Send conversation list
   socket.on("coversation-list", async (data) => {
@@ -409,6 +410,7 @@ socketIO.on("connection", async (socket) => {
 });
 
 
+
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
@@ -434,7 +436,7 @@ const PORT = config.app.port;
 
 
 // Server running and listen the port
-http.listen(PORT, () => {
+http.listen(PORT,() => {
   console.log(`Server running on port ${PORT}`);
 });
 
@@ -448,5 +450,6 @@ function errHandler(err, req, res, next) {
     });
   }
 }
+
 
 app.use(errHandler);
