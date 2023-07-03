@@ -410,7 +410,6 @@ socketIO.on("connection", async (socket) => {
 });
 
 
-
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);

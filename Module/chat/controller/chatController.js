@@ -184,6 +184,7 @@ exports.getconversation = async (req, res) => {
   let getAllmessage = await MessageModal.find({ roomId: new ObjectId(roomId) })
     .populate("taskId")
     .populate("meeting")
+    .populate("checkId")
     .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email");
 
