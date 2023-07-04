@@ -779,3 +779,63 @@ exports.getSortedLoginUserTask = async (req, res) => {
     return;
   }
 };
+
+
+// get task sorted by Date
+exports.getSortedByMonthLoginUserTask = async (req, res) => {
+  try {
+
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%m",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: {$push:"$$ROOT"}, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+
+    if (task.length > 0) {
+
+      await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        task: task,
+      });
+      return;
+
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};

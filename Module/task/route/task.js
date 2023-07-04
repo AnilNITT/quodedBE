@@ -82,7 +82,10 @@ router.post('/task-attachments', upload.array('files'),taskController.uploadTask
 router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAllTask);
 
 // get task attachments
-router.get('/get-sorted-task', authendiCate.authenticateToken, taskController.getSortedLoginUserTask);
+router.get('/get-date-sorted-task', authendiCate.authenticateToken, taskController.getSortedLoginUserTask);
+
+// get task attachments
+router.get('/get-month-sorted-task', authendiCate.authenticateToken, taskController.getSortedByMonthLoginUserTask);
 
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 
@@ -105,5 +108,3 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
       });
     });
 });
-
-module.exports = router;
