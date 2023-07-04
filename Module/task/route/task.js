@@ -108,3 +108,5 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
       });
     });
 });
+
+module.exports = router
