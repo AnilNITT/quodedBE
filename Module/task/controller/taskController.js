@@ -560,7 +560,7 @@ exports.getAllTask = async (req, res) => {
         count: { $sum: 1 },
       },
     },
-    { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    { $sort: { _id: 1 } }, // sort by date   no of user in one group
   ]);
   // .sort({endTime:1})
 
@@ -796,7 +796,7 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
           // _id:"$endTime",
           _id: {
             $dateToString: {
-              format: "%m",
+              format: "%m-%Y",
               date: "$endTime",
             },
           },

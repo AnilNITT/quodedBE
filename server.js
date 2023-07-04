@@ -386,6 +386,7 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
+
   // Join personal chat
   socket.on("join", async (data) => {
     socket.join(data.roomId);
