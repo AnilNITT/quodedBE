@@ -6,6 +6,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
 
+
 exports.conversationList = async (req, res) => {
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
@@ -82,6 +83,7 @@ exports.conversationList = async (req, res) => {
   }
 };
 
+
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
 
@@ -143,6 +145,7 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
+
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
@@ -173,6 +176,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 exports.getconversation = async (req, res) => {
   const { roomId } = req.body;
 
@@ -195,6 +199,7 @@ exports.getconversation = async (req, res) => {
 
   res.json({ data: getAllmessage });
 };
+
 
 // send image auido vedio files in messages
 exports.sendMultimediaMessage = async (req, res) => {
@@ -231,6 +236,7 @@ exports.sendMultimediaMessage = async (req, res) => {
     return;
   }
 };
+
 
 // get single conversation all multimedia files
 exports.getFiles = async (req, res) => {

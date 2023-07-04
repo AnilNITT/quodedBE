@@ -4,6 +4,7 @@ var MessageModal = require("../../../Model/MessageModal");
 var TaskModal = require("../../../Model/TaskModal");
 var CommentsModal = require("../../../Model/TaskComments");
 var { StatusCodes } = require("http-status-codes");
+var ObjectId = require("mongoose").Types.ObjectId;
 
 exports.conversationList = async (req, res) => {
   Conversation.find(
@@ -527,8 +528,6 @@ exports.getAllTask = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status name email"); 
     */
 
-
-
   // to group the table
   /*   const task = await TaskModal.aggregate([
     {$group:{
@@ -540,21 +539,30 @@ exports.getAllTask = async (req, res) => {
   // .sort({endTime:1}) */
 
 
-
-
-  /* 
+  // get login user task group by endtime n Sorted by time
   const task = await TaskModal.aggregate([
-    {$group:{
-      _id:"$endTime",
-      data: {$push:"$$ROOT"}, // show all params
-      count:{$sum:1}
-    }},
-    {$sort:{count:-1}}, // sort by count   no of user in one group
-  ])
-  // .sort({endTime:1}) */
-
-
-
+    {
+      $match: {
+        receiverId: new ObjectId(req.user.id),
+      },
+    },
+    {
+      $group: {
+        // _id:"$endTime",
+        _id: {
+          $dateToString: {
+            format: "%d-%m-%Y",
+            date: "$endTime",
+          },
+        },
+        // _id: { $substr: ["$endTime", 0,10] },
+        data: {$push:"$$ROOT"}, // show all params
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } }, // sort by count   no of user in one group
+  ]);
+  // .sort({endTime:1})
 
   /*   // max time find data
   const task = await TaskModal.aggregate([
@@ -572,9 +580,6 @@ exports.getAllTask = async (req, res) => {
   // .sort({endTime:1})
  */
 
-
-
-
   /*     // sum of ages of employees
     const task = await TaskModal.aggregate([
       {$group:{
@@ -583,9 +588,6 @@ exports.getAllTask = async (req, res) => {
         count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
       }},
     ]) */
-
-
-
 
   // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
   /*   const task = await TaskModal.aggregate([
@@ -601,9 +603,6 @@ exports.getAllTask = async (req, res) => {
     },
   ]); */
 
-
-
-
   /*   // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
   const task = await TaskModal.aggregate([
     {
@@ -617,9 +616,6 @@ exports.getAllTask = async (req, res) => {
       },
     },
   ]); */
-
-
-
 
   /*     // count the no of attachments (1st Way)
     const task = await TaskModal.aggregate([
@@ -636,9 +632,6 @@ exports.getAllTask = async (req, res) => {
       },
     ]); */
 
-
-
-
   /*   // count the no of attachments (2nd Way)
   const task = await TaskModal.aggregate([
     {
@@ -651,9 +644,6 @@ exports.getAllTask = async (req, res) => {
     },
   ]); */
 
-
-
-
   // count the no of attachments (3rd Way)  if some attachments are null then
   /*   const task = await TaskModal.aggregate([
     {
@@ -665,9 +655,6 @@ exports.getAllTask = async (req, res) => {
       },
     },
   ]); */
-
-
-
 
   /*   // All attachments
     const task = await TaskModal.aggregate([
@@ -683,11 +670,8 @@ exports.getAllTask = async (req, res) => {
       },
     ]); */
 
-
-
-
   // All attachments
-   const task = await TaskModal.aggregate([
+  /*    const task = await TaskModal.aggregate([
     {
       $unwind: "$Attachments",
     },
@@ -697,13 +681,10 @@ exports.getAllTask = async (req, res) => {
         data: { $addToSet: "$Attachments" }, // show all params but remove all duplicate
       },
     },
-  ]);
-
-
-
+  ]); */
 
   // average of score of students whose age is greater than 20
-/*   const task = await TaskModal.aggregate([
+  /*   const task = await TaskModal.aggregate([
     {
       $group: {
         _id: null,
@@ -720,14 +701,8 @@ exports.getAllTask = async (req, res) => {
     },
   ]); */
 
-
-
-  
   // even age student
-/*   const task = await students.find({age:{$mod:[2,0]}}); */   // divied by 2 and remaining 0
-
-
-
+  /*   const task = await students.find({age:{$mod:[2,0]}}); */ // divied by 2 and remaining 0
 
   if (task.length > 0) {
     res.status(StatusCodes.OK).send({
@@ -740,6 +715,66 @@ exports.getAllTask = async (req, res) => {
       status: "false",
       tasks: task,
       message: "No Task found",
+    });
+    return;
+  }
+};
+
+
+// get task sorted by Date
+exports.getSortedLoginUserTask = async (req, res) => {
+  try {
+
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%d-%m-%Y",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: {$push:"$$ROOT"}, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+
+    if (task.length > 0) {
+
+      await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        task: task,
+      });
+      return;
+
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
     return;
   }
