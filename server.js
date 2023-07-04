@@ -122,6 +122,7 @@ app.post("/meeting", async function (req, res) {
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
   if (socket.handshake.query && socket.handshake.query.token) {
+    
     jwt.verify(
       socket.handshake.query.token,
       config.secret_key,
@@ -162,8 +163,8 @@ socketIO.on("connection", async (socket) => {
 
 
   socket.on("users", async (data) => {
-    // let users = await userModel.find({ currentStatus: "online" });
-    // socket.emit("users", users);
+  // let users = await userModel.find({ currentStatus: "online" });
+  // socket.emit("users", users);
   });
 
 

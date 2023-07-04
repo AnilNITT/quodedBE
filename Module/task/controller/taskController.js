@@ -263,6 +263,8 @@ exports.taskComments = async (req, res) => {
       return;
     }
 
+    const task = await TaskModal.findById(taskId);
+
     let comments = new CommentsModal();
     comments.senderId = senderId;
     comments.receiverId = receiverId;
@@ -271,6 +273,10 @@ exports.taskComments = async (req, res) => {
     comments.taskId = taskId;
 
     await comments.save();
+
+    task.comments.push(commentstext);
+    await task.save();
+    
     res.status(StatusCodes.OK).send({
       status: true,
       message: comments,
@@ -519,6 +525,7 @@ exports.getAllTasks = async (req, res) => {
     return;
   }
 };
+
 
 // All task groupby dates
 exports.getAllTask = async (req, res) => {
@@ -823,12 +830,14 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
       return;
 
     } else {
+
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
         tasks: task,
         message: "No Task found",
       });
       return;
+      
     }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
