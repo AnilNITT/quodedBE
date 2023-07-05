@@ -77,6 +77,8 @@ router.get('/get-task-attchments', authendiCate.authenticateToken, taskControlle
 // upload task attachments
 router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
 
+// upload task attachments
+router.post('/add-task-attachments', upload.array('files'),taskController.updateTaskAttachments)
 
 // get task attachments
 router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAllTask);
@@ -108,6 +110,5 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
       });
     });
 });
-
 
 module.exports = router

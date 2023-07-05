@@ -6,6 +6,7 @@ var CommentsModal = require("../../../Model/TaskComments");
 var { StatusCodes } = require("http-status-codes");
 var ObjectId = require("mongoose").Types.ObjectId;
 
+
 exports.conversationList = async (req, res) => {
   Conversation.find(
     {
@@ -30,6 +31,7 @@ exports.conversationList = async (req, res) => {
     .populate("senderId", "ProfileIcon Status firstname lastname email")
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
 };
+
 
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
@@ -67,6 +69,7 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
+
 exports.getTaskAttchments = async (req, res) => {
   let { taskId } = req.query;
   if (taskId === undefined) {
@@ -87,6 +90,7 @@ exports.getTaskAttchments = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
+
 
 exports.acceptTask = async (req, res) => {
   try {
@@ -119,6 +123,7 @@ exports.acceptTask = async (req, res) => {
     return;
   }
 };
+
 
 // update the task or Task status
 exports.updateTask = async (req, res) => {
@@ -177,6 +182,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
   try {
@@ -200,6 +206,7 @@ exports.uploadTaskAttachments = async (req, res) => {
     return;
   }
 };
+
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
@@ -249,6 +256,7 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
+
 // add task comments
 exports.taskComments = async (req, res) => {
   try {
@@ -276,7 +284,7 @@ exports.taskComments = async (req, res) => {
 
     task.comments.push(commentstext);
     await task.save();
-    
+
     res.status(StatusCodes.OK).send({
       status: true,
       message: comments,
@@ -291,6 +299,7 @@ exports.taskComments = async (req, res) => {
     return;
   }
 };
+
 
 // Add Task
 exports.addTask = async (req, res) => {
@@ -310,6 +319,7 @@ exports.addTask = async (req, res) => {
     let lengths = roomId.length;
 
     roomId.forEach(async (rooms, index) => {
+
       receiverId.forEach(async (receivers, rindex) => {
         if (index === rindex) {
           const msgdata = {
@@ -364,6 +374,7 @@ exports.addTask = async (req, res) => {
   }
 };
 
+
 // get Task Comments
 exports.getTaskComments = async (req, res) => {
   try {
@@ -405,6 +416,7 @@ exports.getTaskComments = async (req, res) => {
   }
 };
 
+
 // get Perticular User Assign Task
 exports.getAllTaskwithUserId = async (req, res) => {
   try {
@@ -435,6 +447,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
     return;
   }
 };
+
 
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
@@ -477,6 +490,7 @@ exports.getAllTaskwithRoomId = async (req, res) => {
     return;
   }
 };
+
 
 // get All task with RoomID
 exports.getAllTasks = async (req, res) => {
@@ -839,6 +853,58 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
       return;
       
     }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+
+// upload Task Attachments
+exports.updateTaskAttachments = async (req, res) => {
+
+  try {
+    const {taskId} = req.body;
+
+    if (taskId === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "Task Id is required",
+        status: "fail",
+      });
+      return;
+    }
+
+  const task = await TaskModal.findById(taskId)
+    .populate("senderId", "ProfileIcon Status name email")
+    .populate("receiverId", "ProfileIcon Status name email");
+
+  if (task) {
+
+    if (req.files) {
+      for (image of req.files) {
+        task.Attachments.push(image.filename);
+      }
+    }
+
+    await task.save();
+
+    res.status(StatusCodes.OK).send({
+      status: true,
+      taskDetails: task,
+    });
+    return;
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "false",
+      message: "No Task found",
+    });
+    return;
+  }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
