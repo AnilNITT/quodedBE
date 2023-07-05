@@ -40,4 +40,5 @@ var shiftSchema = new mongoose.Schema({
 }
 );
 
+
 module.exports = mongoose.model('shifts', shiftSchema, "shifts");
