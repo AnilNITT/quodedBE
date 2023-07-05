@@ -420,9 +420,34 @@ exports.getTaskComments = async (req, res) => {
 // get Perticular User Assign Task
 exports.getAllTaskwithUserId = async (req, res) => {
   try {
-    const task = await TaskModal.find({ receiverId: req.user.id })
+
+    /* const task = await TaskModal.find({ receiverId: req.user.id })
       .populate("senderId", "ProfileIcon Status name email")
       .populate("receiverId", "ProfileIcon Status name email");
+    */
+      const task = await TaskModal.aggregate([
+        {
+          $match: {
+            receiverId: new ObjectId(req.user.id),
+          },
+        },
+        {
+          $group: {
+            _id:"$status",
+            // _id: {
+            //   $dateToString: {
+            //     format: "%d-%m-%Y",
+            //     date: "$endTime",
+            //   },
+            // },
+            // _id: { $substr: ["$endTime", 0,10] },
+            data: {$push:"$$ROOT"}, // show all params
+            // count: { $sum: 1 },
+          },
+        },
+        // { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
 
     if (task.length > 0) {
       res.status(StatusCodes.OK).send({
