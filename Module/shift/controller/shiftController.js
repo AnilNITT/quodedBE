@@ -75,4 +75,51 @@ exports.addShift = async (req, res) => {
       return;
     }
 };
-  
+
+
+// update the Shift status
+exports.updateShiftStatus = async (req, res) => {
+  try {
+    let { shiftId, status } = req.body;
+
+  if(shiftId === undefined) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        message: "shift Id is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    const shifts = await ShiftModal.findById(shiftId);
+
+    if (shifts) {
+
+      const shift = await ShiftModal.findByIdAndUpdate(
+        { _id: shiftId },
+        { status: status },
+        { new: true }
+      );
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        message: "Shift status updated successfully",
+        data: shift,
+      });
+      return;
+
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Shift not found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
