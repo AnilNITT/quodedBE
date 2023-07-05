@@ -78,7 +78,7 @@ router.get('/get-task-attchments', authendiCate.authenticateToken, taskControlle
 router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
 
 // upload task attachments
-router.post('/add-task-attachments', upload.array('files'),taskController.updateTaskAttachments)
+router.post('/update-task-attachments', upload.array('files'),taskController.updateTaskAttachments)
 
 // get task attachments
 router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAllTask);
