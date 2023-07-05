@@ -463,17 +463,49 @@ exports.getAllTaskwithRoomId = async (req, res) => {
       return;
     }
 
-    const task = await TaskModal.find({ roomId: roomId })
-      .populate("senderId", "ProfileIcon Status name email")
-      .populate("receiverId", "ProfileIcon Status name email");
+    // const task = await TaskModal.find({ roomId: roomId })
+    //   .populate("senderId", "ProfileIcon Status name email")
+    //   .populate("receiverId", "ProfileIcon Status name email");
+
+    const task = await TaskModal.aggregate([
+        {
+          $match: {
+            roomId: new ObjectId(roomId),
+          },
+        },
+        {
+          $group: {
+            _id:"$status",
+            // _id: {
+            //   $dateToString: {
+            //     format: "%d-%m-%Y",
+            //     date: "$endTime",
+            //   },
+            // },
+            // _id: { $substr: ["$endTime", 0,10] },
+            data: {$push:"$$ROOT"}, // show all params
+            // count: { $sum: 1 },
+          },
+        },
+        // { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
 
     if (task.length > 0) {
+
+      
+      await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
       res.status(StatusCodes.OK).send({
         status: true,
         tasks: task,
       });
       return;
     } else {
+
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
         tasks: task,
