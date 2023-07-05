@@ -3,12 +3,15 @@ var MessageModal = require("../../../Model/MessageModal");
 var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 
+
 // Add Meeting
 exports.addShift = async (req, res) => {
     
     try {
-      const { name, roomId, type, senderId, receiverId, location, description, startTime, endTime } = req.body;
+      // const { name, roomId, type, senderId, receiverId, description, startTime, endTime } = req.body;
+      const { roomId, type, senderId, receiverId, description, startTime, endTime } = req.body;
   
+
       let counts = 0;
       let lengths = roomId.length;
   
@@ -28,26 +31,19 @@ exports.addShift = async (req, res) => {
             let message = await MessageModal.create(msgdata);
   
             const data = {
-              name: name,
+              // name: name,
               roomId: rooms,
               senderId: senderId,
               receiverId: receivers,
-              location:location,
               description: description,
               startTime: startTime,
               endTime: endTime,
             };
   
-            let meeting = await Meeting.create(data);
-            await meeting.save();
-            
-          /* 
-          if (attachments) {
-              // Task.Attachments.push(req.file ? req.file.filename : "");
-              Task.Attachments.push(...attachments);
-          } */
+            let shift = await ShiftModal.create(data);
+            await shift.save();
   
-            message.meeting = meeting._id;
+            message.shiftId = shift._id;
             await message.save();
   
             counts++;
@@ -55,7 +51,7 @@ exports.addShift = async (req, res) => {
             if (lengths === counts) {
               res.status(StatusCodes.OK).send({
                 status: true,
-                message: "Meeting added successfully",
+                message: "Shift added successfully",
               });
               return;
             }
@@ -78,5 +74,5 @@ exports.addShift = async (req, res) => {
       });
       return;
     }
-  };
+};
   

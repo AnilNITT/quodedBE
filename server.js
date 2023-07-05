@@ -11,7 +11,7 @@ var task = require("./Module/task/route/task");
 var templogin = require("./Module/tempLogin/route/templogin");
 var meeting = require("./Module/meeting/route/meeting");
 const check = require("./Module/checkinout/route/checkinout")
-
+const shift = require("./Module/shift/route/shift")
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
 const UserModel = require("./Model/UserModel");
@@ -82,6 +82,7 @@ app.use("/task", task);
 app.use("/templogin", templogin);
 app.use("/meetings", meeting);
 app.use("/check", check);
+app.use("/shift", shift);
 
 
 app.post("/meeting", async function (req, res) {

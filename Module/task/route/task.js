@@ -59,6 +59,9 @@ router.get('/get-task-details/:taskId', authendiCate.authenticateToken, taskCont
 // get single chat all task
 router.get('/chat-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithRoomId);
 
+// get single chat all files
+router.get('/chat-all-files', authendiCate.authenticateToken, taskController.getChatAllFiles);
+
 // get Login user All tasks
 router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 
@@ -82,6 +85,7 @@ router.post('/update-task-attachments', upload.array('files'),taskController.upd
 
 // get task attachments
 router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAllTask);
+
 
 // get task attachments
 router.get('/get-date-sorted-task', authendiCate.authenticateToken, taskController.getSortedLoginUserTask);

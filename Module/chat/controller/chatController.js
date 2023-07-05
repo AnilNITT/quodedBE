@@ -189,6 +189,7 @@ exports.getconversation = async (req, res) => {
     .populate("taskId")
     .populate("meeting")
     .populate("checkId")
+    .populate("shiftId")
     .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email");
 

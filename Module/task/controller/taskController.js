@@ -971,3 +971,66 @@ exports.updateTaskAttachments = async (req, res) => {
     return;
   }
 };
+
+
+// get All Files of Chat with RoomID
+exports.getChatAllFiles = async (req, res) => {
+  try {
+    let { roomId } = req.query;
+
+    if (roomId === undefined || roomId.length < 24) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: "error",
+        message: "Room Id is required",
+        status: "fail",
+      });
+      return;
+    }
+
+    // const task = await TaskModal.find({ roomId: roomId })
+    //   .populate("senderId", "ProfileIcon Status name email")
+    //   .populate("receiverId", "ProfileIcon Status name email");
+
+    const files  = await MessageModal.aggregate([
+      {
+        $unwind: "$Attachments",
+      },
+      {
+        $match: { 
+          $and:[
+            { roomId: new ObjectId(roomId) },
+            { type:"media"},
+          ]}
+      },
+      {
+        $group: {
+          _id:"$type",
+          data: {$push:"$Attachments"}, // show all params
+        },
+      },
+    ]);
+
+    if (files.length > 0) {
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        files: files,
+      });
+      return;
+    } else {
+
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        message: "No files found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
