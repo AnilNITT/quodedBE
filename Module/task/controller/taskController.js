@@ -6,7 +6,6 @@ var CommentsModal = require("../../../Model/TaskComments");
 var { StatusCodes } = require("http-status-codes");
 var ObjectId = require("mongoose").Types.ObjectId;
 
-
 exports.conversationList = async (req, res) => {
   Conversation.find(
     {
@@ -31,7 +30,6 @@ exports.conversationList = async (req, res) => {
     .populate("senderId", "ProfileIcon Status firstname lastname email")
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
 };
-
 
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
@@ -69,7 +67,6 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-
 exports.getTaskAttchments = async (req, res) => {
   let { taskId } = req.query;
   if (taskId === undefined) {
@@ -90,7 +87,6 @@ exports.getTaskAttchments = async (req, res) => {
       .populate("receiverId", "ProfileIcon Status firstname lastname email");
   }
 };
-
 
 exports.acceptTask = async (req, res) => {
   try {
@@ -123,7 +119,6 @@ exports.acceptTask = async (req, res) => {
     return;
   }
 };
-
 
 // update the task or Task status
 exports.updateTask = async (req, res) => {
@@ -182,7 +177,6 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
   try {
@@ -206,7 +200,6 @@ exports.uploadTaskAttachments = async (req, res) => {
     return;
   }
 };
-
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
@@ -256,7 +249,6 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
-
 // add task comments
 exports.taskComments = async (req, res) => {
   try {
@@ -300,7 +292,6 @@ exports.taskComments = async (req, res) => {
   }
 };
 
-
 // Add Task
 exports.addTask = async (req, res) => {
   try {
@@ -319,7 +310,6 @@ exports.addTask = async (req, res) => {
     let lengths = roomId.length;
 
     roomId.forEach(async (rooms, index) => {
-
       receiverId.forEach(async (receivers, rindex) => {
         if (index === rindex) {
           const msgdata = {
@@ -374,7 +364,6 @@ exports.addTask = async (req, res) => {
   }
 };
 
-
 // get Task Comments
 exports.getTaskComments = async (req, res) => {
   try {
@@ -416,71 +405,6 @@ exports.getTaskComments = async (req, res) => {
   }
 };
 
-
-// get Perticular User Assign Task
-exports.getAllTaskwithUserId = async (req, res) => {
-  try {
-
-    /* const task = await TaskModal.find({ receiverId: req.user.id })
-      .populate("senderId", "ProfileIcon Status name email")
-      .populate("receiverId", "ProfileIcon Status name email");
-    */
-      const task = await TaskModal.aggregate([
-        {
-          $match: {
-            receiverId: new ObjectId(req.user.id),
-          },
-        },
-        {
-          $group: {
-            _id:"$status",
-            // _id: {
-            //   $dateToString: {
-            //     format: "%d-%m-%Y",
-            //     date: "$endTime",
-            //   },
-            // },
-            // _id: { $substr: ["$endTime", 0,10] },
-            data: {$push:"$$ROOT"}, // show all params
-            count: { $sum: 1 },
-          },
-        },
-        // { $sort: { _id: 1 } }, // sort by count   no of user in one group
-    ]);
-
-
-    if (task.length > 0) {
-
-      await TaskModal.populate(task[0].data ,{
-        path: "senderId receiverId",
-        select: ["ProfileIcon", "Status", "email", "name"],
-      });
-
-
-      res.status(StatusCodes.OK).send({
-        status: true,
-        tasks: task,
-      });
-      return;
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-        status: "false",
-        tasks: task,
-        message: "No Task found",
-      });
-      return;
-    }
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
-};
-
-
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
   try {
@@ -500,33 +424,30 @@ exports.getAllTaskwithRoomId = async (req, res) => {
     //   .populate("receiverId", "ProfileIcon Status name email");
 
     const task = await TaskModal.aggregate([
-        {
-          $match: {
-            roomId: new ObjectId(roomId),
-          },
+      {
+        $match: {
+          roomId: new ObjectId(roomId),
         },
-        {
-          $group: {
-            _id:"$status",
-            // _id: {
-            //   $dateToString: {
-            //     format: "%d-%m-%Y",
-            //     date: "$endTime",
-            //   },
-            // },
-            // _id: { $substr: ["$endTime", 0,10] },
-            data: {$push:"$$ROOT"}, // show all params
-            // count: { $sum: 1 },
-          },
+      },
+      {
+        $group: {
+          _id: "$status",
+          // _id: {
+          //   $dateToString: {
+          //     format: "%d-%m-%Y",
+          //     date: "$endTime",
+          //   },
+          // },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          // count: { $sum: 1 },
         },
-        // { $sort: { _id: 1 } }, // sort by count   no of user in one group
+      },
+      // { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
-
     if (task.length > 0) {
-
-      
-      await TaskModal.populate(task[0].data ,{
+      await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
       });
@@ -537,7 +458,6 @@ exports.getAllTaskwithRoomId = async (req, res) => {
       });
       return;
     } else {
-
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
         tasks: task,
@@ -554,7 +474,6 @@ exports.getAllTaskwithRoomId = async (req, res) => {
     return;
   }
 };
-
 
 // get All task with RoomID
 exports.getAllTasks = async (req, res) => {
@@ -604,7 +523,6 @@ exports.getAllTasks = async (req, res) => {
   }
 };
 
-
 // All task groupby dates
 exports.getAllTask = async (req, res) => {
   /* 
@@ -623,7 +541,6 @@ exports.getAllTask = async (req, res) => {
   ])
   // .sort({endTime:1}) */
 
-
   // get login user task group by endtime n Sorted by time
   const task = await TaskModal.aggregate([
     {
@@ -641,7 +558,7 @@ exports.getAllTask = async (req, res) => {
           },
         },
         // _id: { $substr: ["$endTime", 0,10] },
-        data: {$push:"$$ROOT"}, // show all params
+        data: { $push: "$$ROOT" }, // show all params
         count: { $sum: 1 },
       },
     },
@@ -805,11 +722,9 @@ exports.getAllTask = async (req, res) => {
   }
 };
 
-
 // get task sorted by Date
 exports.getSortedLoginUserTask = async (req, res) => {
   try {
-
     const task = await TaskModal.aggregate([
       {
         $match: {
@@ -826,17 +741,15 @@ exports.getSortedLoginUserTask = async (req, res) => {
             },
           },
           // _id: { $substr: ["$endTime", 0,10] },
-          data: {$push:"$$ROOT"}, // show all params
+          data: { $push: "$$ROOT" }, // show all params
           count: { $sum: 1 },
         },
       },
       { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
-
     if (task.length > 0) {
-
-      await TaskModal.populate(task[0].data ,{
+      await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
       });
@@ -846,7 +759,6 @@ exports.getSortedLoginUserTask = async (req, res) => {
         task: task,
       });
       return;
-
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
@@ -865,11 +777,9 @@ exports.getSortedLoginUserTask = async (req, res) => {
   }
 };
 
-
 // get task sorted by Date
 exports.getSortedByMonthLoginUserTask = async (req, res) => {
   try {
-
     const task = await TaskModal.aggregate([
       {
         $match: {
@@ -886,17 +796,15 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
             },
           },
           // _id: { $substr: ["$endTime", 0,10] },
-          data: {$push:"$$ROOT"}, // show all params
+          data: { $push: "$$ROOT" }, // show all params
           count: { $sum: 1 },
         },
       },
       { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
-
     if (task.length > 0) {
-
-      await TaskModal.populate(task[0].data ,{
+      await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
       });
@@ -906,16 +814,13 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
         task: task,
       });
       return;
-
     } else {
-
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
         tasks: task,
         message: "No Task found",
       });
       return;
-      
     }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -927,12 +832,10 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
   }
 };
 
-
 // upload Task Attachments
 exports.updateTaskAttachments = async (req, res) => {
-
   try {
-    const {taskId} = req.body;
+    const { taskId } = req.body;
 
     if (taskId === undefined) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -943,32 +846,31 @@ exports.updateTaskAttachments = async (req, res) => {
       return;
     }
 
-  const task = await TaskModal.findById(taskId)
-    .populate("senderId", "ProfileIcon Status name email")
-    .populate("receiverId", "ProfileIcon Status name email");
+    const task = await TaskModal.findById(taskId)
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
 
-  if (task) {
-
-    if (req.files) {
-      for (image of req.files) {
-        task.Attachments.push(image.filename);
+    if (task) {
+      if (req.files) {
+        for (image of req.files) {
+          task.Attachments.push(image.filename);
+        }
       }
+
+      await task.save();
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        taskDetails: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        message: "No Task found",
+      });
+      return;
     }
-
-    await task.save();
-
-    res.status(StatusCodes.OK).send({
-      status: true,
-      taskDetails: task,
-    });
-    return;
-  } else {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "false",
-      message: "No Task found",
-    });
-    return;
-  }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -978,7 +880,6 @@ exports.updateTaskAttachments = async (req, res) => {
     return;
   }
 };
-
 
 // get All Files of Chat with RoomID
 exports.getChatAllFiles = async (req, res) => {
@@ -998,34 +899,30 @@ exports.getChatAllFiles = async (req, res) => {
     //   .populate("senderId", "ProfileIcon Status name email")
     //   .populate("receiverId", "ProfileIcon Status name email");
 
-    const files  = await MessageModal.aggregate([
+    const files = await MessageModal.aggregate([
       {
         $unwind: "$Attachments",
       },
       {
-        $match: { 
-          $and:[
-            { roomId: new ObjectId(roomId) },
-            { type:"media"},
-          ]}
+        $match: {
+          $and: [{ roomId: new ObjectId(roomId) }, { type: "media" }],
+        },
       },
       {
         $group: {
-          _id:"$type",
-          data: {$push:"$Attachments"}, // show all params
+          _id: "$type",
+          data: { $push: "$Attachments" }, // show all params
         },
       },
     ]);
 
     if (files.length > 0) {
-
       res.status(StatusCodes.OK).send({
         status: true,
         files: files,
       });
       return;
     } else {
-
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
         message: "No files found",
@@ -1042,42 +939,142 @@ exports.getChatAllFiles = async (req, res) => {
   }
 };
 
-
 // get Perticular User Assign Task
-exports.getAllTaskwithUserIds = async (req, res) => {
+exports.getAllTaskwithUserId = async (req, res) => {
   try {
-
     /* const task = await TaskModal.find({ receiverId: req.user.id })
       .populate("senderId", "ProfileIcon Status name email")
       .populate("receiverId", "ProfileIcon Status name email");
     */
-      const task = await TaskModal.aggregate([
-        {
-          $match: {
-            senderId: new ObjectId(req.user.id),
-          },
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
         },
-        {
-          $group: {
-            _id:"$status",
-            // _id: {
-            //   $dateToString: {
-            //     format: "%d-%m-%Y",
-            //     date: "$endTime",
-            //   },
-            // },
-            // _id: { $substr: ["$endTime", 0,10] },
-            data: {$push:"$$ROOT"}, // show all params
-            count: { $sum: 1 },
-          },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
         },
-        // { $sort: { _id: 1 } }, // sort by count   no of user in one group
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          description: 1,
+          comments: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.email": 1,
+          "Sender.Status": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.email": 1,
+          "Receiver.Status": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          // _id: {
+          //   $dateToString: {
+          //     format: "%d-%m-%Y",
+          //     date: "$endTime",
+          //   },
+          // },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      // { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
+    if (task.length > 0) {
+      /*       await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      }); */
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+// get Perticular User Assign Task
+exports.getAllTaskwithUserIds = async (req, res) => {
+  try {
+    /* const task = await TaskModal.find({ receiverId: req.user.id })
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
+    */
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          senderId: new ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          // _id: {
+          //   $dateToString: {
+          //     format: "%d-%m-%Y",
+          //     date: "$endTime",
+          //   },
+          // },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      // { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
 
     if (task.length > 0) {
-
-      await TaskModal.populate(task[0].data ,{
+      await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
       });
