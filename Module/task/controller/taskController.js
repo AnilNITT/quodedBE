@@ -456,7 +456,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
         select: ["ProfileIcon", "Status", "email", "name"],
       });
 
-      
+
       res.status(StatusCodes.OK).send({
         status: true,
         tasks: task,
