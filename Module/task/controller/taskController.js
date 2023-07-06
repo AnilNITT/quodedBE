@@ -450,6 +450,13 @@ exports.getAllTaskwithUserId = async (req, res) => {
 
 
     if (task.length > 0) {
+
+      await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      
       res.status(StatusCodes.OK).send({
         status: true,
         tasks: task,
@@ -658,7 +665,7 @@ exports.getAllTask = async (req, res) => {
   // .sort({endTime:1})
  */
 
-  /*     // sum of ages of employees
+  /* // sum of ages of employees
     const task = await TaskModal.aggregate([
       {$group:{
         _id:"$age",
@@ -1069,6 +1076,12 @@ exports.getAllTaskwithUserIds = async (req, res) => {
 
 
     if (task.length > 0) {
+
+      await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
       res.status(StatusCodes.OK).send({
         status: true,
         tasks: task,
