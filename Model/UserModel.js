@@ -16,7 +16,6 @@ var UserSchema = new mongoose.Schema(
     job_title :{
       type: String, default: ""
     },
-
     // abc:[ { type: String, default :""}],
     // abc:{ type: [{type:String, default :""}]},
     // abc :{ type : Array , "default" : [] },
@@ -31,7 +30,6 @@ var UserSchema = new mongoose.Schema(
 
 
 // Encrypt the password and save to the password with bcrypt.
-
 UserSchema.pre("save", function (next) {
   var user = this;
   if (!user.isModified("Password")) return next();
@@ -57,5 +55,6 @@ UserSchema.methods.comparePassword = function (candidatePassword, cb) {
     cb(null, isMatch);
   });
 };
+
 
 module.exports = mongoose.model("users", UserSchema, "users");

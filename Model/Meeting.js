@@ -1,52 +1,57 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
 // Define the user collection schema
-var meetingSchema = new mongoose.Schema({
-    name :{
-        type : String,
+var meetingSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
     },
-    roomId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'conversations' , 
-        default: null 
+    roomId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "conversations",
+      default: null,
     },
-    senderId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'users' ,
-        default : null
+    senderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      default: null,
     },
-    receiverId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'users', 
-        default : null 
+    receiverId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      default: null,
     },
     location: {
-        type: String
+      type: String,
     },
-    link: {
-        type: String
+    repeat: {
+      type: String,
     },
-    description: { 
-        type: String, 
-        default: "" 
+    dates: [
+      {
+        startTime: {
+          type: Date,
+          default: new Date(),
+        },
+        endTime: {
+          type: Date,
+          default: new Date(),
+        },
+      },
+    ],
+    description: {
+      type: String,
+      default: "",
     },
-    startTime : {
-        type :Date, 
-        default : new Date()
+    status: {
+      type: String,
+      enum: ["Pending", "RSVP", "Revise Date", "Deny Meeting"],
+      default: "Pending",
     },
-    endTime: { 
-        type: Date, 
-        default: new Date() 
-    },
-    status: { 
-        type: String, 
-        enum: ['Pending', 'RSVP', 'Revise Date', 'Deny Meeting'], 
-        default: "Pending" 
-    }
-},
-{ 
-    timestamps: true 
-}
+  },
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('meeting', meetingSchema, "meeting");
+module.exports = mongoose.model("meeting", meetingSchema, "meeting");
