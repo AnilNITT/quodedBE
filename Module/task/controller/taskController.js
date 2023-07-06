@@ -442,7 +442,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
             // },
             // _id: { $substr: ["$endTime", 0,10] },
             data: {$push:"$$ROOT"}, // show all params
-            // count: { $sum: 1 },
+            count: { $sum: 1 },
           },
         },
         // { $sort: { _id: 1 } }, // sort by count   no of user in one group
@@ -1061,7 +1061,7 @@ exports.getAllTaskwithUserIds = async (req, res) => {
             // },
             // _id: { $substr: ["$endTime", 0,10] },
             data: {$push:"$$ROOT"}, // show all params
-            // count: { $sum: 1 },
+            count: { $sum: 1 },
           },
         },
         // { $sort: { _id: 1 } }, // sort by count   no of user in one group
