@@ -254,7 +254,7 @@ exports.addMeeting = async (req, res) => {
 
     let counts = 0;
     let lengths = roomId.length;
-    const DateData = [];
+    // const DateData = [];
 
     if(lengths > 0) {
     roomId.forEach(async (rooms, index) => {
@@ -269,15 +269,15 @@ exports.addMeeting = async (req, res) => {
             receiverId: receivers,
           };
 
-          // let message = await MessageModal.create(msgdata);
+          let message = await MessageModal.create(msgdata);
 
-          
           const data = {
             name: name,
             roomId: rooms,
             senderId: senderId,
             receiverId: receivers,
             location:location,
+            repeat:repeat,
             description: description,
             startTime: startTime,
             endTime: endTime,
@@ -287,8 +287,8 @@ exports.addMeeting = async (req, res) => {
           await meeting.save();
 
 
-          // message.meeting = meeting._id;
-          // await message.save();
+          message.meeting = meeting._id;
+          await message.save();
 
           counts++;
 
