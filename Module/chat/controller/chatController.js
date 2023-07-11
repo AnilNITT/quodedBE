@@ -318,7 +318,8 @@ exports.conversatioUnseenCount = async (req, res) => {
   let conversation = await Conversation.find({
     members: { $in: [req.user.id] },
   })
-  .sort({createdAt: -1})
+  .sort({updatedAt: -1})
+  // .sort({createdAt: -1})
   /* .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email"); */
 
