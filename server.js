@@ -240,7 +240,9 @@ socketIO.on("connection", async (socket) => {
     
     const conversations = Conversation.find({
         members: { $in: [socket.decoded.id] },
-      }).sort({createdAt: -1})
+      })
+      .sort({updatedAt: -1})
+      // .sort({createdAt: -1})
        
   
       if (conversations.length > 0) {
