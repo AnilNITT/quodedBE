@@ -314,14 +314,24 @@ exports.sendTextMessage = async (req, res) => {
 
 
 exports.conversatioUnseenCount = async (req, res) => {
+  try{
 
+    let updateReceived = await MessageModal.updateMany(
+      { receiverId: req.user.id, seenStatus: "send" },
+      { seenStatus: "received" }
+    );
+  
   let conversation = await Conversation.find({
     members: { $in: [req.user.id] },
   })
-  .sort({updatedAt: -1})
   // .sort({createdAt: -1})
-  /* .populate("senderId", "ProfileIcon Status name email")
-    .populate("receiverId", "ProfileIcon Status name email"); */
+  .sort({updatedAt: -1})
+  
+  /* 
+  .populate("senderId", "ProfileIcon Status name email")
+  .populate("receiverId", "ProfileIcon Status name email"); 
+  */
+
 
   if (conversation) {
 
@@ -343,16 +353,18 @@ exports.conversatioUnseenCount = async (req, res) => {
       await data.save();
     });
 
+
     await Conversation.populate(conversation, {
       path: "senderId receiverId",
       select: ["ProfileIcon", "Status", "email", "name"],
-    });
-
+    })
+    
     res.json({
       status: true,
       data: conversation,
       message: "Founded results",
     });
+
     /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
       "roomId"
     ); */
@@ -412,4 +424,13 @@ exports.conversatioUnseenCount = async (req, res) => {
       message: "Founded results",
     });
   }
+
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
