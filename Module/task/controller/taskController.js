@@ -5,6 +5,9 @@ var TaskModal = require("../../../Model/TaskModal");
 var CommentsModal = require("../../../Model/TaskComments");
 var { StatusCodes } = require("http-status-codes");
 var ObjectId = require("mongoose").Types.ObjectId;
+// var fs = require("fs-extra");
+// var path = require("path");
+
 
 exports.conversationList = async (req, res) => {
   Conversation.find(
@@ -120,6 +123,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 // update the task or Task status
 exports.updateTask = async (req, res) => {
   try {
@@ -177,29 +181,50 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
   try {
     const imagespath = [];
+
     if (req.files) {
       for (image of req.files) {
+        
+
         imagespath.push(image.filename);
+
+        /* const folderPath = path.join(path.resolve(process.cwd()), "/uploads/task/");
+        let filePath = path.join(folderPath, image.filename);
+        setTimeout(() => {
+          // Delete the file
+          fs.unlink(filePath, (err) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log(`Deleted file: ${filePath}`);
+          });
+        }, 7 * 24 * 60 * 60 * 1000); */
+
+
       }
     }
+
     res.status(StatusCodes.OK).send({
       status: true,
       data: imagespath,
       message: "task attachments uploaded successfully",
     });
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
+    } catch (err) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Something went wrong",
+        error: err,
+      });
+      return;
+    }
 };
+
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
@@ -249,6 +274,7 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
+
 // add task comments
 exports.taskComments = async (req, res) => {
   try {
@@ -291,6 +317,7 @@ exports.taskComments = async (req, res) => {
     return;
   }
 };
+
 
 // Add Task
 exports.addTask = async (req, res) => {
@@ -364,6 +391,7 @@ exports.addTask = async (req, res) => {
   }
 };
 
+
 // get Task Comments
 exports.getTaskComments = async (req, res) => {
   try {
@@ -404,6 +432,7 @@ exports.getTaskComments = async (req, res) => {
     return;
   }
 };
+
 
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
@@ -475,6 +504,7 @@ exports.getAllTaskwithRoomId = async (req, res) => {
   }
 };
 
+
 // get All task with RoomID
 exports.getAllTasks = async (req, res) => {
   /* 
@@ -522,6 +552,7 @@ exports.getAllTasks = async (req, res) => {
     return;
   }
 };
+
 
 // All task groupby dates
 exports.getAllTask = async (req, res) => {
@@ -722,9 +753,11 @@ exports.getAllTask = async (req, res) => {
   }
 };
 
+
 // get task sorted by Date
 exports.getSortedLoginUserTask = async (req, res) => {
   try {
+    
     const task = await TaskModal.aggregate([
       {
         $match: {
@@ -745,7 +778,7 @@ exports.getSortedLoginUserTask = async (req, res) => {
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+      { $sort: { _id: -1 } }, // sort by count   no of user in one group
     ]);
 
     if (task.length > 0) {
@@ -776,6 +809,7 @@ exports.getSortedLoginUserTask = async (req, res) => {
     return;
   }
 };
+
 
 // get task sorted by Date
 exports.getSortedByMonthLoginUserTask = async (req, res) => {
@@ -832,6 +866,7 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
   }
 };
 
+
 // upload Task Attachments
 exports.updateTaskAttachments = async (req, res) => {
   try {
@@ -880,6 +915,7 @@ exports.updateTaskAttachments = async (req, res) => {
     return;
   }
 };
+
 
 // get All Files of Chat with RoomID
 exports.getChatAllFiles = async (req, res) => {
@@ -938,6 +974,7 @@ exports.getChatAllFiles = async (req, res) => {
     return;
   }
 };
+
 
 // get Perticular User Assign Task
 exports.getAllTaskwithUserId = async (req, res) => {
@@ -1043,6 +1080,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
   }
 };
 
+
 // get Perticular User Assign Task
 exports.getAllTaskwithUserIds = async (req, res) => {
   try {
@@ -1119,8 +1157,7 @@ exports.getAllTaskwithUserIds = async (req, res) => {
     ]);
 
     if (task.length > 0) {
-      
-/*       await TaskModal.populate(task[0].data, {
+      /*       await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
       }); */

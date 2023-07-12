@@ -6,6 +6,10 @@ var sendEmail = require("../../../helper/sendEmail");
 // var jwt_decode = require("jwt-decode");
 // var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
+const fs = require("fs");
+var path = require("path");
+var config = require("../../../helper/config");
+
 
 // password and confirm password validation here
 function comparePassword(password, cpassword) {
@@ -15,6 +19,7 @@ function comparePassword(password, cpassword) {
     return false;
   }
 }
+
 
 // Save the user data in mongodb with this function
 async function registerUser(req, res) {
@@ -51,6 +56,7 @@ async function registerUser(req, res) {
     console.log(err);
   }
 }
+
 
 // User register with this function
 /* exports.register = async (req, res) => {
@@ -91,7 +97,8 @@ async function registerUser(req, res) {
     return;
   }
 };
- */
+*/
+
 
 // Search the user
 exports.findUser = (req, res) => {
@@ -135,6 +142,7 @@ exports.findUser = (req, res) => {
   );
 };
 
+
 // User login with this function
 exports.login = async (req, res) => {
   try {
@@ -153,28 +161,21 @@ exports.login = async (req, res) => {
       let user = await users.findOne({ email: email.toLowerCase() });
 
       if (user) {
-        /*  let token = jwt.sign(
-          {
-            id: user._id,
-            email: user.email,
-          },
-          // Import the secret key from helper file.
-          config.secret_key
-          // {
-          //     expiresIn: "24h", // expires in 24 hours
-          // }
-        ); */
         const otp = Math.floor(10000 + Math.random() * 90000);
         const mail = await sendEmail(user.email, otp);
-        // console.log(mail);
+
+        if (mail.status !== true) {
+          res.status(StatusCodes.OK).json({
+            status: false,
+            message: "Email OTP send Error",
+          });
+          return;
+        }
+
         user.otp = otp;
         await user.save();
         res.status(StatusCodes.OK).json({
           status: true,
-          // userId: user._id,
-          // name: user.firstname + " " + user.lastname,
-          email: user.email,
-          // token: token,
           message: "Login Authentication successfull and OTP send successfully",
         });
       } else {
@@ -187,27 +188,11 @@ exports.login = async (req, res) => {
       let user = await users.findOne({ PhoneNumber: Number(email) });
 
       if (user) {
-        let token = jwt.sign(
-          {
-            id: user._id,
-            email: user.email,
-          },
-          // Import the secret key from helper file.
-          config.secret_key
-          // {
-          //     expiresIn: "24h", // expires in 24 hours
-          // }
-        );
-
         user.otp = 12345;
         await user.save();
 
         res.status(StatusCodes.OK).json({
           status: true,
-          // userId: user._id,
-          // name: user.firstname + " " + user.lastname,
-          email: user?.email,
-          // token: token,
           message: "Login Authentication successfull and OTP send successfully",
         });
       } else {
@@ -226,6 +211,7 @@ exports.login = async (req, res) => {
     return;
   }
 };
+
 
 // verify OTP
 exports.verifyOtp = async (req, res) => {
@@ -266,19 +252,20 @@ exports.verifyOtp = async (req, res) => {
           // Import the secret key from helper file.
           config.secret_key,
           {
-              expiresIn: "48h", // expires in 24 hours
+            expiresIn: "60000d",
           }
         );
         res.status(StatusCodes.OK).json({
           status: true,
+          message: "OTP Verification successfull",
           userId: user._id,
           token: token,
-          message: "OTP Verification successfull",
         });
       }
     } else {
       let user = await users.findOne({ PhoneNumber: Number(email) });
 
+      console.log(user);
       if (!user) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
           status: "fail",
@@ -297,13 +284,12 @@ exports.verifyOtp = async (req, res) => {
         let token = jwt.sign(
           {
             id: user._id,
-            email: user?.email,
           },
           // Import the secret key from helper file.
-          config.secret_key
-          // {
-          //     expiresIn: "24h", // expires in 24 hours
-          // }
+          config.secret_key,
+          {
+            expiresIn: "60000d",
+          }
         );
         res.status(StatusCodes.OK).json({
           status: true,
@@ -322,6 +308,8 @@ exports.verifyOtp = async (req, res) => {
     return;
   }
 };
+
+
 
 // register user
 /* exports.register = async(req,res)=>{
@@ -388,10 +376,11 @@ exports.verifyOtp = async (req, res) => {
 }
  */
 
+
+
 // update profile picture
 exports.updateProfilePicture = async (req, res) => {
   try {
-
     const userdata = req.user;
 
     let file = req.file;
@@ -405,12 +394,33 @@ exports.updateProfilePicture = async (req, res) => {
 
     const user = await users.findById(userdata.id);
 
-    user.ProfileIcon = req.file.filename;
+    if (user.ProfileIcon === "") {
+      user.ProfileIcon = req.file.filename;
+    } else {
+      const folderPath = path.join(
+        path.resolve(process.cwd()),
+        "/uploads/user/"
+      );
+      let filePath = path.join(folderPath, user.ProfileIcon);
+
+      user.ProfileIcon = req.file.filename;
+
+      // Delete the file
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(`Deleted file: ${filePath}`);
+      });
+    }
 
     await user.save();
+
     return res.status(StatusCodes.OK).json({
       status: true,
       message: "Profile Picture update successfully",
+      data: user,
     });
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -422,12 +432,14 @@ exports.updateProfilePicture = async (req, res) => {
   }
 };
 
+
 // update profile
 exports.updateProfile = async (req, res) => {
   try {
+    // get Login user
     const userdata = req.user;
 
-    const { name, email, phonenumber } = req.body;
+    const { name, email, phonenumber, job_title } = req.body;
 
     const user = await users.findById(userdata.id);
 
@@ -437,21 +449,24 @@ exports.updateProfile = async (req, res) => {
 
     if (!emailAuth || emailAuth.email === user.email) {
       if (!phoneAuth || phoneAuth.PhoneNumber === user.PhoneNumber) {
-        const data = {
-          name: name,
-          email: email,
-          PhoneNumber: phonenumber,
-        };
+        // update the user details
+        user.name = name;
+        user.job_title = job_title;
+        user.email.push(email);
+        user.PhoneNumber.push(phonenumber);
 
-        const user = await users.findByIdAndUpdate(
+        await user.save();
+
+        /* const user = await users.findByIdAndUpdate(
           { _id: userdata.id },
           { $set: data },
           { new: true }
-        );
+        ); */
+
         return res.status(StatusCodes.OK).json({
           status: true,
-          data: user,
           message: "Profile updated successfully",
+          data: user,
         });
       } else {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -477,20 +492,19 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+
 // get All user
 exports.getAllUser = async (req, res) => {
   try {
-
     const user = await users.find(req.query);
 
     if (user) {
+      const index = user.findIndex((element) => {
+        return element.id === req.user.id;
+      });
 
-      const index = user.findIndex(element =>{
-        return element.id === req.user.id
-      })
+      user.splice(index, 1);
 
-      user.splice(index,1);
-      
       return res.status(StatusCodes.OK).json({
         status: true,
         message: "Users found",
@@ -512,6 +526,7 @@ exports.getAllUser = async (req, res) => {
     return;
   }
 };
+
 
 // get login user
 exports.getUser = async (req, res) => {
@@ -542,6 +557,7 @@ exports.getUser = async (req, res) => {
     return;
   }
 };
+
 
 // get User By ID
 exports.getUserById = async (req, res) => {
@@ -580,10 +596,11 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// update user Online status
-exports.updateOnlineStatus = async (req, res) => {
+
+// update user profile status (public or private)
+exports.updateProfileStatus = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId, status } = req.body;
 
     if (userId == undefined || userId === "") {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -592,14 +609,16 @@ exports.updateOnlineStatus = async (req, res) => {
       });
       return;
     }
+
     const user = await users.findById(userId);
 
     if (user) {
-      user.Online = true;
+      user.profileType = status;
       await user.save();
       return res.status(StatusCodes.OK).json({
         status: true,
-        message: "User online",
+        message: `User profile Updated to ${status}`,
+        data: user,
       });
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -618,6 +637,7 @@ exports.updateOnlineStatus = async (req, res) => {
   }
 };
 
+
 // register user
 exports.register = async (req, res) => {
   try {
@@ -626,7 +646,7 @@ exports.register = async (req, res) => {
     const emailAuth = await users.findOne({ email: email.toLowerCase() });
 
     const phoneAuth = await users.findOne({ PhoneNumber: phonenumber });
-    
+
     if (req.file) {
       if (!emailAuth) {
         if (!phoneAuth) {
@@ -647,7 +667,7 @@ exports.register = async (req, res) => {
             // Import the secret key from helper file.
             config.secret_key,
             {
-                expiresIn: "24h", // expires in 24 hours
+              expiresIn: "24h", // expires in 24 hours
             }
           );
 
@@ -729,55 +749,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// search user by name and Email
-exports.search = async (req, res) => {
-  try{
-
-  const {search} = req.query;
-
-  const user = await users.aggregate([
-    {
-      $match: {
-        $or: [
-          { name: { $regex: `${search}`, $options: "i" } },
-          { email: { $regex: `${search}`, $options: "i" } },
-          { PhoneNumber: Number(search)},
-        ],
-      },
-    },
-  ]);
-
-  
-  if(user.length > 0) {
-    const index = user.findIndex(element =>{
-      return element._id.toString() === req.user.id
-    })
-    user.splice(index,1);
-  } 
-
-  if (user.length > 0) {
-
-    return res.status(StatusCodes.OK).json({
-      status: true,
-      message: "User found",
-      data: user,
-    });
-  } else {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "User not found",
-    });
-    return;
-  }
-} catch (err) {
-  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-    status: "fail",
-    message: "Something went wrong",
-    error: err,
-  });
-  return;
-}
-};
 
 // register user
 exports.registerOTP = async (req, res) => {
@@ -794,61 +765,53 @@ exports.registerOTP = async (req, res) => {
     }
 
     if (email.includes("@")) {
-
       let user = await users.findOne({ email: email.toLowerCase() });
 
       if (user) {
-
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
           status: "fail",
           message: "Email already exist",
         });
         return;
-
       } else {
         const user = await users.create(data);
 
-          let token = jwt.sign({ id: user._id },
-            // Import the secret key from helper file.
-            config.secret_key,
-            { expiresIn: "48h" } // expires in 24 hours
-          );
+        let token = jwt.sign(
+          { id: user._id },
+          // Import the secret key from helper file.
+          config.secret_key,
+          { expiresIn: "48h" } // expires in 24 hours
+        );
 
-          res.status(StatusCodes.OK).json({
-            status: true,
-            userId: user._id,
-            token: token,
-            message: "Registration Successfull and OTP send successfully",
-          });
-          return;
+        res.status(StatusCodes.OK).json({
+          status: true,
+          userId: user._id,
+          token: token,
+          message: "Registration Successfull and OTP send successfully",
+        });
+        return;
 
         res.status(StatusCodes.OK).json({
           status: true,
           message: "OTP send successfully... plz check your Email",
         });
       }
-
     } else {
-
       let user = await users.findOne({ PhoneNumber: Number(email) });
 
       if (user) {
-
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
           status: "fail",
           message: "Phone number already exist",
         });
         return;
-
       } else {
         res.status(StatusCodes.OK).json({
           status: true,
           message: "OTP send successfully... plz check your Mobile",
         });
       }
-
     }
-
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -859,6 +822,7 @@ exports.registerOTP = async (req, res) => {
   }
 };
 
+
 // register user
 exports.registration = async (req, res) => {
   try {
@@ -867,7 +831,7 @@ exports.registration = async (req, res) => {
     const emailAuth = await users.findOne({ email: email.toLowerCase() });
 
     const phoneAuth = await users.findOne({ PhoneNumber: phonenumber });
-    
+
     if (req.file) {
       if (!emailAuth) {
         if (!phoneAuth) {
@@ -888,7 +852,7 @@ exports.registration = async (req, res) => {
             // Import the secret key from helper file.
             config.secret_key,
             {
-                expiresIn: "24h", // expires in 24 hours
+              expiresIn: "24h", // expires in 24 hours
             }
           );
 
@@ -974,7 +938,6 @@ exports.registration = async (req, res) => {
 // get All user
 exports.getAllUsers = async (req, res) => {
   try {
-
     const user = await users.find(req.query);
 
     if (user) {
@@ -1002,11 +965,174 @@ exports.getAllUsers = async (req, res) => {
 
 
 // find user
-exports.findtesting = async(req,res) =>{
-
-  const {name} = req.body
+exports.findtesting = async (req, res) => {
+  const { name } = req.body;
   console.log(typeof `${name}`);
-  const user = await users.find({ "abc": { "$in": name } })
+  const user = await users.find({ abc: { $in: name } });
   res.send(user);
+};
 
-}
+
+// search user by name and Email
+exports.search = async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    const user = await users.aggregate([
+      {
+        $match: {
+          $or: [
+            { name: { $regex: `${search}`, $options: "i" } },
+            { email: { $regex: `${search}`, $options: "i" } },
+            // { PhoneNumber: { $elemMatch: { $eq: Number(search) }}},
+            { PhoneNumber: { $in: [Number(search)] } },
+            // { PhoneNumber: Number(search) },
+          ],
+          $and: [
+            // {profileType:"public"},
+            { profileType: { $ne: "private" } }, // $ne not inlcuded
+          ],
+        },
+      },
+    ]);
+
+    if (user.length > 0) {
+      const index = user.findIndex((element) => {
+        return element._id.toString() === req.user.id;
+      });
+
+      if (index >= 0) {
+        user.splice(index, 1);
+      }
+    }
+
+    if (user.length > 0) {
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "User found",
+        data: user,
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "User not found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+
+// get User By ID
+exports.deleteEmail = async (req, res) => {
+  const { userId, email } = req.body;
+
+  if (userId == undefined || userId === "") {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "userId is required",
+    });
+    return;
+  }
+
+  const user = await users.findById(userId);
+
+  if (user) {
+    const index = user.email.findIndex((element) => {
+      return element === email;
+    });
+
+    if (index < 0) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Email Not found",
+      });
+      return;
+    }
+
+    if (user.email.length > 1) {
+      user.email.splice(index, 1);
+
+      await user.save();
+
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "Email Deleted successfully",
+        data: user,
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "You Can't delete Primary Email",
+      });
+      return;
+    }
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "User not found",
+    });
+    return;
+  }
+};
+
+
+// get User By ID
+exports.deletePhoneNo = async (req, res) => {
+  const { userId, phone } = req.body;
+
+  if (userId == undefined || userId === "") {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "userId is required",
+    });
+    return;
+  }
+
+  const user = await users.findById(userId);
+
+  if (user) {
+    const index = user.PhoneNumber.findIndex((element) => {
+      return element === phone;
+    });
+
+    if (index < 0) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Phone Number Not found",
+      });
+      return;
+    }
+
+    if (user.PhoneNumber.length > 1) {
+      user.PhoneNumber.splice(index, 1);
+
+      await user.save();
+
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "Phone Number Deleted successfully",
+        data: user,
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "You Can't delete Primary Phone Number",
+      });
+      return;
+    }
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "User not found",
+    });
+    return;
+  }
+};

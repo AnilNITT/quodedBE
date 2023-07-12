@@ -2,6 +2,7 @@ var CheckModel = require("../../../Model/CheckinoutModal");
 var MessageModal = require("../../../Model/MessageModal");
 var { StatusCodes } = require("http-status-codes");
 
+
 // Add Meeting
 exports.addCheckIn = async (req, res) => {
     try {

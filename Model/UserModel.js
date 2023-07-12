@@ -7,27 +7,55 @@ var UserSchema = new mongoose.Schema(
   {
     // firstname:{type:String, required : true},
     // lastname:{type:String, required : false},
-    name: { type: String, required: false },
-    userName: { type: String, required: false },
-    email: { type: String, required: false},
-    PhoneNumber: { type: Number, required: false },
-    otp: { type: Number, required: false },
-    ProfileIcon: { type: String, default: ""},
-    job_title :{
-      type: String, default: ""
+    name: {
+      type: String,
+      required: false,
     },
+    userName: {
+      type: String,
+      required: false,
+    },
+    email: [{
+      type: String,
+      required: false,
+    }],
+    PhoneNumber: [{
+      type: Number,
+      required: false,
+    }],
+    otp: {
+      type: Number,
+      required: false,
+    },
+    ProfileIcon: {
+      type: String,
+      default: "",
+    },
+    job_title: {
+      type: String,
+      default: "",
+    },
+
     // abc:[ { type: String, default :""}],
     // abc:{ type: [{type:String, default :""}]},
     // abc :{ type : Array , "default" : [] },
-    // Password: { type: String, required: true },
-    
-    SocketId: { type: String },
-    Status: { type: String, default: "offline" },
-    profileType: { type: String, default: "public" },
-  },
-  { timestamps: true }
-);
 
+    SocketId: {
+      type: String,
+    },
+    Status: {
+      type: String,
+      default: "offline",
+    },
+    profileType: {
+      type: String,
+      default: "public",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Encrypt the password and save to the password with bcrypt.
 UserSchema.pre("save", function (next) {
@@ -48,13 +76,11 @@ UserSchema.pre("save", function (next) {
   });
 });
 
-
 UserSchema.methods.comparePassword = function (candidatePassword, cb) {
   bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
     if (err) return cb(err);
     cb(null, isMatch);
   });
 };
-
 
 module.exports = mongoose.model("users", UserSchema, "users");

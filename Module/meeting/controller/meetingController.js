@@ -78,6 +78,7 @@ exports.updateMeetingStatus = async (req, res) => {
   }
 };
 
+
 // update the meeting time
 exports.reviseMeetingDate = async (req, res) => {
   try {
@@ -138,6 +139,7 @@ exports.reviseMeetingDate = async (req, res) => {
   }
 };
 
+
 // deny the meeting
 exports.denyMeeting = async (req, res) => {
   try {
@@ -196,6 +198,7 @@ exports.denyMeeting = async (req, res) => {
   }
 };
 
+
 // get single meeting details
 exports.getmeetingDetails = async (req, res) => {
   try {
@@ -249,7 +252,6 @@ exports.getmeetingDetails = async (req, res) => {
 
 // Add Meeting
 exports.addMeeting = async (req, res) => {
-  try {
     const { name, roomId, type, senderId, receiverId, repeat, location, description, startTime, endTime } = req.body;
 
     let counts = 0;
@@ -257,7 +259,7 @@ exports.addMeeting = async (req, res) => {
     // const DateData = [];
 
     if(lengths > 0) {
-    roomId.forEach(async (rooms, index) => {
+    roomId.forEach(async(rooms, index) => {
 
       receiverId.forEach(async (receivers, rindex) => {
 
@@ -309,6 +311,111 @@ exports.addMeeting = async (req, res) => {
             error: err,
           });
           return;
+    }
+
+};
+
+
+// get task sorted by Date
+exports.getSortedLoginUserMeeting = async (req, res) => {
+  // try {
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%d-%m-%Y",
+              date: "$startTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (meeting.length > 0) {
+      await Meeting.populate(meeting[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        meeting: meeting,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        meeting: meeting,
+        message: "No Meeting found",
+      });
+      return;
+    }
+  /* } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  } */
+};
+
+
+// get task sorted by Date
+exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
+  try {
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$startTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (meeting.length > 0) {
+      await Meeting.populate(meeting[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        meeting: meeting,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        meeting: meeting,
+        message: "No Meeting found",
+      });
+      return;
     }
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({

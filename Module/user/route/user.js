@@ -77,6 +77,13 @@ router.get('/search',authendiCate.authenticateToken,userController.search)
 
 router.post('/test',authendiCate.authenticateToken,userController.findtesting)
 
+// make profile public or private
+router.post('/update-profile-status', authendiCate.authenticateToken, userController.updateProfileStatus)
+
+
+router.delete('/delete-email', authendiCate.authenticateToken, userController.deleteEmail)
+
+router.delete('/delete-phoneno', authendiCate.authenticateToken, userController.deletePhoneNo)
 
 module.exports = router
 
