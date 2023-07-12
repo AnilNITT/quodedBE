@@ -20,7 +20,7 @@ var UserSchema = new mongoose.Schema(
       required: false,
     },
     PhoneNumber: {
-      type: String,
+      type: Number,
       required: false,
     },
     /* email: [{

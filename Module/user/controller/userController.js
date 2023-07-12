@@ -158,6 +158,7 @@ exports.login = async (req, res) => {
     }
 
     if (email.includes("@")) {
+
       let user = await users.findOne({ email: email.toLowerCase() });
 
       if (user) {
@@ -185,7 +186,8 @@ exports.login = async (req, res) => {
         });
       }
     } else {
-      let user = await users.findOne({ PhoneNumber: Number(email) });
+      const phone = Number(email)
+      let user = await users.findOne({ PhoneNumber: phone });
 
       if (user) {
         user.otp = 12345;
@@ -195,6 +197,7 @@ exports.login = async (req, res) => {
           status: true,
           message: "Login Authentication successfull and OTP send successfully",
         });
+        
       } else {
         res.json({
           status: false,
