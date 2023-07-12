@@ -417,7 +417,6 @@ try {
   console.error(error);
 }
 
-
 // Define the port from helper file
 const PORT = config.app.port;
 
@@ -437,6 +436,5 @@ function errHandler(err, req, res, next) {
     });
   }
 }
-
 
 app.use(errHandler);
