@@ -13,7 +13,7 @@ var tempLoginSchema = new mongoose.Schema({
     }, */
     createdAt: { 
         type: Date, 
-        default: new Date(new Date().getTime() + 3 /* expires after 10 minutes */ * 60000) 
+        default: new Date(new Date().getTime() + 20 /* expires after 10 minutes */ * 60000) 
     }
 },
 {   

@@ -14,12 +14,6 @@ const check = require("./Module/checkinout/route/checkinout");
 const shift = require("./Module/shift/route/shift");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
-const UserModel = require("./Model/UserModel");
-const Conversation = require("./Model/Conversation");
-const MessageModal = require("./Model/MessageModal");
-const TaskModal = require("./Model/TaskModal");
-const Meeting = require("./Model/Meeting");
-const shifts = require("./Model/ShiftModal");
 const multer = require("multer");
 // const cryptoen = require("./helper/Crypto");
 // var CryptoJS = require("crypto-js");
@@ -27,7 +21,16 @@ const crypto = require("crypto");
 const fs = require("fs-extra");
 const path = require("path");
 
+
+const UserModel = require("./Model/UserModel");
+const Conversation = require("./Model/Conversation");
+const MessageModal = require("./Model/MessageModal");
+const TaskModal = require("./Model/TaskModal");
+const Meeting = require("./Model/Meeting");
+const shifts = require("./Model/ShiftModal");
+
 const dateFormat = "%Y-%m-%d";
+
 
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -109,7 +112,6 @@ app.post("/meeting", async function (req, res) {
       }
     );
 
-
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -178,7 +180,6 @@ socketIO.on("connection", async (socket) => {
       },
     ]);
 
-
     if (conversations.length > 0) {
       await Conversation.populate(conversations, {
         path: "senderId receiverId",
@@ -222,11 +223,9 @@ socketIO.on("connection", async (socket) => {
       { seenStatus: "received" }
     );
 
-
     const conversations = Conversation.find({
       members: { $in: [socket.decoded.id] },
-    })
-    .sort({updatedAt: -1})
+    }).sort({ updatedAt: -1 });
     // .sort({ createdAt: -1 });
 
     if (conversations.length > 0) {
@@ -265,7 +264,6 @@ socketIO.on("connection", async (socket) => {
     socket.emit("joinedRoom", data.roomId);
   });
 
-
   socket.on("getDetails", async (data) => {
     const obj = UserModel.findOne({ _id: data.id });
     if (obj) {
@@ -274,7 +272,6 @@ socketIO.on("connection", async (socket) => {
       socket.emit("getDetails-faild", "User Not found");
     }
   });
-
 
   // Receive the message or task
   socket.on("message", async (data) => {
@@ -346,7 +343,6 @@ socketIO.on("connection", async (socket) => {
       socket.emit("message", getAllmessage);
       socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
-      
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
         { seenStatus: "seened" }
@@ -371,12 +367,14 @@ socketIO.on("connection", async (socket) => {
       socket.broadcast.emit("message", getAllmessage);
     }
   });
+  
 
   // Join personal chat
   socket.on("join", async (data) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
+
 
   // Disconnect the socket
   socket.on("disconnect", async () => {
@@ -408,7 +406,6 @@ try {
     }
   );
 
-
   var db = mongoose.connection;
   // Added check for DB connection
   if (!db) {
@@ -420,13 +417,16 @@ try {
   console.error(error);
 }
 
+
 // Define the port from helper file
 const PORT = config.app.port;
+
 
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 
 // Multer image error handler
 function errHandler(err, req, res, next) {
@@ -437,5 +437,6 @@ function errHandler(err, req, res, next) {
     });
   }
 }
+
 
 app.use(errHandler);

@@ -6,7 +6,6 @@ var jwt = require("jsonwebtoken");
 var config = require("../../../helper/config");
 
 
-
 // Send OTP to verify phone number and email address
 exports.sendOtp = async function (req, res) {
   try {
@@ -89,7 +88,6 @@ exports.sendOtp = async function (req, res) {
 };
 
 
-
 // verify OTP
 exports.verifyOtp = async (req, res) => {
   try {
@@ -139,6 +137,7 @@ exports.verifyOtp = async (req, res) => {
               expiresIn: "60000d", // expires in 24 hours
           }
         );
+        
         res.status(StatusCodes.OK).json({
           status: true,
           message: "OTP Verification successfull",
@@ -196,7 +195,6 @@ exports.verifyOtp = async (req, res) => {
     return;
   }
 };
-
 
 
 // verify OTP on update user profile
