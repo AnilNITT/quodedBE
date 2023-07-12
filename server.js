@@ -109,6 +109,7 @@ app.post("/meeting", async function (req, res) {
       }
     );
 
+
     res.json(response.data);
   } catch (error) {
     console.error(error);
@@ -177,6 +178,7 @@ socketIO.on("connection", async (socket) => {
       },
     ]);
 
+
     if (conversations.length > 0) {
       await Conversation.populate(conversations, {
         path: "senderId receiverId",
@@ -220,6 +222,7 @@ socketIO.on("connection", async (socket) => {
       { seenStatus: "received" }
     );
 
+
     const conversations = Conversation.find({
       members: { $in: [socket.decoded.id] },
     })
@@ -262,6 +265,7 @@ socketIO.on("connection", async (socket) => {
     socket.emit("joinedRoom", data.roomId);
   });
 
+
   socket.on("getDetails", async (data) => {
     const obj = UserModel.findOne({ _id: data.id });
     if (obj) {
@@ -270,6 +274,7 @@ socketIO.on("connection", async (socket) => {
       socket.emit("getDetails-faild", "User Not found");
     }
   });
+
 
   // Receive the message or task
   socket.on("message", async (data) => {
