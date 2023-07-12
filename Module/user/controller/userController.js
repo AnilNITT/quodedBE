@@ -439,8 +439,8 @@ exports.updateProfile = async (req, res) => {
     // get Login user
     const userdata = req.user;
 
-    // const { name, email, phonenumber, job_title } = req.body;
-    const { name, email, phonenumber } = req.body;
+    const { name, email, phonenumber, job_title } = req.body;
+    // const { name, email, phonenumber } = req.body;
 
     const user = await users.findById(userdata.id);
 
@@ -452,7 +452,7 @@ exports.updateProfile = async (req, res) => {
       if (!phoneAuth || phoneAuth.PhoneNumber === user.PhoneNumber) {
         // update the user details
         user.name = name;
-        // user.job_title = job_title;
+        user.job_title = job_title;
         user.email.push(email);
         user.PhoneNumber.push(phonenumber);
 
@@ -1033,6 +1033,8 @@ exports.search = async (req, res) => {
 
 // get User By ID
 exports.deleteEmail = async (req, res) => {
+
+  try{
   const { userId, email } = req.body;
 
   if (userId == undefined || userId === "") {
@@ -1082,11 +1084,22 @@ exports.deleteEmail = async (req, res) => {
     });
     return;
   }
+
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
 
 
 // get User By ID
 exports.deletePhoneNo = async (req, res) => {
+
+  try{
   const { userId, phone } = req.body;
 
   if (userId == undefined || userId === "") {
@@ -1136,4 +1149,13 @@ exports.deletePhoneNo = async (req, res) => {
     });
     return;
   }
+
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
