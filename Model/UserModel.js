@@ -15,14 +15,22 @@ var UserSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    email: [{
+    email: {
+      type: String,
+      required: false,
+    },
+    PhoneNumber: {
+      type: String,
+      required: false,
+    },
+    /* email: [{
       type: String,
       required: false,
     }],
     PhoneNumber: [{
       type: Number,
       required: false,
-    }],
+    }], */
     otp: {
       type: Number,
       required: false,
