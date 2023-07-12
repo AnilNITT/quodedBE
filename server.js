@@ -419,7 +419,7 @@ try {
 } catch (error) {
   console.error(error);
 }
-
+ 
 // Define the port from helper file
 const PORT = config.app.port;
 
