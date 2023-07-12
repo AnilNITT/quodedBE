@@ -47,6 +47,7 @@ app.all("*", function (req, res, next) {
   next();
 });
 
+
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
   cors: {
@@ -54,13 +55,16 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
+
 // JSON type request accept with express json
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
+
 
 app.get("/", async (request, response) => {
   const uuid = crypto.randomUUID();
@@ -72,11 +76,13 @@ app.get("/", async (request, response) => {
   });
 });
 
+
 // Socket io route implementation
 app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
+
 
 // User router
 app.use(express.static("uploads"));
@@ -87,6 +93,7 @@ app.use("/templogin", templogin);
 app.use("/meetings", meeting);
 app.use("/check", check);
 app.use("/shift", shift);
+
 
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
@@ -119,6 +126,7 @@ app.post("/meeting", async function (req, res) {
   }
 });
 
+
 // Socket connection intialize
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
@@ -136,6 +144,7 @@ socketIO.use(function (socket, next) {
     next(new Error("Authentication error"));
   }
 });
+
 
 socketIO.on("connection", async (socket) => {
   // "socket.decoded.id"   login user id
@@ -416,6 +425,7 @@ try {
 } catch (error) {
   console.error(error);
 }
+
 
 // Define the port from helper file
 const PORT = config.app.port;

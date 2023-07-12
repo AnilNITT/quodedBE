@@ -439,7 +439,8 @@ exports.updateProfile = async (req, res) => {
     // get Login user
     const userdata = req.user;
 
-    const { name, email, phonenumber, job_title } = req.body;
+    // const { name, email, phonenumber, job_title } = req.body;
+    const { name, email, phonenumber } = req.body;
 
     const user = await users.findById(userdata.id);
 
@@ -451,7 +452,7 @@ exports.updateProfile = async (req, res) => {
       if (!phoneAuth || phoneAuth.PhoneNumber === user.PhoneNumber) {
         // update the user details
         user.name = name;
-        user.job_title = job_title;
+        // user.job_title = job_title;
         user.email.push(email);
         user.PhoneNumber.push(phonenumber);
 
