@@ -395,7 +395,7 @@ exports.updateProfilePicture = async (req, res) => {
 
     const user = await users.findById(userdata.id);
 
-    if (user.ProfileIcon === "") {
+   /*  if (user.ProfileIcon === "") {
       user.ProfileIcon = req.file.filename;
     } else {
       const folderPath = path.join(
@@ -414,7 +414,9 @@ exports.updateProfilePicture = async (req, res) => {
         }
         console.log(`Deleted file: ${filePath}`);
       });
-    }
+    } */
+
+    user.ProfileIcon = req.file.filename;
 
     await user.save();
 
