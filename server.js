@@ -20,6 +20,7 @@ const multer = require("multer");
 const crypto = require("crypto");
 const fs = require("fs-extra");
 const path = require("path");
+const jwt_decode =  require("jwt-decode")
 
 
 const UserModel = require("./Model/UserModel");
@@ -67,12 +68,19 @@ app.use("/uploads", express.static("uploads"));
 
 
 app.get("/", async (request, response) => {
-  const uuid = crypto.randomUUID();
+  
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0YWY3YTIwNzI1MjBmN2U5NGYzMmU1YiIsImlhdCI6MTY4OTIzODExMCwiZXhwIjoxNzIwNzc0MTEwfQ.aIZfhY8H2H2fqqhUl9QUofGo7zEQG6RfPyXKEE10DUY"
+  
+  var decoded = jwt_decode(token);
+
+  decoded.exp = 
+  console.log(Date(decoded.exp) -1)
+  token
 
   response.json({
     status: true,
-    id: uuid,
     message: "Quoded Server runing",
+    token: decoded
   });
 });
 

@@ -20,6 +20,7 @@ function fileFilter(req, file, cb) {
   }
 }
 
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         var path = `uploads/user/`;
@@ -32,9 +33,10 @@ const storage = multer.diskStorage({
       cb(null, filename + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
     }
 });
+
   
 const upload = multer({ storage: storage, fileFilter: fileFilter });
-  
+
 
 // Split the route 
 // Register route.

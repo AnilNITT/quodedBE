@@ -100,6 +100,7 @@ async function registerUser(req, res) {
 */
 
 
+
 // Search the user
 exports.findUser = (req, res) => {
   let { email } = req.query;
@@ -146,6 +147,7 @@ exports.findUser = (req, res) => {
 // User login with this function
 exports.login = async (req, res) => {
   try {
+    console.log("hii");
     let { email } = req.body;
 
     if (email == undefined) {
@@ -205,14 +207,14 @@ exports.login = async (req, res) => {
         });
       }
     }
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
+    } catch (err) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Something went wrong",
+        error: err?.message,
+      });
+      return;
+    }
 };
 
 
@@ -290,7 +292,7 @@ exports.verifyOtp = async (req, res) => {
           // Import the secret key from helper file.
           config.secret_key,
           {
-            expiresIn: "60000d",
+            expiresIn: "365d",
           }
         );
         res.status(StatusCodes.OK).json({
@@ -1169,3 +1171,4 @@ exports.deletePhoneNo = async (req, res) => {
   return;
 }
 };
+
