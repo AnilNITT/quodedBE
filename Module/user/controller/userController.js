@@ -268,7 +268,6 @@ exports.verifyOtp = async (req, res) => {
     } else {
       let user = await users.findOne({ PhoneNumber: Number(email) });
 
-      console.log(user);
       if (!user) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
           status: "fail",
@@ -311,7 +310,6 @@ exports.verifyOtp = async (req, res) => {
     return;
   }
 };
-
 
 
 // register user
