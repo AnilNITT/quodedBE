@@ -69,7 +69,7 @@ router.post('/updateprofileimage', upload.single('file'),authendiCate.authentica
 
 
 // update user profile
-router.post('/updateuser', authendiCate.authenticateToken, userController.updateProfile)
+router.post('/updateuser', upload.single('file'),authendiCate.authenticateToken, userController.updateProfile)
 
 
 // Search user for start conversation
