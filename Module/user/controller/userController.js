@@ -444,9 +444,10 @@ exports.updateProfile = async (req, res) => {
     // get Login user
     const userdata = req.user;
 
-    const { name, email, phonenumber, job_title } = req.body;
+    const { name, email, phone, job_title } = req.body;
     // const { name, email, phonenumber } = req.body;
-
+    const phonenumber = Number(phone);
+    
     const user = await users.findById(userdata.id);
 
     const emailAuth = await users.findOne({ email: email.toLowerCase() });
@@ -467,7 +468,7 @@ exports.updateProfile = async (req, res) => {
         if (!user.PhoneNumber.includes(phonenumber)) {
           user.PhoneNumber.push(phonenumber);
         }
-        
+
 /*      const data = {
           name: name,
           email: email,
