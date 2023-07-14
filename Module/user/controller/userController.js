@@ -440,12 +440,12 @@ exports.updateProfilePicture = async (req, res) => {
 
 // update profile
 exports.updateProfile = async (req, res) => {
-  try {
+  // try {
     // get Login user
     const userdata = req.user;
 
-    // const { name, email, phonenumber, job_title } = req.body;
-    const { name, email, phonenumber } = req.body;
+    const { name, email, phonenumber, job_title } = req.body;
+    // const { name, email, phonenumber } = req.body;
 
     const user = await users.findById(userdata.id);
 
@@ -453,15 +453,22 @@ exports.updateProfile = async (req, res) => {
 
     const phoneAuth = await users.findOne({ PhoneNumber: phonenumber });
 
-    if (!emailAuth || emailAuth.email === user.email) {
-      if (!phoneAuth || phoneAuth.PhoneNumber === user.PhoneNumber) {
-        // update the user details
-       /*  user.name = name;
-        // user.job_title = job_title;
-        user.email.push(email);
-        user.PhoneNumber.push(phonenumber); */
+    if (!emailAuth || emailAuth._id.toString() === user._id.toString()) {
 
-        const data = {
+      if (!phoneAuth || phoneAuth._id.toString() === user._id.toString()) {
+        // update the user details
+        user.name = name;
+        user.job_title = job_title;
+
+        if (!user.email.includes(email)) {
+          user.email.push(email);
+        }
+
+        if (!user.PhoneNumber.includes(phonenumber)) {
+          user.PhoneNumber.push(phonenumber);
+        }
+        
+/*      const data = {
           name: name,
           email: email,
           PhoneNumber: phonenumber,
@@ -472,7 +479,7 @@ exports.updateProfile = async (req, res) => {
           { _id: userdata.id },
           { $set: data },
           { new: true }
-        );
+        ); */
 
         await user.save();
 
@@ -495,14 +502,14 @@ exports.updateProfile = async (req, res) => {
       });
       return;
     }
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
+  // } catch (err) {
+  //   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+  //     status: "fail",
+  //     message: "Something went wrong",
+  //     error: err,
+  //   });
+  //   return;
+  // }
 };
 
 
