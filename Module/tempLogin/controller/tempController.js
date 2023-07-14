@@ -123,7 +123,7 @@ exports.verifyOtp = async (req, res) => {
         return;
       } else {
 
-/*         const user = new users();
+        const user = new users();
         user.email.push(email.toLowerCase());
         await user.save();
 
@@ -136,13 +136,13 @@ exports.verifyOtp = async (req, res) => {
           {
               expiresIn: "60000d", // expires in 24 hours
           }
-        ); */
+        );
         
         res.status(StatusCodes.OK).json({
           status: true,
           message: "OTP Verification successfull",
-          /* data: user,
-          token:token, */
+          data: user,
+          token:token,
         });
       }
     } else {
@@ -164,7 +164,7 @@ exports.verifyOtp = async (req, res) => {
         return;
       } else {
 
-        /* const user = new users();
+        const user = new users();
         user.PhoneNumber.push(Number(email));
         await user.save();
 
@@ -177,12 +177,12 @@ exports.verifyOtp = async (req, res) => {
           {
               expiresIn: "60000d", // expires in 24 hours
           }
-        ); */
+        );
         res.status(StatusCodes.OK).json({
           status: true,
           message: "OTP Verification successfull",
-          /* data: user,
-          token:token */
+          data: user,
+          token:token
         });
       }
     }
