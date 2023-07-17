@@ -67,20 +67,13 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static("uploads"));
 
 
-app.get("/", async (request, response) => {
+app.get("/", async (req, res) => {
   
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0YWY3YTIwNzI1MjBmN2U5NGYzMmU1YiIsImlhdCI6MTY4OTIzODExMCwiZXhwIjoxNzIwNzc0MTEwfQ.aIZfhY8H2H2fqqhUl9QUofGo7zEQG6RfPyXKEE10DUY"
-  
-  var decoded = jwt_decode(token);
-
-  decoded.exp = 
-  console.log(Date(decoded.exp) -1)
-  token
-
-  response.json({
+  const data  =await require("./Model/TempLogin").find();
+  res.send({
     status: true,
     message: "Quoded Server runing",
-    token: decoded
+    data: data
   });
 });
 

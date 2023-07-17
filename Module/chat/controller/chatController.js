@@ -6,7 +6,6 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
 
-
 exports.conversationList = async (req, res) => {
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
@@ -14,7 +13,7 @@ exports.conversationList = async (req, res) => {
     .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email")
     // .sort({createdAt: -1})
-    .sort({updatedAt: -1})
+    .sort({ updatedAt: -1 });
 
   if (conversation) {
     /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
@@ -82,7 +81,6 @@ exports.conversationList = async (req, res) => {
     });
   }
 };
-
 
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
@@ -145,7 +143,6 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
@@ -176,7 +173,6 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-
 exports.getconversation = async (req, res) => {
   const { roomId } = req.body;
 
@@ -201,7 +197,6 @@ exports.getconversation = async (req, res) => {
   res.json({ data: getAllmessage });
 };
 
-
 // send image auido vedio files in messages
 exports.sendMultimediaMessage = async (req, res) => {
   try {
@@ -213,7 +208,6 @@ exports.sendMultimediaMessage = async (req, res) => {
     message.senderId = senderId;
     message.receiverId = receiverId;
     message.text = text || "";
-
 
     if (req.files) {
       for (image of req.files) {
@@ -229,7 +223,6 @@ exports.sendMultimediaMessage = async (req, res) => {
       message: "message send successfully",
     });
     return;
-
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -239,7 +232,6 @@ exports.sendMultimediaMessage = async (req, res) => {
     return;
   }
 };
-
 
 // get single conversation all multimedia files
 exports.getFiles = async (req, res) => {
@@ -292,7 +284,6 @@ exports.getFiles = async (req, res) => {
   }
 };
 
-
 /* 
 exports.sendTextMessage = async (req, res) => {
   const { type, text, roomId, senderId, receiverId } = req.body;
@@ -314,73 +305,73 @@ exports.sendTextMessage = async (req, res) => {
 };
 */
 
-
 exports.conversatioUnseenCount = async (req, res) => {
-  try{
-
+  try {
     let updateReceived = await MessageModal.updateMany(
       { receiverId: req.user.id, seenStatus: "send" },
       { seenStatus: "received" }
     );
-  
-  let conversation = await Conversation.find({
-    members: { $in: [req.user.id] },
-  })
-  // .sort({createdAt: -1})
-  .sort({updatedAt: -1})
-  
-  /* 
+
+    let conversation = await Conversation.find({
+      members: { $in: [req.user.id] },
+    })
+      // .sort({createdAt: -1})
+      .sort({ updatedAt: -1 });
+
+    /* 
   .populate("senderId", "ProfileIcon Status name email")
   .populate("receiverId", "ProfileIcon Status name email"); 
   */
 
+    if (conversation) {
+      conversation.map(async (data) => {
+        const senderId =
+          data.senderId == req.user.id ? data.receiverId : data.senderId;
 
-  if (conversation) {
+        const message = await MessageModal.aggregate([
+          {
+            $match: {
+              $and: [
+                { senderId: senderId },
+                { receiverId: new ObjectId(req.user.id) },
+                // {seenStatus: 'send'},
+              ],
+            },
+          },
+        ]);
+        // .sort({createdAt: -1});
 
-    conversation.map(async(data) => {
+        data.counts = message.filter(
+          (data) => data.seenStatus === "send" || data.seenStatus === "received"
+        ).length;
+        await data.save();
+      });
 
-      const senderId = data.senderId == req.user.id ? data.receiverId : data.senderId;
+      await Conversation.populate(conversation, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
 
-      const message = await MessageModal.aggregate([
-        {
-            $match: { $and:[
-              { senderId: senderId },
-              { receiverId:new ObjectId(req.user.id)},
-              // {seenStatus: 'send'},
-            ]}
-      }])
-      // .sort({createdAt: -1});
+      res.json({
+        status: true,
+        data: conversation,
+        message: "Founded results",
+      });
 
-      data.counts = message.filter(data => data.seenStatus === "send" || data.seenStatus === "received").length
-      await data.save();
-    });
-
-
-    await Conversation.populate(conversation, {
-      path: "senderId receiverId",
-      select: ["ProfileIcon", "Status", "email", "name"],
-    })
-    
-    res.json({
-      status: true,
-      data: conversation,
-      message: "Founded results",
-    });
-
-    /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
+      /*     const message = await MessageModal.find({ receiverId: req.user.id }).sort(
       "roomId"
     ); */
 
-    // const message = await MessageModal.find({ receiverId: req.user.id })
+      // const message = await MessageModal.find({ receiverId: req.user.id })
 
-    /*  const message = await MessageModal.aggregate([
+      /*  const message = await MessageModal.aggregate([
       { $match : {"receiverId": new ObjectId(req.user.id) }},
       {$group: { _id: '$roomId', count: {$sum: 1}}},
     ]) */
 
-    // const message = await MessageModal.aggregate().sortByCount("roomId")
+      // const message = await MessageModal.aggregate().sortByCount("roomId")
 
-    /* const userList = await Conversation.aggregate([
+      /* const userList = await Conversation.aggregate([
       {
           $match: { $or:[
             
@@ -419,20 +410,96 @@ exports.conversatioUnseenCount = async (req, res) => {
       }
     ]);
  */
-  } else {
-    res.json({
-      status: true,
-      data: "No conversation found",
-      message: "Founded results",
+    } else {
+      res.json({
+        status: true,
+        data: "No conversation found",
+        message: "Founded results",
+      });
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
+    return;
   }
+};
 
-} catch (err) {
-  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-    status: "fail",
-    message: "Something went wrong",
-    error: err,
-  });
-  return;
-}
+exports.SearchConversation = async (req, res) => {
+  try {
+    const { name } = req.query;
+    let conversation = await Conversation.aggregate([
+      {
+        $match: {
+          members: { $in: [req.user.id] },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      // { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (conversation) {
+      
+      const regex = new RegExp(name, "i"); // 'i' flag for case-insensitive search
+
+      conversation = conversation.filter(
+        (item) => regex.test(item.Sender.name) || regex.test(item.Receiver.name)
+      );
+
+      res.json({
+        status: true,
+        message: "Founded results",
+        data: conversation,
+      });
+    } else {
+      res.json({
+        status: true,
+        data: "No conversation found",
+        message: "Founded results",
+      });
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
 };

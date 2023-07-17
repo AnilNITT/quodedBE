@@ -34,8 +34,10 @@ const storage = multer.diskStorage({
     }
 });
   
+
 // const upload = multer({ storage: storage, fileFilter: fileFilter });
 const upload = multer({ storage: storage });
+
 
 // send text message
 // router.post('/send-text-message',authendiCate.authenticateToken,chatController.sendTextMessage)
@@ -45,6 +47,8 @@ router.post('/coversation-start',authendiCate.authenticateToken,chatController.c
 router.post('/task-accept',authendiCate.authenticateToken,chatController.acceptTask)
 
 router.post('/getconversation',authendiCate.authenticateToken,chatController.getconversation)
+
+router.post('/search-user',authendiCate.authenticateToken,chatController.SearchConversation)
 
 router.get('/conversationcount',authendiCate.authenticateToken,chatController.conversatioUnseenCount)
 
