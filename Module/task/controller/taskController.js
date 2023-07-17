@@ -1,5 +1,6 @@
 var Conversation = require("../../../Model/Conversation");
 // var UserModel = require("../../../Model/UserModel");
+var Meeting = require("../../../Model/Meeting");
 var MessageModal = require("../../../Model/MessageModal");
 var TaskModal = require("../../../Model/TaskModal");
 var CommentsModal = require("../../../Model/TaskComments");
@@ -8,8 +9,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var fs = require("fs-extra");
 // var path = require("path");
 var moment = require("moment");
-var today = moment().startOf('day'); // Get today's date at the beginning of the day
-
+var today = moment().startOf("day"); // Get today's date at the beginning of the day
 
 exports.conversationList = async (req, res) => {
   Conversation.find(
@@ -125,7 +125,6 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
-
 // update the task or Task status
 exports.updateTask = async (req, res) => {
   try {
@@ -183,7 +182,6 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
   try {
@@ -191,8 +189,6 @@ exports.uploadTaskAttachments = async (req, res) => {
 
     if (req.files) {
       for (image of req.files) {
-        
-
         imagespath.push(image.filename);
 
         /* const folderPath = path.join(path.resolve(process.cwd()), "/uploads/task/");
@@ -207,8 +203,6 @@ exports.uploadTaskAttachments = async (req, res) => {
             console.log(`Deleted file: ${filePath}`);
           });
         }, 7 * 24 * 60 * 60 * 1000); */
-
-
       }
     }
 
@@ -217,16 +211,15 @@ exports.uploadTaskAttachments = async (req, res) => {
       data: imagespath,
       message: "task attachments uploaded successfully",
     });
-    } catch (err) {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-        status: "fail",
-        message: "Something went wrong",
-        error: err,
-      });
-      return;
-    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
 };
-
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
@@ -276,7 +269,6 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
-
 // add task comments
 exports.taskComments = async (req, res) => {
   try {
@@ -319,7 +311,6 @@ exports.taskComments = async (req, res) => {
     return;
   }
 };
-
 
 // Add Task
 exports.addTask = async (req, res) => {
@@ -393,7 +384,6 @@ exports.addTask = async (req, res) => {
   }
 };
 
-
 // get Task Comments
 exports.getTaskComments = async (req, res) => {
   try {
@@ -434,7 +424,6 @@ exports.getTaskComments = async (req, res) => {
     return;
   }
 };
-
 
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
@@ -506,7 +495,6 @@ exports.getAllTaskwithRoomId = async (req, res) => {
   }
 };
 
-
 // get All task with RoomID
 exports.getAllTasks = async (req, res) => {
   /* 
@@ -555,7 +543,6 @@ exports.getAllTasks = async (req, res) => {
   }
 };
 
-
 // All task groupby dates
 exports.getAllTask = async (req, res) => {
   /* 
@@ -573,7 +560,6 @@ exports.getAllTask = async (req, res) => {
     {$sort:{endTime:1}},
   ])
   // .sort({endTime:1}) */
-
 
   // get login user task group by endtime n Sorted by time
   const task = await TaskModal.aggregate([
@@ -756,8 +742,6 @@ exports.getAllTask = async (req, res) => {
   }
 };
 
-
-
 // upload Task Attachments
 exports.updateTaskAttachments = async (req, res) => {
   try {
@@ -806,7 +790,6 @@ exports.updateTaskAttachments = async (req, res) => {
     return;
   }
 };
-
 
 // get All Files of Chat with RoomID
 exports.getChatAllFiles = async (req, res) => {
@@ -865,7 +848,6 @@ exports.getChatAllFiles = async (req, res) => {
     return;
   }
 };
-
 
 // get Perticular User Assign Task
 exports.getAllTaskwithUserId = async (req, res) => {
@@ -971,7 +953,6 @@ exports.getAllTaskwithUserId = async (req, res) => {
   }
 };
 
-
 // get Perticular User Assign Task
 exports.getAllTaskwithUserIds = async (req, res) => {
   try {
@@ -1076,18 +1057,14 @@ exports.getAllTaskwithUserIds = async (req, res) => {
   }
 };
 
-
-
-
 // get task sorted by Date
 exports.getSortedLoginUserTask = async (req, res) => {
   try {
-    
     const task = await TaskModal.aggregate([
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
-          endTime: { $gt: today.toDate() }
+          endTime: { $gt: today.toDate() },
         },
       },
 
@@ -1118,12 +1095,12 @@ exports.getSortedLoginUserTask = async (req, res) => {
           roomId: 1, // 1 means show n 0 means not show
           senderId: 1,
           receiverId: 1,
-          comments:1,
-          description:1,
-          Additional_Details:1,
-          Attachments:1,
-          endTime:1,
-          status:1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1132,7 +1109,7 @@ exports.getSortedLoginUserTask = async (req, res) => {
           "Receiver.ProfileIcon": 1,
         },
       },
-      
+
       {
         $group: {
           // _id:"$endTime",
@@ -1179,7 +1156,6 @@ exports.getSortedLoginUserTask = async (req, res) => {
   }
 };
 
-
 // get task sorted by Date
 exports.getSortedByMonthLoginUserTask = async (req, res) => {
   try {
@@ -1187,7 +1163,7 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
-          endTime: { $gt: today.toDate() }
+          endTime: { $gt: today.toDate() },
         },
       },
       {
@@ -1217,12 +1193,12 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
           roomId: 1, // 1 means show n 0 means not show
           senderId: 1,
           receiverId: 1,
-          comments:1,
-          description:1,
-          Additional_Details:1,
-          Attachments:1,
-          endTime:1,
-          status:1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1249,7 +1225,6 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
     ]);
 
     if (task.length > 0) {
-
       res.status(StatusCodes.OK).send({
         status: true,
         task: task,
@@ -1273,11 +1248,9 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
   }
 };
 
-
 // get task sorted by Date
 exports.getSelectedMonthLoginUserTask = async (req, res) => {
   try {
-
     const { date } = req.body;
 
     let startingMoment = moment(date);
@@ -1301,7 +1274,7 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
           // endTime: { $gt: today.toDate() }
           endTime: {
             $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
-            $lte: endOfMonth.toDate() // Less than or equal to the end of the month
+            $lte: endOfMonth.toDate(), // Less than or equal to the end of the month
           },
         },
       },
@@ -1332,12 +1305,12 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
           roomId: 1, // 1 means show n 0 means not show
           senderId: 1,
           receiverId: 1,
-          comments:1,
-          description:1,
-          Additional_Details:1,
-          Attachments:1,
-          endTime:1,
-          status:1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1364,7 +1337,6 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
     ]);
 
     if (task.length > 0) {
-
       /* await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
@@ -1393,18 +1365,17 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
   }
 };
 
-
 // All task groupby dates both sender n received
 exports.getAllTasksss = async (req, res) => {
-  try{
-  /* 
+  try {
+    /* 
     const task = await TaskModal.find()
       .populate("senderId", "ProfileIcon Status name email")
       .populate("receiverId", "ProfileIcon Status name email"); 
     */
 
-  // to group the table
-  /*   const task = await TaskModal.aggregate([
+    // to group the table
+    /*   const task = await TaskModal.aggregate([
     {$group:{
       _id:"$endTime",
       data: {$push:"$description"} // show onlt perticular params
@@ -1413,66 +1384,65 @@ exports.getAllTasksss = async (req, res) => {
   ])
   // .sort({endTime:1}) */
 
+    const today = new Date(); // Get today's date
 
-  const today = new Date(); // Get today's date
-
-  // get login user task group by endtime n Sorted by time
-  const task = await TaskModal.aggregate([
-    {
-      $match: {
-        $or:[
-          {
-            receiverId: new ObjectId(req.user.id),
-          },
-          {
-            senderId: new ObjectId(req.user.id),
-          },
-        ],
-      endTime: { $gt: today }
+    // get login user task group by endtime n Sorted by time
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+          ],
+          endTime: { $gt: today },
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "senderId",
-        foreignField: "_id",
-        as: "Sender",
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
       },
-    },
-    {
-      $unwind: "$Sender",
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "receiverId",
-        foreignField: "_id",
-        as: "Receiver",
+      {
+        $unwind: "$Sender",
       },
-    },
-    {
-      $unwind: "$Receiver",
-    },
-    {
-      $project: {
-        roomId: 1, // 1 means show n 0 means not show
-        senderId: 1,
-        receiverId: 1,
-        comments:1,
-        description:1,
-        Additional_Details:1,
-        Attachments:1,
-        endTime:1,
-        status:1,
-        "Sender._id": 1,
-        "Sender.name": 1,
-        "Sender.ProfileIcon": 1,
-        "Receiver._id": 1,
-        "Receiver.name": 1,
-        "Receiver.ProfileIcon": 1,
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
       },
-    },
-/*     {
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      /*     {
       $group: {
         // _id:"$endTime",
         _id: {
@@ -1486,11 +1456,11 @@ exports.getAllTasksss = async (req, res) => {
         count: { $sum: 1 },
       },
     }, */
-    { $sort: { _id: 1 } }, // sort by date   no of user in one group
-  ]);
-  // .sort({endTime:1})
+      { $sort: { _id: 1 } }, // sort by date   no of user in one group
+    ]);
+    // .sort({endTime:1})
 
-  /*   // max time find data
+    /*   // max time find data
   const task = await TaskModal.aggregate([
     {$group:{
       _id:"$endTime",
@@ -1506,7 +1476,7 @@ exports.getAllTasksss = async (req, res) => {
   // .sort({endTime:1})
  */
 
-  /* // sum of ages of employees
+    /* // sum of ages of employees
     const task = await TaskModal.aggregate([
       {$group:{
         _id:"$age",
@@ -1515,8 +1485,8 @@ exports.getAllTasksss = async (req, res) => {
       }},
     ]) */
 
-  // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
-  /*   const task = await TaskModal.aggregate([
+    // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
+    /*   const task = await TaskModal.aggregate([
     {
       $unwind: "$Attachments",
     },
@@ -1529,7 +1499,7 @@ exports.getAllTasksss = async (req, res) => {
     },
   ]); */
 
-  /*   // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
+    /*   // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
   const task = await TaskModal.aggregate([
     {
       $unwind: "$Attachments",
@@ -1543,7 +1513,7 @@ exports.getAllTasksss = async (req, res) => {
     },
   ]); */
 
-  /*     // count the no of attachments (1st Way)
+    /*     // count the no of attachments (1st Way)
     const task = await TaskModal.aggregate([
       {
         $unwind: "$Attachments",
@@ -1558,7 +1528,7 @@ exports.getAllTasksss = async (req, res) => {
       },
     ]); */
 
-  /*   // count the no of attachments (2nd Way)
+    /*   // count the no of attachments (2nd Way)
   const task = await TaskModal.aggregate([
     {
       $group: {
@@ -1570,8 +1540,8 @@ exports.getAllTasksss = async (req, res) => {
     },
   ]); */
 
-  // count the no of attachments (3rd Way)  if some attachments are null then
-  /*   const task = await TaskModal.aggregate([
+    // count the no of attachments (3rd Way)  if some attachments are null then
+    /*   const task = await TaskModal.aggregate([
     {
       $group: {
         _id: null,
@@ -1582,7 +1552,7 @@ exports.getAllTasksss = async (req, res) => {
     },
   ]); */
 
-  /*   // All attachments
+    /*   // All attachments
     const task = await TaskModal.aggregate([
       {
         $unwind: "$Attachments",
@@ -1596,8 +1566,8 @@ exports.getAllTasksss = async (req, res) => {
       },
     ]); */
 
-  // All attachments
-  /*    const task = await TaskModal.aggregate([
+    // All attachments
+    /*    const task = await TaskModal.aggregate([
     {
       $unwind: "$Attachments",
     },
@@ -1609,8 +1579,8 @@ exports.getAllTasksss = async (req, res) => {
     },
   ]); */
 
-  // average of score of students whose age is greater than 20
-  /*   const task = await TaskModal.aggregate([
+    // average of score of students whose age is greater than 20
+    /*   const task = await TaskModal.aggregate([
     {
       $group: {
         _id: null,
@@ -1627,36 +1597,184 @@ exports.getAllTasksss = async (req, res) => {
     },
   ]); */
 
-  // even age student
-  /*   const task = await students.find({age:{$mod:[2,0]}}); */ // divied by 2 and remaining 0
+    // even age student
+    /*   const task = await students.find({age:{$mod:[2,0]}}); */ // divied by 2 and remaining 0
 
-  if (task.length > 0) {
+    if (task.length > 0) {
+      await TaskModal.populate(task[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
 
-    await TaskModal.populate(task[0].data, {
-      path: "senderId receiverId",
-      select: ["ProfileIcon", "Status", "email", "name"],
-    });
-
-    res.status(StatusCodes.OK).send({
-      status: true,
-      tasks: task,
-    });
-    return;
-  } else {
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "false",
-      tasks: task,
-      message: "No Task found",
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
     });
     return;
   }
-} catch (err) {
-  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-    status: "fail",
-    message: "Something went wrong",
-    error: err,
-  });
-  return;
-}
 };
 
+
+// All task groupby dates both sender n received
+exports.getAllData = async (req, res) => {
+  try {
+    const today = new Date(); // Get today's date
+
+    // get login user task group by endtime n Sorted by time
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+          ],
+          endTime: { $gt: today },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by date   no of user in one group
+    ]);
+   
+
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          $or:[
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+        ],
+        startTime: { $gt: today }
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          name:1,
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          location: 1,
+          description: 1,
+          startTime: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (task || meeting) {
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+        meetings: meeting,
+      });
+      
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        message: "No Data found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};

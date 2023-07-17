@@ -92,6 +92,7 @@ router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAl
 
 router.get('/get-all-task-user', authendiCate.authenticateToken, taskController.getAllTasksss);
 
+router.get('/get-all-data', authendiCate.authenticateToken, taskController.getAllData);
 
 // get task attachments
 router.get('/get-date-sorted-task', authendiCate.authenticateToken, taskController.getSortedLoginUserTask);
