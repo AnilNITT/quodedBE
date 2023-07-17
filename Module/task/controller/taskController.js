@@ -1471,7 +1471,7 @@ exports.getAllTasksss = async (req, res) => {
         "Receiver.ProfileIcon": 1,
       },
     },
-    {
+/*     {
       $group: {
         // _id:"$endTime",
         _id: {
@@ -1484,7 +1484,7 @@ exports.getAllTasksss = async (req, res) => {
         data: { $push: "$$ROOT" }, // show all params
         count: { $sum: 1 },
       },
-    },
+    }, */
     { $sort: { _id: 1 } }, // sort by date   no of user in one group
   ]);
   // .sort({endTime:1})
