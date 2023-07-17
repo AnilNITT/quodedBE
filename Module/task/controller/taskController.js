@@ -11,6 +11,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 var moment = require("moment");
 var today = moment().startOf("day"); // Get today's date at the beginning of the day
 
+
 exports.conversationList = async (req, res) => {
   Conversation.find(
     {
@@ -1629,7 +1630,6 @@ exports.getAllTasksss = async (req, res) => {
   }
 };
 
-
 // All task groupby dates both sender n received
 exports.getAllData = async (req, res) => {
   try {
@@ -1760,7 +1760,7 @@ exports.getAllData = async (req, res) => {
         tasks: task,
         meetings: meeting,
       });
-      
+
       return;
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
