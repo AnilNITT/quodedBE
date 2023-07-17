@@ -5,7 +5,9 @@ var MessageModal = require("../../../Model/MessageModal");
 // var bcrypt = require("bcrypt");
 var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
+var moment = require("moment");
 
+var today = moment().startOf('day'); // Get today's date at the beginning of the day
 
 // Search the user meetings list
 exports.getMeetings = (req, res) => {
@@ -318,11 +320,14 @@ exports.addMeeting = async (req, res) => {
 
 // get task sorted by Date
 exports.getSortedLoginUserMeeting = async (req, res) => {
-  // try {
+  try {
+
+
     const meeting = await Meeting.aggregate([
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
+          startTime: { $gt: today.toDate() }
         },
       },
       {
@@ -361,14 +366,14 @@ exports.getSortedLoginUserMeeting = async (req, res) => {
       });
       return;
     }
-  /* } catch (err) {
+   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
       message: "Something went wrong",
       error: err,
     });
     return;
-  } */
+  }
 };
 
 
@@ -379,6 +384,7 @@ exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
+          startTime: { $gt: today.toDate() }
         },
       },
       {
