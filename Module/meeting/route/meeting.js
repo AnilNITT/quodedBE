@@ -45,5 +45,4 @@ router.post('/get-selected-month-sorted-meeting', authendiCate.authenticateToken
 router.get('/get-all-meetings', authendiCate.authenticateToken, meetingController.getSAllMeetings);
 
 
-
 module.exports = router;

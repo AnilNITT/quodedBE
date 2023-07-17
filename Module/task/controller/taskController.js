@@ -1413,6 +1413,8 @@ exports.getAllTasksss = async (req, res) => {
   // .sort({endTime:1}) */
 
 
+  const today = new Date(); // Get today's date
+
   // get login user task group by endtime n Sorted by time
   const task = await TaskModal.aggregate([
     {
@@ -1424,7 +1426,8 @@ exports.getAllTasksss = async (req, res) => {
           {
             senderId: new ObjectId(req.user.id),
           },
-      ]
+        ],
+      endTime: { $gt: today }
       },
     },
     {
