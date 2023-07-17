@@ -23,7 +23,7 @@ const path = require("path");
 const jwt_decode =  require("jwt-decode")
 
 
-const Company = require("./Model/CompanyModel");
+// const Company = require("./Model/CompanyModel");
 const UserModel = require("./Model/UserModel");
 const Conversation = require("./Model/Conversation");
 const MessageModal = require("./Model/MessageModal");
@@ -68,20 +68,20 @@ app.use("/uploads", express.static("uploads"));
 
 app.get("/", async (req, res) => {
 
-  const data = {
+/*   const data = {
     name:"Google"
   }
 
   const company = await Company(data);
   // company.name ="META",
   await company.save();
-
+ */
   // console.log(company);
 
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data: company
+    // data: company
   });
 });
 
