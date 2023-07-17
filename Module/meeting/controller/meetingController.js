@@ -6,7 +6,6 @@ var MessageModal = require("../../../Model/MessageModal");
 var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 var moment = require("moment");
-
 var today = moment().startOf('day'); // Get today's date at the beginning of the day
 
 // Search the user meetings list

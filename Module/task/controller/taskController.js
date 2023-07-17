@@ -7,6 +7,8 @@ var { StatusCodes } = require("http-status-codes");
 var ObjectId = require("mongoose").Types.ObjectId;
 // var fs = require("fs-extra");
 // var path = require("path");
+var moment = require("moment");
+var today = moment().startOf('day'); // Get today's date at the beginning of the day
 
 
 exports.conversationList = async (req, res) => {
@@ -762,6 +764,7 @@ exports.getSortedLoginUserTask = async (req, res) => {
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
+          endTime: { $gt: today.toDate() }
         },
       },
       {
@@ -818,6 +821,7 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
+          endTime: { $gt: today.toDate() }
         },
       },
       {

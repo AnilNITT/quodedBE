@@ -32,7 +32,6 @@ const shifts = require("./Model/ShiftModal");
 
 const dateFormat = "%Y-%m-%d";
 
-
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -47,7 +46,6 @@ app.all("*", function (req, res, next) {
   // res.setHeader('Access-Control-Allow-Credentials', true);
   next();
 });
-
 
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
@@ -408,9 +406,9 @@ try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority",
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
+    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
     //"mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
-    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
+    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
