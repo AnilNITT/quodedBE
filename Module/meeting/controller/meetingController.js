@@ -6,11 +6,10 @@ var MessageModal = require("../../../Model/MessageModal");
 var ObjectId = require("mongoose").Types.ObjectId;
 var { StatusCodes } = require("http-status-codes");
 var moment = require("moment");
-var today = moment().startOf('day'); // Get today's date at the beginning of the day
+var today = moment().startOf("day"); // Get today's date at the beginning of the day
 
 // Search the user meetings list
 exports.getMeetings = (req, res) => {
-
   console.log({ senderId: ObjectId(req.user.id) }, { receiverId: req.user.id });
 
   Meeting.find(
@@ -24,7 +23,6 @@ exports.getMeetings = (req, res) => {
     }
   );
 };
-
 
 // update the task or Task status
 exports.updateMeetingStatus = async (req, res) => {
@@ -41,27 +39,25 @@ exports.updateMeetingStatus = async (req, res) => {
 
     const meeting = await Meeting.findById(meetingId);
 
-    if(meeting) {
-
+    if (meeting) {
       const meetings = await Meeting.findByIdAndUpdate(
         { _id: meetingId },
         { status: status },
         { new: true }
       );
-  
+
       /* const msgs = await MessageModal.findOneAndUpdate(
         { taskId: meetingId },
         { status: status },
         { new: true }
       ); */
-  
+
       res.status(StatusCodes.OK).send({
         status: true,
         message: "meeting status updated successfully",
         data: meetings,
       });
-      return; 
-
+      return;
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "fail",
@@ -94,34 +90,32 @@ exports.reviseMeetingDate = async (req, res) => {
 
     const meeting = await Meeting.findById(meetingId);
 
-    if(meeting) {
-
+    if (meeting) {
       const data = {
-        description:description,
+        description: description,
         startTime: startTime,
         endTime: endTime,
-        status: "Revise Date"
-      }
+        status: "Revise Date",
+      };
 
       const meetings = await Meeting.findByIdAndUpdate(
         { _id: meetingId },
         { $set: data },
         { new: true }
       );
-  
+
       /* const msgs = await MessageModal.findOneAndUpdate(
         { taskId: meetingId },
         { status: status },
         { new: true }
       ); */
-  
+
       res.status(StatusCodes.OK).send({
         status: true,
         message: "meeting date revised successfully",
         data: meetings,
       });
-      return; 
-
+      return;
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "fail",
@@ -138,7 +132,6 @@ exports.reviseMeetingDate = async (req, res) => {
     return;
   }
 };
-
 
 // deny the meeting
 exports.denyMeeting = async (req, res) => {
@@ -155,32 +148,30 @@ exports.denyMeeting = async (req, res) => {
 
     const meeting = await Meeting.findById(meetingId);
 
-    if(meeting) {
-
+    if (meeting) {
       const data = {
-        description:description,
-        status: "Deny Meeting"
-      }
+        description: description,
+        status: "Deny Meeting",
+      };
 
       const meetings = await Meeting.findByIdAndUpdate(
         { _id: meetingId },
         { $set: data },
         { new: true }
       );
-  
+
       /* const msgs = await MessageModal.findOneAndUpdate(
         { taskId: meetingId },
         { status: status },
         { new: true }
       ); */
-  
+
       res.status(StatusCodes.OK).send({
         status: true,
         message: "meeting deny successfully",
         data: meetings,
       });
-      return; 
-
+      return;
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "fail",
@@ -197,7 +188,6 @@ exports.denyMeeting = async (req, res) => {
     return;
   }
 };
-
 
 // get single meeting details
 exports.getmeetingDetails = async (req, res) => {
@@ -217,8 +207,7 @@ exports.getmeetingDetails = async (req, res) => {
         .populate("receiverId", "ProfileIcon Status name email");
 
       if (meeting) {
-
-       /*  if(new Date().getTime() > new Date(task.endTime).getTime()){
+        /*  if(new Date().getTime() > new Date(task.endTime).getTime()){
           if(task.status != "Completed"){
             task.status = "Overdue";
             await task.save();
@@ -238,7 +227,6 @@ exports.getmeetingDetails = async (req, res) => {
         return;
       }
     }
-
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
@@ -249,20 +237,28 @@ exports.getmeetingDetails = async (req, res) => {
   }
 };
 
-
 // Add Meeting
 exports.addMeeting = async (req, res) => {
-    const { name, roomId, type, senderId, receiverId, repeat, location, description, startTime, endTime } = req.body;
+  const {
+    name,
+    roomId,
+    type,
+    senderId,
+    receiverId,
+    repeat,
+    location,
+    description,
+    startTime,
+    endTime,
+  } = req.body;
 
-    let counts = 0;
-    let lengths = roomId.length;
-    // const DateData = [];
+  let counts = 0;
+  let lengths = roomId.length;
+  // const DateData = [];
 
-    if(lengths > 0) {
-    roomId.forEach(async(rooms, index) => {
-
+  if (lengths > 0) {
+    roomId.forEach(async (rooms, index) => {
       receiverId.forEach(async (receivers, rindex) => {
-
         if (index === rindex) {
           const msgdata = {
             type: type,
@@ -278,8 +274,8 @@ exports.addMeeting = async (req, res) => {
             roomId: rooms,
             senderId: senderId,
             receiverId: receivers,
-            location:location,
-            repeat:repeat,
+            location: location,
+            repeat: repeat,
             description: description,
             startTime: startTime,
             endTime: endTime,
@@ -287,7 +283,6 @@ exports.addMeeting = async (req, res) => {
 
           let meeting = await Meeting.create(data);
           await meeting.save();
-
 
           message.meeting = meeting._id;
           await message.save();
@@ -304,28 +299,24 @@ exports.addMeeting = async (req, res) => {
         }
       });
     });
-    } else {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            status: "fail",
-            message: "No RoomID found",
-            error: err,
-          });
-          return;
-    }
-
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "No RoomID found",
+      error: err,
+    });
+    return;
+  }
 };
-
 
 // get task sorted by Date
 exports.getSortedLoginUserMeeting = async (req, res) => {
   try {
-
-
     const meeting = await Meeting.aggregate([
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
-          startTime: { $gt: today.toDate() }
+          startTime: { $gt: today.toDate() },
         },
       },
       {
@@ -364,7 +355,7 @@ exports.getSortedLoginUserMeeting = async (req, res) => {
       });
       return;
     }
-   } catch (err) {
+  } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",
       message: "Something went wrong",
@@ -374,7 +365,6 @@ exports.getSortedLoginUserMeeting = async (req, res) => {
   }
 };
 
-
 // get task sorted by Date
 exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
   try {
@@ -382,7 +372,7 @@ exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
       {
         $match: {
           receiverId: new ObjectId(req.user.id),
-          startTime: { $gt: today.toDate() }
+          startTime: { $gt: today.toDate() },
         },
       },
       {
@@ -431,3 +421,80 @@ exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
   }
 };
 
+// get task sorted by Date
+exports.getSelectedMonthLoginUserMeeting = async (req, res) => {
+  // try {
+    const { date } = req.body;
+
+    let startingMoment = moment(date);
+
+    let year = startingMoment.year();
+    let month = startingMoment.month();
+
+    // const startOfMonth = moment({ year, month: month - 1 }).startOf("month");
+    // const endOfMonth = moment({ year, month: month - 1 }).endOf("month");
+
+    const startOfMonth = moment({ year, month: month }).startOf("month");
+    const endOfMonth = moment({ year, month: month }).endOf("month");
+
+
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+          startTime: {
+            $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
+            $lte: endOfMonth.toDate() // Less than or equal to the end of the month
+          },
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          // _id: { $dayOfMonth: '$startTime' },
+       /*    _id: {
+            month: { $month: '$startTime' },
+            year: { $year: '$startTime' }
+          }, */
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$startTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (meeting.length > 0) {
+      await Meeting.populate(meeting[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        meeting: meeting,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        meeting: meeting,
+        message: "No Meeting found",
+      });
+      return;
+    }
+  // } catch (err) {
+  //   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+  //     status: "fail",
+  //     message: "Something went wrong",
+  //     error: err,
+  //   });
+  //   return;
+  // }
+};

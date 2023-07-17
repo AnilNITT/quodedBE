@@ -96,6 +96,9 @@ router.get('/get-date-sorted-task', authendiCate.authenticateToken, taskControll
 // get task attachments
 router.get('/get-month-sorted-task', authendiCate.authenticateToken, taskController.getSortedByMonthLoginUserTask);
 
+// get task attachments
+router.post('/get-selected-month-sorted-task', authendiCate.authenticateToken, taskController.getSelectedMonthLoginUserTask);
+
 const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 
 router.post('/multiple-task-attchments', uploadMultiple.single('file'), function (req, res) { 

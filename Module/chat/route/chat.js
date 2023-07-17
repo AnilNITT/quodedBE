@@ -40,7 +40,7 @@ const upload = multer({ storage: storage });
 
 
 // send text message
-// router.post('/send-text-message',authendiCate.authenticateToken,chatController.sendTextMessage)
+router.post('/send-text-message',authendiCate.authenticateToken,chatController.sendTextMessage)
 
 router.get('/conversation-list',authendiCate.authenticateToken,chatController.conversationList)
 router.post('/coversation-start',authendiCate.authenticateToken,chatController.coversationStart)

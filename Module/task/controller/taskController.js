@@ -574,6 +574,7 @@ exports.getAllTask = async (req, res) => {
   ])
   // .sort({endTime:1}) */
 
+  
   // get login user task group by endtime n Sorted by time
   const task = await TaskModal.aggregate([
     {
@@ -755,120 +756,6 @@ exports.getAllTask = async (req, res) => {
   }
 };
 
-
-// get task sorted by Date
-exports.getSortedLoginUserTask = async (req, res) => {
-  try {
-    
-    const task = await TaskModal.aggregate([
-      {
-        $match: {
-          receiverId: new ObjectId(req.user.id),
-          endTime: { $gt: today.toDate() }
-        },
-      },
-      {
-        $group: {
-          // _id:"$endTime",
-          _id: {
-            $dateToString: {
-              format: "%d-%m-%Y",
-              date: "$endTime",
-            },
-          },
-          // _id: { $substr: ["$endTime", 0,10] },
-          data: { $push: "$$ROOT" }, // show all params
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: -1 } }, // sort by count   no of user in one group
-    ]);
-
-    if (task.length > 0) {
-      await TaskModal.populate(task[0].data, {
-        path: "senderId receiverId",
-        select: ["ProfileIcon", "Status", "email", "name"],
-      });
-
-      res.status(StatusCodes.OK).send({
-        status: true,
-        task: task,
-      });
-      return;
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-        status: "false",
-        tasks: task,
-        message: "No Task found",
-      });
-      return;
-    }
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
-};
-
-
-// get task sorted by Date
-exports.getSortedByMonthLoginUserTask = async (req, res) => {
-  try {
-    const task = await TaskModal.aggregate([
-      {
-        $match: {
-          receiverId: new ObjectId(req.user.id),
-          endTime: { $gt: today.toDate() }
-        },
-      },
-      {
-        $group: {
-          // _id:"$endTime",
-          _id: {
-            $dateToString: {
-              format: "%m-%Y",
-              date: "$endTime",
-            },
-          },
-          // _id: { $substr: ["$endTime", 0,10] },
-          data: { $push: "$$ROOT" }, // show all params
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } }, // sort by count   no of user in one group
-    ]);
-
-    if (task.length > 0) {
-      await TaskModal.populate(task[0].data, {
-        path: "senderId receiverId",
-        select: ["ProfileIcon", "Status", "email", "name"],
-      });
-
-      res.status(StatusCodes.OK).send({
-        status: true,
-        task: task,
-      });
-      return;
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-        status: "false",
-        tasks: task,
-        message: "No Task found",
-      });
-      return;
-    }
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-      status: "fail",
-      message: "Something went wrong",
-      error: err,
-    });
-    return;
-  }
-};
 
 
 // upload Task Attachments
@@ -1188,3 +1075,197 @@ exports.getAllTaskwithUserIds = async (req, res) => {
     return;
   }
 };
+
+
+
+
+// get task sorted by Date
+exports.getSortedLoginUserTask = async (req, res) => {
+  try {
+    
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+          endTime: { $gt: today.toDate() }
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%d-%m-%Y",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: -1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (task.length > 0) {
+      await TaskModal.populate(task[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        task: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+
+// get task sorted by Date
+exports.getSortedByMonthLoginUserTask = async (req, res) => {
+  try {
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+          endTime: { $gt: today.toDate() }
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (task.length > 0) {
+      await TaskModal.populate(task[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        task: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+
+// get task sorted by Date
+exports.getSelectedMonthLoginUserTask = async (req, res) => {
+  try {
+
+    const { date } = req.body;
+
+    let startingMoment = moment(date);
+
+    let year = startingMoment.year();
+    let month = startingMoment.month();
+
+    // const startOfMonth = moment({ year, month: month - 1 }).startOf("month");
+    // const endOfMonth = moment({ year, month: month - 1 }).endOf("month");
+
+    const startOfMonth = moment({ year, month: month }).startOf("month");
+    const endOfMonth = moment({ year, month: month }).endOf("month");
+
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+          // endTime: { $gt: today.toDate() }
+          endTime: {
+            $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
+            $lte: endOfMonth.toDate() // Less than or equal to the end of the month
+          },
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (task.length > 0) {
+      await TaskModal.populate(task[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        task: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+

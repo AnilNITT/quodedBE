@@ -37,4 +37,8 @@ router.get('/get-date-sorted-meeting', authendiCate.authenticateToken, meetingCo
 router.get('/get-month-sorted-meeting', authendiCate.authenticateToken, meetingController.getSortedByMonthLoginUserMeeting);
 
 
+// get task attachments
+router.post('/get-selected-month-sorted-meeting', authendiCate.authenticateToken, meetingController.getSelectedMonthLoginUserMeeting);
+
+
 module.exports = router;

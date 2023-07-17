@@ -23,6 +23,7 @@ const path = require("path");
 const jwt_decode =  require("jwt-decode")
 
 
+const Company = require("./Model/CompanyModel");
 const UserModel = require("./Model/UserModel");
 const Conversation = require("./Model/Conversation");
 const MessageModal = require("./Model/MessageModal");
@@ -66,12 +67,21 @@ app.use("/uploads", express.static("uploads"));
 
 
 app.get("/", async (req, res) => {
-  
-  const data  =await require("./Model/TempLogin").find();
+
+  const data = {
+    name:"Google"
+  }
+
+  const company = await Company(data);
+  // company.name ="META",
+  await company.save();
+
+  // console.log(company);
+
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data: data
+    data: company
   });
 });
 
@@ -226,10 +236,11 @@ socketIO.on("connection", async (socket) => {
 
   // Send conversation list
   socket.on("coversation-list", async (data) => {
-    let updateReceived = await MessageModal.updateMany(
+
+    /* let updateReceived = await MessageModal.updateMany(
       { receiverId: socket.decoded.id, seenStatus: "send" },
       { seenStatus: "received" }
-    );
+    ); */
 
     const conversations = Conversation.find({
       members: { $in: [socket.decoded.id] },
@@ -346,11 +357,12 @@ socketIO.on("connection", async (socket) => {
       /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
-        }); */
+      }); */
 
       socket.emit("message", getAllmessage);
       socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
+
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
         { seenStatus: "seened" }
@@ -407,7 +419,7 @@ try {
   mongoose.connect(
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority",
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
-    //"mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
+    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
     "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,

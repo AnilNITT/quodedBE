@@ -197,6 +197,7 @@ exports.getconversation = async (req, res) => {
   res.json({ data: getAllmessage });
 };
 
+
 // send image auido vedio files in messages
 exports.sendMultimediaMessage = async (req, res) => {
   try {
@@ -232,6 +233,7 @@ exports.sendMultimediaMessage = async (req, res) => {
     return;
   }
 };
+
 
 // get single conversation all multimedia files
 exports.getFiles = async (req, res) => {
@@ -284,7 +286,7 @@ exports.getFiles = async (req, res) => {
   }
 };
 
-/* 
+
 exports.sendTextMessage = async (req, res) => {
   const { type, text, roomId, senderId, receiverId } = req.body;
 
@@ -303,7 +305,7 @@ exports.sendTextMessage = async (req, res) => {
   });
   return;
 };
-*/
+
 
 exports.conversatioUnseenCount = async (req, res) => {
   try {
@@ -426,6 +428,7 @@ exports.conversatioUnseenCount = async (req, res) => {
     return;
   }
 };
+
 
 exports.SearchConversation = async (req, res) => {
   try {
