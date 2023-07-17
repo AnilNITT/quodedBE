@@ -1396,6 +1396,7 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
 
 // All task groupby dates both sender n received
 exports.getAllTasksss = async (req, res) => {
+  try{
   /* 
     const task = await TaskModal.find()
       .populate("senderId", "ProfileIcon Status name email")
@@ -1649,5 +1650,13 @@ exports.getAllTasksss = async (req, res) => {
     });
     return;
   }
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
 

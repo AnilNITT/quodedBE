@@ -544,7 +544,9 @@ exports.getSelectedMonthLoginUserMeeting = async (req, res) => {
 
 // get task sorted by Date
 exports.getSAllMeetings = async (req, res) => {
-  // try {
+  try {
+
+  const today = new Date(); // Get today's date
 
     const meeting = await Meeting.aggregate([
       {
@@ -556,7 +558,8 @@ exports.getSAllMeetings = async (req, res) => {
             {
               senderId: new ObjectId(req.user.id),
             },
-        ]
+        ],
+        startTime: { $gt: today }
         },
         /* $match: {
           receiverId: new ObjectId(req.user.id),
@@ -607,14 +610,14 @@ exports.getSAllMeetings = async (req, res) => {
           "Receiver.ProfileIcon": 1,
         },
       },
-      {
+/*       {
         $group: {
           // _id:"$endTime",
           // _id: { $dayOfMonth: '$startTime' },
-       /*    _id: {
-            month: { $month: '$startTime' },
-            year: { $year: '$startTime' }
-          }, */
+          // _id: {
+          //   month: { $month: '$startTime' },
+          //   year: { $year: '$startTime' }
+          // },
           _id: {
             $dateToString: {
               format: "%m-%Y",
@@ -625,7 +628,7 @@ exports.getSAllMeetings = async (req, res) => {
           data: { $push: "$$ROOT" }, // show all params
           count: { $sum: 1 },
         },
-      },
+      }, */
       { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
@@ -644,12 +647,12 @@ exports.getSAllMeetings = async (req, res) => {
       });
       return;
     }
-  // } catch (err) {
-  //   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-  //     status: "fail",
-  //     message: "Something went wrong",
-  //     error: err,
-  //   });
-  //   return;
-  // }
+    } catch (err) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Something went wrong",
+        error: err,
+      });
+      return;
+    }
 };
