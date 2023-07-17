@@ -10,7 +10,7 @@ var today = moment().startOf("day"); // Get today's date at the beginning of the
 
 // Search the user meetings list
 exports.getMeetings = (req, res) => {
-  console.log({ senderId: ObjectId(req.user.id) }, { receiverId: req.user.id });
+  // console.log({ senderId: ObjectId(req.user.id) }, { receiverId: req.user.id });
 
   Meeting.find(
     { $or: [{ senderId: req.user.id }, { receiverId: req.user.id }] },
@@ -446,6 +446,47 @@ exports.getSelectedMonthLoginUserMeeting = async (req, res) => {
             $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
             $lte: endOfMonth.toDate() // Less than or equal to the end of the month
           },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          name:1,
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          location: 1,
+          description: 1,
+          startTime: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
         },
       },
       {

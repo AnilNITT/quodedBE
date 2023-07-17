@@ -90,6 +90,9 @@ router.post('/update-task-attachments', upload.array('files'),taskController.upd
 router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAllTask);
 
 
+router.get('/get-all-task-user', authendiCate.authenticateToken, taskController.getAllTasksss);
+
+
 // get task attachments
 router.get('/get-date-sorted-task', authendiCate.authenticateToken, taskController.getSortedLoginUserTask);
 

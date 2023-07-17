@@ -574,7 +574,7 @@ exports.getAllTask = async (req, res) => {
   ])
   // .sort({endTime:1}) */
 
-  
+
   // get login user task group by endtime n Sorted by time
   const task = await TaskModal.aggregate([
     {
@@ -1090,6 +1090,49 @@ exports.getSortedLoginUserTask = async (req, res) => {
           endTime: { $gt: today.toDate() }
         },
       },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments:1,
+          description:1,
+          Additional_Details:1,
+          Attachments:1,
+          endTime:1,
+          status:1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      
       {
         $group: {
           // _id:"$endTime",
@@ -1108,10 +1151,10 @@ exports.getSortedLoginUserTask = async (req, res) => {
     ]);
 
     if (task.length > 0) {
-      await TaskModal.populate(task[0].data, {
-        path: "senderId receiverId",
-        select: ["ProfileIcon", "Status", "email", "name"],
-      });
+      // await TaskModal.populate(task[0].data, {
+      //   path: "senderId receiverId",
+      //   select: ["ProfileIcon", "Status", "email", "name"],
+      // });
 
       res.status(StatusCodes.OK).send({
         status: true,
@@ -1148,6 +1191,47 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments:1,
+          description:1,
+          Additional_Details:1,
+          Attachments:1,
+          endTime:1,
+          status:1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      {
         $group: {
           // _id:"$endTime",
           _id: {
@@ -1165,10 +1249,6 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
     ]);
 
     if (task.length > 0) {
-      await TaskModal.populate(task[0].data, {
-        path: "senderId receiverId",
-        select: ["ProfileIcon", "Status", "email", "name"],
-      });
 
       res.status(StatusCodes.OK).send({
         status: true,
@@ -1211,6 +1291,9 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
     const startOfMonth = moment({ year, month: month }).startOf("month");
     const endOfMonth = moment({ year, month: month }).endOf("month");
 
+    // console.log(startOfMonth.toDate());
+    // console.log(endOfMonth.toDate());
+
     const task = await TaskModal.aggregate([
       {
         $match: {
@@ -1220,6 +1303,47 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
             $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
             $lte: endOfMonth.toDate() // Less than or equal to the end of the month
           },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments:1,
+          description:1,
+          Additional_Details:1,
+          Attachments:1,
+          endTime:1,
+          status:1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
         },
       },
       {
@@ -1240,10 +1364,11 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
     ]);
 
     if (task.length > 0) {
-      await TaskModal.populate(task[0].data, {
+
+      /* await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
-      });
+      }); */
 
       res.status(StatusCodes.OK).send({
         status: true,
@@ -1268,4 +1393,258 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
   }
 };
 
+
+// All task groupby dates both sender n received
+exports.getAllTasksss = async (req, res) => {
+  /* 
+    const task = await TaskModal.find()
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email"); 
+    */
+
+  // to group the table
+  /*   const task = await TaskModal.aggregate([
+    {$group:{
+      _id:"$endTime",
+      data: {$push:"$description"} // show onlt perticular params
+    }},
+    {$sort:{endTime:1}},
+  ])
+  // .sort({endTime:1}) */
+
+
+  // get login user task group by endtime n Sorted by time
+  const task = await TaskModal.aggregate([
+    {
+      $match: {
+        $or:[
+          {
+            receiverId: new ObjectId(req.user.id),
+          },
+          {
+            senderId: new ObjectId(req.user.id),
+          },
+      ]
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "senderId",
+        foreignField: "_id",
+        as: "Sender",
+      },
+    },
+    {
+      $unwind: "$Sender",
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "receiverId",
+        foreignField: "_id",
+        as: "Receiver",
+      },
+    },
+    {
+      $unwind: "$Receiver",
+    },
+    {
+      $project: {
+        roomId: 1, // 1 means show n 0 means not show
+        senderId: 1,
+        receiverId: 1,
+        comments:1,
+        description:1,
+        Additional_Details:1,
+        Attachments:1,
+        endTime:1,
+        status:1,
+        "Sender._id": 1,
+        "Sender.name": 1,
+        "Sender.ProfileIcon": 1,
+        "Receiver._id": 1,
+        "Receiver.name": 1,
+        "Receiver.ProfileIcon": 1,
+      },
+    },
+    {
+      $group: {
+        // _id:"$endTime",
+        _id: {
+          $dateToString: {
+            format: "%d-%m-%Y",
+            date: "$endTime",
+          },
+        },
+        // _id: { $substr: ["$endTime", 0,10] },
+        data: { $push: "$$ROOT" }, // show all params
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } }, // sort by date   no of user in one group
+  ]);
+  // .sort({endTime:1})
+
+  /*   // max time find data
+  const task = await TaskModal.aggregate([
+    {$group:{
+      _id:"$endTime",
+      data: {$push:"$$ROOT"}, // show all params
+      count:{$sum:1}
+    }},
+    {$sort:{count:-1}}, // sort by count   no of user in one group
+    {$group:{
+      _id:null,
+      max: {$max:"$count"}, // show max time present data
+    }},
+  ])
+  // .sort({endTime:1})
+ */
+
+  /* // sum of ages of employees
+    const task = await TaskModal.aggregate([
+      {$group:{
+        _id:"$age",
+        // data: {$push:"$$ROOT"}, // show all params
+        count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      }},
+    ]) */
+
+  // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
+  /*   const task = await TaskModal.aggregate([
+    {
+      $unwind: "$Attachments",
+    },
+    {
+      $group: {
+        _id: null,  // _id null measns all the data become one
+        data: { $push: "$Attachments" }, // show all params
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+  /*   // got 2d array of attatchments from diffrent tasks but $unwind make a flat array of all the attachments
+  const task = await TaskModal.aggregate([
+    {
+      $unwind: "$Attachments",
+    },
+    {
+      $group: {
+        _id: "$roomId",
+        data: { $push: "$Attachments" }, // show all params
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+  /*     // count the no of attachments (1st Way)
+    const task = await TaskModal.aggregate([
+      {
+        $unwind: "$Attachments",
+      },
+      {
+        $group: {
+          _id: "$roomId",
+          count:{$sum:1},// count the no of attachments
+          data: { $push: "$Attachments" }, // show all params
+          // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+        },
+      },
+    ]); */
+
+  /*   // count the no of attachments (2nd Way)
+  const task = await TaskModal.aggregate([
+    {
+      $group: {
+        _id: null,
+        // data: { $push: "$Attachments" }, // show all params
+        count: {$sum:{$size:"$Attachments"}}, // count the no of attachments
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+  // count the no of attachments (3rd Way)  if some attachments are null then
+  /*   const task = await TaskModal.aggregate([
+    {
+      $group: {
+        _id: null,
+        // data: { $push: "$Attachments" }, // show all params
+        count: { $sum: { $size: {$ifNull:["$Attachments",[]]} } }, // count the no of attachments
+        // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+      },
+    },
+  ]); */
+
+  /*   // All attachments
+    const task = await TaskModal.aggregate([
+      {
+        $unwind: "$Attachments",
+      },
+      {
+        $group: {
+          _id: null,
+          data: { $push: "$Attachments" }, // show all params also show duplicate
+          // count:{$sum:{$toDouble:"$age"}}  // sum of ages of employee
+        },
+      },
+    ]); */
+
+  // All attachments
+  /*    const task = await TaskModal.aggregate([
+    {
+      $unwind: "$Attachments",
+    },
+    {
+      $group: {
+        _id: null,
+        data: { $addToSet: "$Attachments" }, // show all params but remove all duplicate
+      },
+    },
+  ]); */
+
+  // average of score of students whose age is greater than 20
+  /*   const task = await TaskModal.aggregate([
+    {
+      $group: {
+        _id: null,
+        avgScore:{
+          $avg :{
+            $filter :{
+              input:"$scores", // param name
+              as: "score",
+              cond: { $gt : ["$age", 20] }
+            }
+          }
+        }
+      },
+    },
+  ]); */
+
+  // even age student
+  /*   const task = await students.find({age:{$mod:[2,0]}}); */ // divied by 2 and remaining 0
+
+  if (task.length > 0) {
+
+    await TaskModal.populate(task[0].data, {
+      path: "senderId receiverId",
+      select: ["ProfileIcon", "Status", "email", "name"],
+    });
+
+    res.status(StatusCodes.OK).send({
+      status: true,
+      tasks: task,
+    });
+    return;
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "false",
+      tasks: task,
+      message: "No Task found",
+    });
+    return;
+  }
+};
 
