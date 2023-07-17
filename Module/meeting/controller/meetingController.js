@@ -421,6 +421,7 @@ exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
   }
 };
 
+
 // get task sorted by Date
 exports.getSelectedMonthLoginUserMeeting = async (req, res) => {
   // try {
@@ -516,6 +517,119 @@ exports.getSelectedMonthLoginUserMeeting = async (req, res) => {
         path: "senderId receiverId",
         select: ["ProfileIcon", "Status", "email", "name"],
       });
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        meeting: meeting,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        meeting: meeting,
+        message: "No Meeting found",
+      });
+      return;
+    }
+  // } catch (err) {
+  //   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+  //     status: "fail",
+  //     message: "Something went wrong",
+  //     error: err,
+  //   });
+  //   return;
+  // }
+};
+
+
+// get task sorted by Date
+exports.getSAllMeetings = async (req, res) => {
+  // try {
+
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          $or:[
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+        ]
+        },
+        /* $match: {
+          receiverId: new ObjectId(req.user.id),
+          startTime: {
+            $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
+            $lte: endOfMonth.toDate() // Less than or equal to the end of the month
+          },
+        }, */
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          name:1,
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          location: 1,
+          description: 1,
+          startTime: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          // _id: { $dayOfMonth: '$startTime' },
+       /*    _id: {
+            month: { $month: '$startTime' },
+            year: { $year: '$startTime' }
+          }, */
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$startTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (meeting.length > 0) {
 
       res.status(StatusCodes.OK).send({
         status: true,
