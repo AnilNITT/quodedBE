@@ -79,7 +79,6 @@ exports.updateMeetingStatus = async (req, res) => {
   }
 };
 
-
 // update the meeting time
 exports.reviseMeetingDate = async (req, res) => {
   try {
@@ -431,3 +430,4 @@ exports.getSortedByMonthLoginUserMeeting = async (req, res) => {
     return;
   }
 };
+
