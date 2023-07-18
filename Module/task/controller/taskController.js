@@ -11,7 +11,6 @@ var ObjectId = require("mongoose").Types.ObjectId;
 var moment = require("moment");
 var today = moment().startOf("day"); // Get today's date at the beginning of the day
 
-
 exports.conversationList = async (req, res) => {
   Conversation.find(
     {
@@ -1693,8 +1692,361 @@ exports.getAllData = async (req, res) => {
       },
       { $sort: { _id: 1 } }, // sort by date   no of user in one group
     ]);
-   
 
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+          ],
+          startTime: { $gt: today },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          name: 1,
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          location: 1,
+          description: 1,
+          startTime: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (task || meeting) {
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+        meetings: meeting,
+      });
+
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        message: "No Data found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+// get task sorted by Date
+exports.getSelectedMonthAllData = async (req, res) => {
+  try {
+    const { date } = req.body;
+
+    let startingMoment = moment(date);
+
+    let year = startingMoment.year();
+    let month = startingMoment.month();
+
+    // const startOfMonth = moment({ year, month: month - 1 }).startOf("month");
+    // const endOfMonth = moment({ year, month: month - 1 }).endOf("month");
+
+    const startOfMonth = moment({ year, month: month }).startOf("month");
+    const endOfMonth = moment({ year, month: month }).endOf("month");
+
+    // console.log(startOfMonth.toDate());
+    // console.log(endOfMonth.toDate());
+
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+          ],
+          endTime: {
+            $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
+            $lte: endOfMonth.toDate(), // Less than or equal to the end of the month
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    const meeting = await Meeting.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+          ],
+          startTime: {
+            $gte: startOfMonth.toDate(), // Greater than or equal to the start of the month
+            $lte: endOfMonth.toDate(), // Less than or equal to the end of the month
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          name: 1,
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          location: 1,
+          description: 1,
+          startTime: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    if (task || meeting) {
+      /* await TaskModal.populate(task[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      }); */
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        task: task,
+        meetings: meeting,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};
+
+// get task sorted by Date
+exports.getSelectedWeekAllData = async (req, res) => {
+  try {
+    const { date } = req.body;
+
+    let startingMoment = moment(date);
+
+    const startOfWeek = startingMoment.clone().startOf("week");
+    const endOfWeek = startingMoment.clone().endOf("week");
+
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          $or:[
+            {
+              receiverId: new ObjectId(req.user.id),
+            },
+            {
+              senderId: new ObjectId(req.user.id),
+            },
+        ],
+        endTime:{
+          $gte: startOfWeek.toDate(), // Greater than or equal to the start of the month
+          $lte: endOfWeek.toDate(), // Less than or equal to the end of the month
+        },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          comments: 1,
+          description: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+      {
+        $group: {
+          // _id:"$endTime",
+          _id: {
+            $dateToString: {
+              format: "%d-%m-%Y",
+              date: "$endTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } }, // sort by count   no of user in one group
+    ]);
+
+    
     const meeting = await Meeting.aggregate([
       {
         $match: {
@@ -1706,7 +2058,10 @@ exports.getAllData = async (req, res) => {
               senderId: new ObjectId(req.user.id),
             },
         ],
-        startTime: { $gt: today }
+        startTime:{
+          $gte: startOfWeek.toDate(), // Greater than or equal to the start of the month
+          $lte: endOfWeek.toDate(), // Less than or equal to the end of the month
+        },
         },
       },
       {
@@ -1750,22 +2105,45 @@ exports.getAllData = async (req, res) => {
           "Receiver.ProfileIcon": 1,
         },
       },
+      {
+        $group: {
+          // _id:"$endTime",
+          // _id: { $dayOfMonth: '$startTime' },
+       /*    _id: {
+            month: { $month: '$startTime' },
+            year: { $year: '$startTime' }
+          }, */
+          _id: {
+            $dateToString: {
+              format: "%m-%Y",
+              date: "$startTime",
+            },
+          },
+          // _id: { $substr: ["$endTime", 0,10] },
+          data: { $push: "$$ROOT" }, // show all params
+          count: { $sum: 1 },
+        },
+      },
       { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
     if (task || meeting) {
+      /* await TaskModal.populate(task[0].data, {
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      }); */
 
       res.status(StatusCodes.OK).send({
         status: true,
         tasks: task,
-        meetings: meeting,
+        meetings:meeting
       });
-
       return;
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "false",
-        message: "No Data found",
+        tasks: task,
+        message: "No Task found",
       });
       return;
     }

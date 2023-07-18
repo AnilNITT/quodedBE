@@ -92,7 +92,13 @@ router.get('/get-all-task', authendiCate.authenticateToken, taskController.getAl
 
 router.get('/get-all-task-user', authendiCate.authenticateToken, taskController.getAllTasksss);
 
+
 router.get('/get-all-data', authendiCate.authenticateToken, taskController.getAllData);
+
+router.post('/get-select-month-all-data', authendiCate.authenticateToken, taskController.getSelectedMonthAllData);
+
+router.post('/get-select-week-all-data', authendiCate.authenticateToken, taskController.getSelectedWeekAllData);
+
 
 // get task attachments
 router.get('/get-date-sorted-task', authendiCate.authenticateToken, taskController.getSortedLoginUserTask);

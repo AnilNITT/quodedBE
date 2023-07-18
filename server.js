@@ -20,8 +20,7 @@ const multer = require("multer");
 const crypto = require("crypto");
 const fs = require("fs-extra");
 const path = require("path");
-const jwt_decode =  require("jwt-decode")
-
+const jwt_decode = require("jwt-decode");
 
 const Company = require("./Model/CompanyModel");
 const UserModel = require("./Model/UserModel");
@@ -32,7 +31,6 @@ const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/ShiftModal");
 
 const dateFormat = "%Y-%m-%d";
-
 
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -56,43 +54,27 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
-
 // JSON type request accept with express json
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
-
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-
-app.get("/", async (req, res) => {
-
-  const data = {
-    name:"Google"
-  }
-
-  const company = await Company(data);
-  // company.name ="META",
-  await company.save();
-
-  console.log(company);
-
+app.get("/get", async (req, res) => {
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data: company
+    // token:token
   });
 });
-
 
 // Socket io route implementation
 app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-
 
 // User router
 app.use(express.static("uploads"));
@@ -103,7 +85,6 @@ app.use("/templogin", templogin);
 app.use("/meetings", meeting);
 app.use("/check", check);
 app.use("/shift", shift);
-
 
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
@@ -139,8 +120,10 @@ app.post("/meeting", async function (req, res) {
 
 // Socket connection intialize
 socketIO.use(function (socket, next) {
+
   // console.log("socket.handshake.query",socket.handshake.query);
   if (socket.handshake.query && socket.handshake.query.token) {
+    
     jwt.verify(
       socket.handshake.query.token,
       config.secret_key,
@@ -237,7 +220,6 @@ socketIO.on("connection", async (socket) => {
 
   // Send conversation list
   socket.on("coversation-list", async (data) => {
-
     /* let updateReceived = await MessageModal.updateMany(
       { receiverId: socket.decoded.id, seenStatus: "send" },
       { seenStatus: "received" }
@@ -363,7 +345,6 @@ socketIO.on("connection", async (socket) => {
       socket.emit("message", getAllmessage);
       socket.broadcast.emit("message", getAllmessage);
     } else if (data.roomId) {
-
       let updateReceived = await MessageModal.updateMany(
         { receiverId: socket.decoded.id, roomId: data.roomId },
         { seenStatus: "seened" }
@@ -388,14 +369,12 @@ socketIO.on("connection", async (socket) => {
       socket.broadcast.emit("message", getAllmessage);
     }
   });
-  
 
   // Join personal chat
   socket.on("join", async (data) => {
     socket.join(data.roomId);
     socket.emit("joined", data);
   });
-
 
   // Disconnect the socket
   socket.on("disconnect", async () => {
@@ -413,12 +392,10 @@ socketIO.on("connection", async (socket) => {
   });
 });
 
-
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
-    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/quoded?retryWrites=true&w=majority",
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
     "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
@@ -439,16 +416,13 @@ try {
   console.error(error);
 }
 
-
 // Define the port from helper file
 const PORT = config.app.port;
-
 
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
 
 // Multer image error handler
 function errHandler(err, req, res, next) {
@@ -461,3 +435,22 @@ function errHandler(err, req, res, next) {
 }
 
 app.use(errHandler);
+
+/* name
+Jacques
+
+email
+mjameelandroid@gmail.com
+
+PhoneNumber
+966567054272
+
+
+name
+Ben
+
+email
+jameel86@gmail.com
+
+PhoneNumber
+5068973848 */
