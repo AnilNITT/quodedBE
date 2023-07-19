@@ -9,5 +9,6 @@ router.post('/verifyotp',tempController.verifyOtp);
 
 router.post('/verification',tempController.Verification);
 
+router.get('/getall',tempController.getAll);
 
 module.exports = router;
