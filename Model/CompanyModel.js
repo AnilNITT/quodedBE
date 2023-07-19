@@ -8,7 +8,7 @@ const companySchema = new mongoose.Schema({
         required: true,
     }
 },{
-    timestamps:true,
+    // timestamps:true,
 });
 
 // Apply the auto-increment plugin to the schema

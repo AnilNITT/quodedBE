@@ -12,6 +12,8 @@ var templogin = require("./Module/tempLogin/route/templogin");
 var meeting = require("./Module/meeting/route/meeting");
 const check = require("./Module/checkinout/route/checkinout");
 const shift = require("./Module/shift/route/shift");
+const company = require("./Module/company/route/company");
+const employee = require("./Module/employee/route/employee");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
@@ -22,7 +24,6 @@ const fs = require("fs-extra");
 const path = require("path");
 const jwt_decode = require("jwt-decode");
 
-const Company = require("./Model/CompanyModel");
 const UserModel = require("./Model/UserModel");
 const Conversation = require("./Model/Conversation");
 const MessageModal = require("./Model/MessageModal");
@@ -62,13 +63,17 @@ app.use(morgan("dev"));
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-app.get("/get", async (req, res) => {
+
+app.get("/", async (req, res) => {
+
+const randomFiveDigitNumber = require("./helper/GenerateId").generateId();
   res.send({
     status: true,
     message: "Quoded Server runing",
-    // token:token
+    data:randomFiveDigitNumber
   });
 });
+
 
 // Socket io route implementation
 app.use((req, res, next) => {
@@ -85,6 +90,9 @@ app.use("/templogin", templogin);
 app.use("/meetings", meeting);
 app.use("/check", check);
 app.use("/shift", shift);
+app.use("/company", company);
+app.use("/employee", employee);
+
 
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
@@ -422,7 +430,7 @@ const PORT = config.app.port;
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
+})
 
 // Multer image error handler
 function errHandler(err, req, res, next) {
@@ -430,27 +438,23 @@ function errHandler(err, req, res, next) {
     res.json({
       success: 0,
       message: err.message,
-    });
+    });                                                                                                                        
   }
 }
 
+
 app.use(errHandler);
 
-/* name
-Jacques
 
-email
-mjameelandroid@gmail.com
+/* 
 
-PhoneNumber
-966567054272
+name : Jacques
+email : mjameelandroid@gmail.com
+PhoneNumber : 966567054272
 
 
-name
-Ben
+name : Ben
+email : jameel86@gmail.com
+PhoneNumber : 5068973848 
 
-email
-jameel86@gmail.com
-
-PhoneNumber
-5068973848 */
+*/

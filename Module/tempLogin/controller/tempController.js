@@ -1,9 +1,10 @@
 var tempLogin = require("../../../Model/TempLogin");
-var users = require("../../../Model/UserModel");
+var Users = require("../../../Model/UserModel");
 var sendEmail = require("../../../helper/sendEmail");
 var { StatusCodes } = require("http-status-codes");
 var jwt = require("jsonwebtoken");
 var config = require("../../../helper/config");
+var {generateId} = require("../../../helper/GenerateId");
 
 
 // Send OTP to verify phone number and email address
@@ -23,7 +24,7 @@ exports.sendOtp = async function (req, res) {
 
     if (email.includes("@")) {
 
-      let user = await users.findOne({ email: email });
+      let user = await Users.findOne({ email: email });
       
       if (user) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -57,7 +58,7 @@ exports.sendOtp = async function (req, res) {
       }
     } else {
       const phonenumber = Number(email);
-      let user = await users.findOne({ PhoneNumber: phonenumber });
+      let user = await Users.findOne({ PhoneNumber: phonenumber });
 
       if (user) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -103,6 +104,16 @@ exports.verifyOtp = async (req, res) => {
 
     if (email.includes("@")) {
 
+      let data = await Users.findOne({ email: email });
+      
+      if (data) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "User email already exits",
+        });
+        return;
+      }
+
       let user = await tempLogin
         .findOne({ email: email.toLowerCase() })
         .sort({ createdAt: -1 });
@@ -123,8 +134,9 @@ exports.verifyOtp = async (req, res) => {
         return;
       } else {
 
-        const user = new users();
+        const user = new Users();
         user.email.push(email.toLowerCase());
+        user.user_id = generateId();
         await user.save();
 
         const token = jwt.sign(
@@ -146,6 +158,17 @@ exports.verifyOtp = async (req, res) => {
         });
       }
     } else {
+
+      let data = await Users.findOne({ PhoneNumber: Number(email) });
+
+      if (data) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+          status: "fail",
+          message: "phonenumber already exits",
+        });
+        return;
+      }
+
       let user = await tempLogin.findOne({ phone: Number(email) }).sort({ createdAt: -1 });
 
       if (!user) {
@@ -164,8 +187,9 @@ exports.verifyOtp = async (req, res) => {
         return;
       } else {
 
-        const user = new users();
+        const user = new Users();
         user.PhoneNumber.push(Number(email));
+        user.user_id = await generateId();
         await user.save();
 
         const token = jwt.sign(

@@ -7,6 +7,10 @@ var UserSchema = new mongoose.Schema(
   {
     // firstname:{type:String, required : true},
     // lastname:{type:String, required : false},
+    user_id: {
+      type: Number,
+      unique : true,
+    },
     name: {
       type: String,
       required: false,
