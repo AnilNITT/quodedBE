@@ -290,7 +290,7 @@ exports.Verification = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
-    let user = await tempLogin.find();
+    let user = await tempLogin.find().sort({createdAt: -1});
 
     res.status(StatusCodes.OK).json({
       status: true,
