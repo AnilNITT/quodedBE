@@ -63,17 +63,114 @@ app.use(morgan("dev"));
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-
 app.get("/", async (req, res) => {
+  const payload = {
+    iss: "VdK72Ly1Tp2z3DjlfiTTMw",
+    exp: new Date().getTime() + 5000,
+  };
+  const token = jwt.sign(payload, "yKfXPJT8SUAVuZGnrV1JYMoOK0D9fOdOgf0y");
 
-const randomFiveDigitNumber = require("./helper/GenerateId").generateId();
+  const meetingdetails = {
+    topic: "Demo Meeting",
+    type: 2,
+    start_time: "2023-06-28T10: 21: 57",
+    duration: "45",
+    // timezone: "Europe/Madrid",
+    timezone: "UTC",
+    agenda: "test",
+
+    recurrence: { type: 1, repeat_interval: 1 },
+    settings: {
+      host_video: "true",
+      participant_video: "true",
+      join_before_host: "False",
+      mute_upon_entry: "False",
+      watermark: "true",
+      audio: "voip",
+      auto_recording: "none",
+      waiting_room: "False",
+    },
+  };
+
+  const email = "patidaranil0791@gmail.com";
+  /* const response = await axios.post(
+  `https://api.zoom.us/v2/users/me/meetings`,
+  meetingdetails,
+  {
+    headers: {
+      Authorization: "Bearer " + token,
+      "User-Agent": "Zoom-api-Jwt-Request",
+      "content-type": "application/json",
+    },
+  }
+);
+ */
+  const response = await axios.post(
+    // `https://api.zoom.us/v2/users/${email}/meetings`,
+    `https://api.zoom.us/v2/users/me/meetings`,
+    {
+      topic: "Demo Meeting",
+      type: 1, // Scheduled meeting
+      start_time: "2023-07-28T10: 21: 57",
+      duration: "45",
+      timezone: "UTC",
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  // console.log(response);
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data:randomFiveDigitNumber
+    data: response.data,
   });
 });
 
+
+app.get("/callback", function(req, res) {
+  res.send({
+    status: true,
+    message: "Quoded Server runing",
+  });
+})
+
+app.get("/call", async (req, res) => {
+
+  // const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
+  const ZOOM_API_BASE_URL = "https://zoom.us";
+  
+  const API_KEY = "VdK72Ly1Tp2z3DjlfiTTMw";
+  const API_SECRET = "yKfXPJT8SUAVuZGnrV1JYMoOK0D9fOdOgf0y";
+  const FROM_PHONE_NUMBER = "9630196313";
+  const TO_PHONE_NUMBER = "7000269701";
+
+  const authToken = Buffer.from(`${API_KEY}:${API_SECRET}`).toString('base64');
+  
+    // Step 1: Get an access token
+  const { data: accessTokenResponse } = await axios.post(
+      `${ZOOM_API_BASE_URL}/oauth/token`,
+      {
+        grant_type: 'authorization_code',
+      },
+      {
+        headers: {
+          Authorization: `Basic ${authToken}`,
+        },
+      }
+    );
+
+    const accessToken = accessTokenResponse.access_token;
+
+  // console.log(response);
+  res.send({
+    status: true,
+    message: "Quoded Server runing",
+    data:authToken
+  });
+});
 
 // Socket io route implementation
 app.use((req, res, next) => {
@@ -92,7 +189,6 @@ app.use("/check", check);
 app.use("/shift", shift);
 app.use("/company", company);
 app.use("/employee", employee);
-
 
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
@@ -125,13 +221,10 @@ app.post("/meeting", async function (req, res) {
   }
 });
 
-
 // Socket connection intialize
 socketIO.use(function (socket, next) {
-
   // console.log("socket.handshake.query",socket.handshake.query);
   if (socket.handshake.query && socket.handshake.query.token) {
-    
     jwt.verify(
       socket.handshake.query.token,
       config.secret_key,
@@ -145,7 +238,6 @@ socketIO.use(function (socket, next) {
     next(new Error("Authentication error"));
   }
 });
-
 
 socketIO.on("connection", async (socket) => {
   // "socket.decoded.id"   login user id
@@ -430,7 +522,7 @@ const PORT = config.app.port;
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-})
+});
 
 // Multer image error handler
 function errHandler(err, req, res, next) {
@@ -438,16 +530,13 @@ function errHandler(err, req, res, next) {
     res.json({
       success: 0,
       message: err.message,
-    });                                                                                                                        
+    });
   }
 }
 
-
 app.use(errHandler);
 
-
 /* 
-
 name : Jacques
 email : mjameelandroid@gmail.com
 PhoneNumber : 966567054272
@@ -456,5 +545,4 @@ PhoneNumber : 966567054272
 name : Ben
 email : jameel86@gmail.com
 PhoneNumber : 5068973848 
-
 */
