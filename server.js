@@ -65,10 +65,14 @@ app.use("/uploads", express.static("uploads"));
 
 app.get("/", async (req, res) => {
   const payload = {
-    iss: "VdK72Ly1Tp2z3DjlfiTTMw",
+    // iss: "VdK72Ly1Tp2z3DjlfiTTMw",
+    iss: "vk5qWEGTU2Qmpl9oZScww",
     exp: new Date().getTime() + 5000,
   };
-  const token = jwt.sign(payload, "yKfXPJT8SUAVuZGnrV1JYMoOK0D9fOdOgf0y");
+  // const token = jwt.sign(payload, "yKfXPJT8SUAVuZGnrV1JYMoOK0D9fOdOgf0y");
+  // const token = jwt.sign(payload, "4n2PoeiKlgsT5wOAbBLNguNYNqbnKTzo");
+
+  const token = "eyJzdiI6IjAwMDAwMSIsImFsZyI6IkhTNTEyIiwidiI6IjIuMCIsImtpZCI6IjJhZmNmNmEyLThjNTAtNDhmYy1hOWQyLTRmMWY0MWVmNGE4NCJ9.eyJ2ZXIiOjksImF1aWQiOiJmMDNkZjg3ZjMxNzA0ODM3ZWFjYzg4YjgwNTEzYWRjMCIsImNvZGUiOiI2RlpaUjhyekxGWTZZLWlsSGc3UjBPRHRyRW1oVHBpWXciLCJpc3MiOiJ6bTpjaWQ6dms1cVdFR1RVMlFtcGw5b1pTY3d3IiwiZ25vIjowLCJ0eXBlIjowLCJ0aWQiOjAsImF1ZCI6Imh0dHBzOi8vb2F1dGguem9vbS51cyIsInVpZCI6IjJSbnVjMldLUjA2MGozWnhrV1VEZmciLCJuYmYiOjE2ODk4MzYzMzcsImV4cCI6MTY4OTgzOTkzNywiaWF0IjoxNjg5ODM2MzM3LCJhaWQiOiJydWhNdlNqWVJUZTNkUWdneUlMMzBBIn0.l3s8xWfPhXbBWYGdp6wCMh09D1LL5wArSF6x9I1oMbSkJOkkM1jYwEb9V-5ht3W_Ssj5aFnw1uPHyy88pSwviQ"
 
   const meetingdetails = {
     topic: "Demo Meeting",
@@ -92,7 +96,10 @@ app.get("/", async (req, res) => {
     },
   };
 
-  const email = "patidaranil0791@gmail.com";
+  // const email = "patidaranil0791@gmail.com";
+  const email = "akp0791@gmail.com";
+  // const email = "rpramavtar@gmail.com";
+  
   /* const response = await axios.post(
   `https://api.zoom.us/v2/users/me/meetings`,
   meetingdetails,
@@ -104,10 +111,22 @@ app.get("/", async (req, res) => {
     },
   }
 );
+
  */
-  const response = await axios.post(
-    // `https://api.zoom.us/v2/users/${email}/meetings`,
-    `https://api.zoom.us/v2/users/me/meetings`,
+
+try{
+const response = await axios.get(
+  `https://api.zoom.us/v2/users/${email}`,
+ 
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+/*   const response = await axios.post(
+    `https://api.zoom.us/v2/users/${email}/meetings`,
+    // `https://api.zoom.us/v2/users/me/meetings`,
     {
       topic: "Demo Meeting",
       type: 1, // Scheduled meeting
@@ -120,13 +139,19 @@ app.get("/", async (req, res) => {
         Authorization: `Bearer ${token}`,
       },
     }
-  );
-  // console.log(response);
+  ); */
   res.send({
     status: true,
     message: "Quoded Server runing",
     data: response.data,
   });
+
+} catch (err) {
+  res.send({
+    status: false,
+    data: err,
+  });
+}
 });
 
 
