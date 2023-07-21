@@ -19,10 +19,10 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 // const cryptoen = require("./helper/Crypto");
 // var CryptoJS = require("crypto-js");
-const crypto = require("crypto");
-const fs = require("fs-extra");
-const path = require("path");
-const jwt_decode = require("jwt-decode");
+// const crypto = require("crypto");
+// const fs = require("fs-extra");
+// const path = require("path");
+// const jwt_decode = require("jwt-decode");
 
 const UserModel = require("./Model/UserModel");
 const Conversation = require("./Model/Conversation");
@@ -31,7 +31,7 @@ const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/ShiftModal");
 
-const dateFormat = "%Y-%m-%d";
+// const dateFormat = "%Y-%m-%d";
 
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -67,7 +67,8 @@ app.use("/uploads", express.static("uploads"));
 
 app.get("/", async(req, res)=> {
 
-  const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
+  try{
+    const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
   const API_KEY = "rntB6_6kSniGQxEzJBU67g";
   const API_SECRET = "leAr6jJE4AEALcmhwRLlFunkCMdSSAws";
   const FROM_PHONE_NUMBER = "9630196313";
@@ -94,6 +95,13 @@ app.get("/", async(req, res)=> {
     message: "Quoded Server runing",
     data:makeCallResponse
   });
+  } catch(err){
+    res.send({
+      status: "false",
+      message: "Something went wrong",
+      error:err
+    });
+  }
 });
 
 
@@ -469,6 +477,7 @@ function errHandler(err, req, res, next) {
 
 
 app.use(errHandler);
+
 
 /* 
 name : Jacques
