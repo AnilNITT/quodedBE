@@ -8,7 +8,7 @@ var employeeSchema = new mongoose.Schema({
         ref: 'Company' , 
     },
     user_id: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.Number, 
         ref: 'users' , 
     },
     employee_name:{
