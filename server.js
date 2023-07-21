@@ -60,21 +60,49 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-app.get("/", function(req, res) {
+
+app.get("/", async(req, res)=> {
+
+  const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
+  const API_KEY = "rntB6_6kSniGQxEzJBU67g";
+  const API_SECRET = "leAr6jJE4AEALcmhwRLlFunkCMdSSAws";
+  const FROM_PHONE_NUMBER = "9630196313";
+  const TO_PHONE_NUMBER = "7000269701";
+
+  const accessToken = "eyJzdiI6IjAwMDAwMSIsImFsZyI6IkhTNTEyIiwidiI6IjIuMCIsImtpZCI6IjhmMWE4NTcyLWVmMTUtNDM1Zi05YmU2LWE0YjI0MWY2MzVkOCJ9.eyJ2ZXIiOjksImF1aWQiOiIyNDQ1N2VhMjVjNmMwNmI0YzE4ZTM0NDE5OGE3ZDFkNyIsImNvZGUiOiIzcTdPUnA5ME5VSzZEVEc3V1BQVHRPNXpocjdRekxLU0EiLCJpc3MiOiJ6bTpjaWQ6dms1cVdFR1RVMlFtcGw5b1pTY3d3IiwiZ25vIjowLCJ0eXBlIjowLCJ0aWQiOjAsImF1ZCI6Imh0dHBzOi8vb2F1dGguem9vbS51cyIsInVpZCI6IjJSbnVjMldLUjA2MGozWnhrV1VEZmciLCJuYmYiOjE2ODk4NTAyNDQsImV4cCI6MTY4OTg1Mzg0NCwiaWF0IjoxNjg5ODUwMjQ0LCJhaWQiOiJydWhNdlNqWVJUZTNkUWdneUlMMzBBIn0.ifIwpisFIfUU0UdWdf9dCAvbjY8hEnDUoY71Adchgvqr_ZoLl6S_0kXlyMlWCPuFVDhEMzT5H5iJYtKsTIQV4Q"
+
+      // Step 2: Make the voice call
+  const { data: makeCallResponse } = await axios.post(
+      `${ZOOM_API_BASE_URL}/phone/call/make`,
+      {
+        from: FROM_PHONE_NUMBER,
+        to: TO_PHONE_NUMBER,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
   res.send({
     status: true,
     message: "Quoded Server runing",
+    data:makeCallResponse
   });
-})
+});
+
 
 // Socket io route implementation
 app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
+
 
 // User router
 app.use(express.static("uploads"));
@@ -87,6 +115,7 @@ app.use("/check", check);
 app.use("/shift", shift);
 app.use("/company", company);
 app.use("/employee", employee);
+
 
 app.post("/meeting", async function (req, res) {
   const { topic, start_time, duration } = req.body;
@@ -119,6 +148,7 @@ app.post("/meeting", async function (req, res) {
   }
 });
 
+
 // Socket connection intialize
 socketIO.use(function (socket, next) {
   // console.log("socket.handshake.query",socket.handshake.query);
@@ -136,6 +166,7 @@ socketIO.use(function (socket, next) {
     next(new Error("Authentication error"));
   }
 });
+
 
 socketIO.on("connection", async (socket) => {
   // "socket.decoded.id"   login user id
@@ -390,13 +421,15 @@ socketIO.on("connection", async (socket) => {
   });
 });
 
+
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
+    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
+    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotestssss?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -414,13 +447,16 @@ try {
   console.error(error);
 }
 
+
 // Define the port from helper file
 const PORT = config.app.port;
+
 
 // Server running and listen the port
 http.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
 
 // Multer image error handler
 function errHandler(err, req, res, next) {
@@ -431,6 +467,7 @@ function errHandler(err, req, res, next) {
     });
   }
 }
+
 
 app.use(errHandler);
 

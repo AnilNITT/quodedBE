@@ -234,11 +234,12 @@ exports.sendMultimediaMessage = async (req, res) => {
   }
 };
 
-
 // get single conversation all multimedia files
 exports.getFiles = async (req, res) => {
   try {
+
     const { roomId } = req.query;
+    
     if (roomId === undefined || roomId.length < 24) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         error: "error",

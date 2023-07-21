@@ -440,7 +440,7 @@ exports.updateProfilePicture = async (req, res) => {
 
 // update profile
 exports.updateProfile = async (req, res) => {
-  // try {
+  try {
     // get Login user
     const userdata = req.user;
 
@@ -508,14 +508,14 @@ exports.updateProfile = async (req, res) => {
       });
       return;
     }
-  // } catch (err) {
-  //   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-  //     status: "fail",
-  //     message: "Something went wrong",
-  //     error: err,
-  //   });
-  //   return;
-  // }
+    } catch (err) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Something went wrong",
+        error: err,
+      });
+      return;
+    }
 };
 
 
