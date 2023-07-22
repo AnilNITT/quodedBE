@@ -33,13 +33,14 @@ exports.sendOtp = async function (req, res) {
         let newUser = await tempLogin.create({ email: email.toLowerCase() });
 
         const otp = Math.floor(10000 + Math.random() * 90000);
-        const mail = await sendEmail(email, otp);
+        const mail = await sendEmail({email, otp});
         newUser.otp = otp;
 
         if (mail.status !== true) {
           res.status(StatusCodes.OK).json({
             status: false,
             message: "Email OTP send Error",
+            error:mail.error
           });
           return;
         }

@@ -42,6 +42,10 @@ const upload = multer({ storage: storage });
 // send text message
 router.post('/send-text-message',authendiCate.authenticateToken,chatController.sendTextMessage);
 
+
+// send text message to Email and phone Number
+router.post('/send-message',authendiCate.authenticateToken,chatController.sendTextEmailAndPhone);
+
 // delete text message
 router.delete('/delete-text-message',authendiCate.authenticateToken,chatController.deleteTextMessage);
 

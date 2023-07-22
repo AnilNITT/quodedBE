@@ -5,6 +5,7 @@ const TaskModal = require("../../../Model/TaskModal");
 var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
+var sendEmail = require("../../../helper/sendEmail");
 
 
 exports.conversationList = async (req, res) => {
@@ -567,3 +568,65 @@ exports.deleteTextMessage = async (req, res) => {
   return;
 }
 };
+
+
+exports.sendTextEmailAndPhone = async (req, res) => {
+  try{
+
+  const { senderId, receiverId, text, type } = req.body;
+
+  if (receiverId == undefined || senderId == undefined) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "sender & receiver user is required",
+      status: "fail",
+    });
+    return;
+  }
+
+  const sender = await UserModel.findById(senderId);
+  const receiver = await UserModel.findById(receiverId);
+
+  if(!receiver || !sender){
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Sender Or Receiver Not found",
+    });
+    return;
+  }
+
+  if (type === "email") {
+      // let mail ={}
+      const mail = await sendEmail({email:receiver.email[0],name:sender.name,text});
+
+      if (mail.status !== true) {
+        res.status(StatusCodes.OK).json({
+          status: false,
+          message: "Email Send Message Error",
+        });
+        return;
+      }
+
+      res.status(StatusCodes.OK).json({
+        status: true,
+        message: "Mesage sent to Email successfully",
+      });
+      return;
+
+  } else {
+
+      res.status(StatusCodes.OK).json({
+        status: true,
+        message: "Message send to Phone number successfully",
+      });
+      return;
+  }
+  } catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
+};
+

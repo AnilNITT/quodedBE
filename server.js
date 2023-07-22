@@ -17,6 +17,8 @@ const employee = require("./Module/employee/route/employee");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const moment = require('moment');
+const EventEmitter = require('events');
 // const cryptoen = require("./helper/Crypto");
 // var CryptoJS = require("crypto-js");
 // const crypto = require("crypto");
@@ -32,6 +34,12 @@ const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/ShiftModal");
 
 // const dateFormat = "%Y-%m-%d";
+
+
+const myEmitter = new EventEmitter();
+// Increase the limit to 15 (or any desired value)
+myEmitter.setMaxListeners(15);
+
 
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -67,6 +75,51 @@ app.use("/uploads", express.static("uploads"));
 
 app.get("/", async(req, res)=> {
 
+  const inputString = "! Anil /do the development report /on 29 january 2023 /by 22:00 pm";
+
+  if(inputString.startsWith("!")) {
+
+  // const regex1 = /\/do (.+) \/on/i; // 'i' flag for case-insensitive search
+  const regex1 = /\/do(.*?)\/on/i; // 'i' flag for case-insensitive search
+  const match = inputString.match(regex1)? inputString.match(regex1)[1].trim() : null;
+
+  // const regex = /\btask\b/gi;
+  // const type = inputString.match(regex)?.length >0 ? inputString.match(regex)[0]:null;
+  
+  const datePattern = /(\d{1,2} \w+ \d{4})/;
+  const timePattern = /(\d{1,2}:\d{2} [apAP][mM])/;
+
+  // Extract date and time using the regular expressions
+  const dateMatch = inputString.match(datePattern);
+  const timeMatch = inputString.match(timePattern);
+
+  if (dateMatch && timeMatch) {
+    // Combine date and time strings
+    const datetimeStr = dateMatch[1] + ' ' + timeMatch[1];
+
+    // Parse the datetime string using moment.js and convert to desired format
+  const datetimeObj = moment(datetimeStr, "DD MMM YYYY h:mm A").format();
+  
+  res.send({
+    status: true,
+    message: "Quoded Server runing",
+    data:datetimeObj,
+    type:"task",
+    description:match
+  });
+  
+}
+  } else {
+    res.send({
+      status: true,
+      message: "Quoded Server runing",
+    });
+  }
+});
+
+
+app.get("/call", async(req, res)=> {
+
   try{
     const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
   const API_KEY = "rntB6_6kSniGQxEzJBU67g";
@@ -95,6 +148,7 @@ app.get("/", async(req, res)=> {
     message: "Quoded Server runing",
     data:makeCallResponse
   });
+
   } catch(err){
     res.send({
       status: "false",
@@ -489,10 +543,7 @@ name : Jacques
 email : mjameelandroid@gmail.com
 PhoneNumber : 966567054272
 
-
 name : Ben
 email : jameel86@gmail.com
 PhoneNumber : 5068973848 
 */
-
-// delete message
