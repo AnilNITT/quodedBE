@@ -55,7 +55,7 @@ const socketIO = require("socket.io")(http, {
   },
 });
 
-// JSON type request accept with express json
+// JSON type request accept with express json.
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
@@ -110,7 +110,6 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-
 
 // User router
 app.use(express.static("uploads"));
@@ -361,6 +360,10 @@ socketIO.on("connection", async (socket) => {
       } else {
         // encrypt the message
         // message.text = cryptoen.encryption(data.text);
+        if(data.oldMessageId){
+          message.oldMessageId = data.oldMessageId;
+        }
+        
         message.text = data.text;
       }
 
@@ -371,6 +374,7 @@ socketIO.on("connection", async (socket) => {
         .populate("meeting")
         .populate("shiftId")
         .populate("checkId")
+        .populate("oldMessageId")
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
@@ -392,6 +396,7 @@ socketIO.on("connection", async (socket) => {
         .populate("meeting")
         .populate("shiftId")
         .populate("checkId")
+        .populate("oldMessageId")
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
@@ -489,3 +494,5 @@ name : Ben
 email : jameel86@gmail.com
 PhoneNumber : 5068973848 
 */
+
+// delete message

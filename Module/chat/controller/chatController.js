@@ -6,6 +6,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
 
+
 exports.conversationList = async (req, res) => {
   const conversation = await Conversation.find({
     members: { $in: [req.user.id] },
@@ -82,6 +83,7 @@ exports.conversationList = async (req, res) => {
   }
 };
 
+
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
 
@@ -143,6 +145,7 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
+
 exports.acceptTask = async (req, res) => {
   let { messageId } = req.body;
   if (messageId == undefined) {
@@ -173,6 +176,7 @@ exports.acceptTask = async (req, res) => {
   }
 };
 
+
 exports.getconversation = async (req, res) => {
   const { roomId } = req.body;
 
@@ -186,6 +190,7 @@ exports.getconversation = async (req, res) => {
     .populate("meeting")
     .populate("checkId")
     .populate("shiftId")
+    .populate("oldMessageId")
     .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email");
 
@@ -233,6 +238,7 @@ exports.sendMultimediaMessage = async (req, res) => {
     return;
   }
 };
+
 
 // get single conversation all multimedia files
 exports.getFiles = async (req, res) => {
@@ -285,26 +291,6 @@ exports.getFiles = async (req, res) => {
     });
     return;
   }
-};
-
-
-exports.sendTextMessage = async (req, res) => {
-  const { type, text, roomId, senderId, receiverId } = req.body;
-
-  let message = new MessageModal();
-  message.type = type;
-  message.roomId = roomId;
-  message.senderId = senderId;
-  message.receiverId = receiverId;
-  message.text = text;
-
-  await message.save();
-
-  res.status(StatusCodes.OK).send({
-    status: true,
-    data: message,
-  });
-  return;
 };
 
 
@@ -506,4 +492,78 @@ exports.SearchConversation = async (req, res) => {
     });
     return;
   }
+};
+
+
+exports.sendTextMessage = async (req, res) => {
+  try{
+  const { type, text, roomId,oldMessageId, senderId, receiverId } = req.body;
+
+  let message = new MessageModal();
+  message.type = type;
+  message.roomId = roomId;
+  message.senderId = senderId;
+  message.receiverId = receiverId;
+  message.text = text;
+
+  if(oldMessageId){
+    message.oldMessageId = oldMessageId;
+  }
+
+  await message.save();
+
+  res.status(StatusCodes.OK).send({
+    status: true,
+    data: message,
+  });
+  return;
+
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
+};
+
+
+exports.deleteTextMessage = async (req, res) => {
+  try{
+  const { messageId } = req.body;
+
+  if (messageId === undefined || messageId === "") {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Select Message to Dekete",
+    });
+    return;
+  }
+
+  const message = await MessageModal.findById(messageId);
+
+  if(!message) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "No Message found to Delete",
+    });
+    return;
+  }
+
+  await MessageModal.findByIdAndDelete(messageId);
+
+  res.status(StatusCodes.OK).send({
+    status: true,
+    message: "Message deleted successfully",
+  });
+  return;
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
