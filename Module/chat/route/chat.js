@@ -42,16 +42,25 @@ const upload = multer({ storage: storage });
 // send text message
 router.post('/send-text-message',authendiCate.authenticateToken,chatController.sendTextMessage);
 
+// delete text message
 router.delete('/delete-text-message',authendiCate.authenticateToken,chatController.deleteTextMessage);
 
+// get login user conversation list
 router.get('/conversation-list',authendiCate.authenticateToken,chatController.conversationList)
+
+// start conversation with new user
 router.post('/coversation-start',authendiCate.authenticateToken,chatController.coversationStart)
+
+// accept the task
 router.post('/task-accept',authendiCate.authenticateToken,chatController.acceptTask)
 
+// get single conversation
 router.post('/getconversation',authendiCate.authenticateToken,chatController.getconversation)
 
+// search user in conversation list
 router.post('/search-user',authendiCate.authenticateToken,chatController.SearchConversation)
 
+// get login user conversations with count of new messages
 router.get('/conversationcount',authendiCate.authenticateToken,chatController.conversatioUnseenCount)
 
 // send image auido vedio files in messages
