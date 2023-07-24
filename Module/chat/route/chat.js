@@ -49,6 +49,9 @@ router.post('/send-message',authendiCate.authenticateToken,chatController.sendTe
 // delete text message
 router.delete('/delete-text-message',authendiCate.authenticateToken,chatController.deleteTextMessage);
 
+// update text message
+router.post('/update-text-message',authendiCate.authenticateToken,chatController.editTextMessage);
+
 // get login user conversation list
 router.get('/conversation-list',authendiCate.authenticateToken,chatController.conversationList)
 

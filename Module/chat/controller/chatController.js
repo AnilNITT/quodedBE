@@ -630,3 +630,44 @@ exports.sendTextEmailAndPhone = async (req, res) => {
 }
 };
 
+
+exports.editTextMessage = async (req, res) => {
+  try{
+  const { messageId, text } = req.body;
+
+  if (messageId === undefined || messageId === "") {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Select Message to Dekete",
+    });
+    return;
+  }
+
+  const message = await MessageModal.findById(messageId);
+
+  if(!message) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "No Message found to Delete",
+    });
+    return;
+  }
+
+  await MessageModal.findByIdAndUpdate({_id:messageId},{ text: text },{ new: true });
+
+  res.status(StatusCodes.OK).send({
+    status: true,
+    message: "Message update successfully",
+    // data : message
+  });
+  return;
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
+};
+

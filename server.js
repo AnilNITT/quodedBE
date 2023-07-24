@@ -56,12 +56,14 @@ app.all("*", function (req, res, next) {
   next();
 });
 
+
 // Define the origin for cross origin block
 const socketIO = require("socket.io")(http, {
   cors: {
     origin: "*",
   },
 });
+
 
 // JSON type request accept with express json.
 app.use(express.json());
@@ -71,6 +73,7 @@ app.use(morgan("dev"));
 
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
+
 
 
 app.get("/", async(req, res)=> {
@@ -547,3 +550,4 @@ name : Ben
 email : jameel86@gmail.com
 PhoneNumber : 5068973848 
 */
+
