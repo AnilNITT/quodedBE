@@ -250,6 +250,7 @@ exports.addMeeting = async (req, res) => {
     description,
     startTime,
     endTime,
+    oldMessageId
   } = req.body;
 
   let counts = 0;
@@ -284,6 +285,9 @@ exports.addMeeting = async (req, res) => {
           let meeting = await Meeting.create(data);
           await meeting.save();
 
+          if(oldMessageId){
+            message.oldMessageId = oldMessageId;
+          }
           message.meeting = meeting._id;
           await message.save();
 
