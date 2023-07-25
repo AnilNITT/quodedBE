@@ -324,6 +324,7 @@ exports.addTask = async (req, res) => {
       additional_details,
       description,
       endTime,
+      oldMessageId
     } = req.body;
 
     let counts = 0;
@@ -332,6 +333,7 @@ exports.addTask = async (req, res) => {
     roomId.forEach(async (rooms, index) => {
       receiverId.forEach(async (receivers, rindex) => {
         if (index === rindex) {
+
           const msgdata = {
             type: type,
             roomId: rooms,
@@ -358,7 +360,10 @@ exports.addTask = async (req, res) => {
           }
 
           await Task.save();
-
+          
+          if(oldMessageId){
+            message.oldMessageId = oldMessageId;
+          }
           message.taskId = Task._id;
           await message.save();
 

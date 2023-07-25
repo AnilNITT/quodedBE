@@ -300,6 +300,7 @@ socketIO.on("connection", async (socket) => {
     }
   });
 
+
   // Send conversation list
   /*   socket.on("coversation-list", async (data) => {
     const conversations = Conversation.find({
@@ -310,6 +311,7 @@ socketIO.on("connection", async (socket) => {
 
     socket.emit("coversation-list", conversations);
   }); */
+
 
   // Send conversation list
   socket.on("coversation-list", async (data) => {
@@ -380,6 +382,7 @@ socketIO.on("connection", async (socket) => {
       message.receiverId = data.receiverId;
 
       if (data.type === "task") {
+
         let Task = new TaskModal();
         Task.roomId = data.roomId;
         Task.senderId = data.senderId;
@@ -391,6 +394,7 @@ socketIO.on("connection", async (socket) => {
 
         let taskDetails = await Task.save();
         message.taskId = taskDetails._id;
+
       } else if (data.type === "meeting") {
         console.log("data", data);
         let meeting = new Meeting();
@@ -402,6 +406,7 @@ socketIO.on("connection", async (socket) => {
         meeting.Attachments.push(data.filePath ? data.filePath : "");
         let meetingDetails = await meeting.save();
         message.meeting = meetingDetails._id;
+
       } else if (data.type === "shift") {
         console.log("data", data);
         let shift = new shifts();
@@ -414,6 +419,7 @@ socketIO.on("connection", async (socket) => {
 
         let shiftDetails = await shifts.save();
         message.shiftId = shiftDetails._id;
+
       } else {
         // encrypt the message
         // message.text = cryptoen.encryption(data.text);
@@ -436,6 +442,7 @@ socketIO.on("connection", async (socket) => {
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
+      
       /* const data = getAllmessage.map((msg) =>{
           msg.text = cryptoen.decryption(msg.text);
           return msg
