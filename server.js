@@ -431,7 +431,8 @@ socketIO.on("connection", async (socket) => {
         .populate("meeting")
         .populate("shiftId")
         .populate("checkId")
-        .populate("oldMessageId")
+        // .populate("oldMessageId")
+        .populate({path:"oldMessageId",populate:{path:'senderId',select: "name createdAt"}})
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
@@ -453,7 +454,8 @@ socketIO.on("connection", async (socket) => {
         .populate("meeting")
         .populate("shiftId")
         .populate("checkId")
-        .populate("oldMessageId")
+        // .populate("oldMessageId")
+        .populate({path:"oldMessageId",populate:{path:'senderId',select: "name createdAt"}})
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 

@@ -179,6 +179,7 @@ exports.acceptTask = async (req, res) => {
 
 
 exports.getconversation = async (req, res) => {
+  try{
   const { roomId } = req.body;
 
   /* let updateReceived = await MessageModal.updateMany(
@@ -191,9 +192,9 @@ exports.getconversation = async (req, res) => {
     .populate("meeting")
     .populate("checkId")
     .populate("shiftId")
-    .populate("oldMessageId")
+    .populate({path:"oldMessageId",populate:{path:'senderId',select: "name createdAt"}})
     .populate("senderId", "ProfileIcon Status name email")
-    .populate("receiverId", "ProfileIcon Status name email");
+    .populate("receiverId", "ProfileIcon Status name email")
 
   /* let data = getAllmessage.map((msg) =>{
         msg.text = cryptoen.decryption(msg.text);
@@ -201,6 +202,14 @@ exports.getconversation = async (req, res) => {
       }); */
 
   res.json({ data: getAllmessage });
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
 };
 
 
