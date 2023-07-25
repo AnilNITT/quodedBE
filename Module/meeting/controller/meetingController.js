@@ -8,6 +8,7 @@ var { StatusCodes } = require("http-status-codes");
 var moment = require("moment");
 var today = moment().startOf("day"); // Get today's date at the beginning of the day
 
+
 // Search the user meetings list
 exports.getMeetings = (req, res) => {
   // console.log({ senderId: ObjectId(req.user.id) }, { receiverId: req.user.id });
@@ -23,6 +24,7 @@ exports.getMeetings = (req, res) => {
     }
   );
 };
+
 
 // update the task or Task status
 exports.updateMeetingStatus = async (req, res) => {
@@ -74,6 +76,7 @@ exports.updateMeetingStatus = async (req, res) => {
     return;
   }
 };
+
 
 // update the meeting time
 exports.reviseMeetingDate = async (req, res) => {
@@ -133,6 +136,7 @@ exports.reviseMeetingDate = async (req, res) => {
   }
 };
 
+
 // deny the meeting
 exports.denyMeeting = async (req, res) => {
   try {
@@ -189,6 +193,7 @@ exports.denyMeeting = async (req, res) => {
   }
 };
 
+
 // get single meeting details
 exports.getmeetingDetails = async (req, res) => {
   try {
@@ -237,6 +242,7 @@ exports.getmeetingDetails = async (req, res) => {
   }
 };
 
+
 // Add Meeting
 exports.addMeeting = async (req, res) => {
   const {
@@ -261,6 +267,7 @@ exports.addMeeting = async (req, res) => {
     roomId.forEach(async (rooms, index) => {
       receiverId.forEach(async (receivers, rindex) => {
         if (index === rindex) {
+
           const msgdata = {
             type: type,
             roomId: rooms,
@@ -312,6 +319,7 @@ exports.addMeeting = async (req, res) => {
     return;
   }
 };
+
 
 // get task sorted by Date
 exports.getSortedLoginUserMeeting = async (req, res) => {
@@ -368,6 +376,7 @@ exports.getSortedLoginUserMeeting = async (req, res) => {
     return;
   }
 };
+
 
 // get task sorted by Date
 exports.getSortedByMonthLoginUserMeeting = async (req, res) => {

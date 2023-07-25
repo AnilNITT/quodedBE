@@ -426,7 +426,6 @@ socketIO.on("connection", async (socket) => {
         if(data.oldMessageId){
           message.oldMessageId = data.oldMessageId;
         }
-        
         message.text = data.text;
       }
 
@@ -506,8 +505,8 @@ try {
   mongoose.set("strictQuery", false);
   mongoose.connect(
     // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
-    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
+    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
+    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
