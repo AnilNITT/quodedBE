@@ -26,7 +26,6 @@ async function sendEmail({ email, otp, name, text }) {
         rejectUnauthorized: false,
       },
     });
-    
     if (text) {
       try {
         const info = await transporter.sendMail({
