@@ -6,7 +6,7 @@ async function sendEmail({ email, otp, name, text }) {
   // connect with the smtp
   try {
     let transporter = nodemailer.createTransport({
-      /*     host: "smtp.ethereal.email",
+      /* host: "smtp.ethereal.email",
       port: 587,
       auth: {
         user: "maegan.jast87@ethereal.email",
