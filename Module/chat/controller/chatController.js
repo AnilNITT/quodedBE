@@ -605,7 +605,7 @@ exports.sendTextEmailAndPhone = async (req, res) => {
 
   if (type === "email") {
       // let mail ={}
-      const mail = await sendEmail({email:receiver.email[0],name:sender.name,text});
+      const mail = await sendEmail({email:receiver.email[0],name:sender.name,text:text});
 
       if (mail.status !== true) {
         res.status(StatusCodes.OK).json({
