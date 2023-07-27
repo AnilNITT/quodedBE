@@ -75,6 +75,9 @@ app.use(morgan("dev"));
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
+app.get("/", async(req, res)=> {
+});
+
 
 app.get("/", async(req, res)=> {
 
@@ -558,4 +561,3 @@ name : Ben
 email : jameel86@gmail.com
 PhoneNumber : 5068973848 
 */
-

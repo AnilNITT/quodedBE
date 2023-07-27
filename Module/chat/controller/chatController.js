@@ -6,6 +6,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 // var cryptoen = require("../../../helper/Crypto");
 var { StatusCodes } = require("http-status-codes");
 var sendEmail = require("../../../helper/sendEmail");
+const moment = require('moment');
 
 
 exports.conversationList = async (req, res) => {
@@ -670,6 +671,68 @@ exports.editTextMessage = async (req, res) => {
     // data : message
   });
   return;
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "Something went wrong",
+    error: err,
+  });
+  return;
+}
+};
+
+
+exports.getDataForTask = async (req, res) => {
+
+  try{
+  const { text } = req.body;
+
+  if (text === undefined || text === "") {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "text is required",
+    });
+    return;
+  }
+
+  if(text.startsWith("!")) {
+
+    // const regex1 = /\/do (.+) \/on/i; // 'i' flag for case-insensitive search
+    const regex1 = /\/do(.*?)\/on/i; // 'i' flag for case-insensitive search
+    const match = text.match(regex1)? text.match(regex1)[1].trim() : null;
+  
+    // const regex = /\btask\b/gi;
+    // const type = inputString.match(regex)?.length >0 ? inputString.match(regex)[0]:null;
+    
+    const datePattern = /(\d{1,2} \w+ \d{4})/;
+    const timePattern = /(\d{1,2}:\d{2} [apAP][mM])/;
+  
+    // Extract date and time using the regular expressions
+    const dateMatch = text.match(datePattern);
+    const timeMatch = text.match(timePattern);
+  
+    if (dateMatch && timeMatch) {
+      // Combine date and time strings
+      const datetimeStr = dateMatch[1] + ' ' + timeMatch[1];
+  
+      // Parse the datetime string using moment.js and convert to desired format
+    const datetimeObj = moment(datetimeStr, "DD MMM YYYY h:mm A").format();
+    
+    res.status(StatusCodes.OK).send({
+      status: true,
+      type:"task",
+      description:match,
+      endTime:datetimeObj
+    });
+    }
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Incorrect task create Format",
+    });
+    return;
+  }
+
 } catch (err) {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
     status: "fail",
