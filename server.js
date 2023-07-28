@@ -13,7 +13,8 @@ var meeting = require("./Module/meeting/route/meeting");
 const check = require("./Module/checkinout/route/checkinout");
 const shift = require("./Module/shift/route/shift");
 const company = require("./Module/company/route/company");
-const employee = require("./Module/employee/route/employee");
+// const employee = require("./Module/employee/route/employee");
+const cloudRoutes = require("./Module/AWS/route/cloudRoute");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
@@ -68,59 +69,66 @@ const socketIO = require("socket.io")(http, {
 
 // JSON type request accept with express json.
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(cors());
 app.use(morgan("dev"));
+// Middleware to parse the request body as raw binary data
+// app.use(express.raw({ type: '*/*' })); 
 
 
 // make images folder publicly
 app.use("/uploads", express.static("uploads"));
 
-app.get("/", async(req, res)=> {
-});
-
 
 app.get("/", async(req, res)=> {
 
-  const inputString = "! Anil /do the development report /on 29 january 2023 /by 22:00 pm";
-
-  if(inputString.startsWith("!")) {
-
-  // const regex1 = /\/do (.+) \/on/i; // 'i' flag for case-insensitive search
-  const regex1 = /\/do(.*?)\/on/i; // 'i' flag for case-insensitive search
-  const match = inputString.match(regex1)? inputString.match(regex1)[1].trim() : null;
-
-  // const regex = /\btask\b/gi;
-  // const type = inputString.match(regex)?.length >0 ? inputString.match(regex)[0]:null;
-  
-  const datePattern = /(\d{1,2} \w+ \d{4})/;
-  const timePattern = /(\d{1,2}:\d{2} [apAP][mM])/;
-
-  // Extract date and time using the regular expressions
-  const dateMatch = inputString.match(datePattern);
-  const timeMatch = inputString.match(timePattern);
-
-  if (dateMatch && timeMatch) {
-    // Combine date and time strings
-    const datetimeStr = dateMatch[1] + ' ' + timeMatch[1];
-
-    // Parse the datetime string using moment.js and convert to desired format
-  const datetimeObj = moment(datetimeStr, "DD MMM YYYY h:mm A").format();
-  
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data:datetimeObj,
-    type:"task",
-    description:match
   });
-  
-}
-  } else {
-    res.send({
-      status: true,
-      message: "Quoded Server runing",
-    });
+
+});
+
+
+app.post("/get-distance", async(req, res)=> {
+
+  function toRadians(degrees) {
+    return degrees * (Math.PI / 180);
   }
+  
+  // Function to calculate the distance between two points
+  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    const earthRadiusKm = 6371; // Radius of the Earth in kilometers
+  
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+  
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = earthRadiusKm * c;
+  
+    return distance;
+  }
+  
+  // Example usage
+  const latitude1 = 22.7026424; // Latitude of Point 1
+  const longitude1 = 75.8716625; // Longitude of Point 1
+  const latitude2 = 22.692646; // Latitude of Point 2
+  const longitude2 = 75.867630; // Longitude of Point 2
+  
+  const distanceInKm = getDistanceFromLatLonInKm(latitude1, longitude1, latitude2, longitude2);
+  // console.log(`Distance between the two points: ${distanceInKm.toFixed(3)} km`);
+
+  res.send({
+    status: true,
+    message: "Total distance in km",
+    data: parseFloat(distanceInKm.toFixed(3))
+  });
+
 });
 
 
@@ -181,7 +189,8 @@ app.use("/meetings", meeting);
 app.use("/check", check);
 app.use("/shift", shift);
 app.use("/company", company);
-app.use("/employee", employee);
+// app.use("/employee", employee);
+app.use("/cloud", cloudRoutes);
 
 
 app.post("/meeting", async function (req, res) {
@@ -552,12 +561,15 @@ function errHandler(err, req, res, next) {
 app.use(errHandler);
 
 
-/* 
+
+/*
+
 name : Jacques
 email : mjameelandroid@gmail.com
 PhoneNumber : 966567054272
 
 name : Ben
 email : jameel86@gmail.com
-PhoneNumber : 5068973848 
+PhoneNumber : 5068973848
+
 */

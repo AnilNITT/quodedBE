@@ -695,6 +695,7 @@ exports.getDataForTask = async (req, res) => {
     return;
   }
 
+
   if(text.startsWith("!")) {
 
     // const regex1 = /\/do (.+) \/on/i; // 'i' flag for case-insensitive search
@@ -718,6 +719,14 @@ exports.getDataForTask = async (req, res) => {
       // Parse the datetime string using moment.js and convert to desired format
     const datetimeObj = moment(datetimeStr, "DD MMM YYYY h:mm A").format();
     
+    if(datetimeObj === "Invalid date"){
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Invalid date",
+      });
+      return;
+    }
+    
     res.status(StatusCodes.OK).send({
       status: true,
       type:"task",
@@ -733,6 +742,7 @@ exports.getDataForTask = async (req, res) => {
     return;
   }
 
+
 } catch (err) {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
     status: "fail",
@@ -742,4 +752,3 @@ exports.getDataForTask = async (req, res) => {
   return;
 }
 };
-

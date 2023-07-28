@@ -3,11 +3,11 @@ var MessageModal = require("../../../Model/MessageModal");
 var { StatusCodes } = require("http-status-codes");
 
 
-// Add Meeting
+// make CheckIn
 exports.addCheckIn = async (req, res) => {
     try {
     
-    const { type, roomId, senderId, receiverId, location, checkInTime } = req.body;
+    const { type, roomId, senderId, receiverId,lat,long, location, checkInTime } = req.body;
 
     if(roomId === undefined) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -23,6 +23,8 @@ exports.addCheckIn = async (req, res) => {
         roomId:roomId,
         senderId:senderId,
         receiverId:receiverId,
+        lat:lat,
+        long:long,
         location:location,
         checkInTime:checkInTime,
     }
@@ -58,10 +60,11 @@ exports.addCheckIn = async (req, res) => {
 };
 
 
+// make CheckOut
 exports.addCheckOut = async (req, res) => {
     try {
     
-    const { type, roomId, senderId, receiverId, location, checkOutTime } = req.body;
+    const { type, roomId, senderId, receiverId, lat, long, location, checkOutTime } = req.body;
 
     if(roomId === undefined) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
@@ -71,12 +74,14 @@ exports.addCheckOut = async (req, res) => {
         });
         return;
     }
-      
+    
     const data = {
         type: type,
         roomId:roomId,
         senderId:senderId,
         receiverId:receiverId,
+        lat:lat,
+        long:long,
         location:location,
         checkOutTime:checkOutTime,
     }
@@ -110,3 +115,41 @@ exports.addCheckOut = async (req, res) => {
 
     }
 };
+
+
+// make CheckIn
+exports.getCheckIn = async (req, res) => {
+  try {
+  
+  // get Login user
+  const userdata = req.user;
+
+
+  let checkin = await CheckModel.findOne({senderId:userdata.id})
+                                .sort({createdAt:-1})
+
+  if(checkin.type == "=check in"){
+    res.status(StatusCodes.OK).send({
+      status: true,
+      message: "successfully",
+      data : checkin,
+    });
+    return;
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "No CheckIn found",
+    });
+    return;
+  }
+  } catch(err) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "Something went wrong",
+        error: err,
+      });
+      return;
+  }
+};
+
+

@@ -21,7 +21,13 @@ var checkInSchema = new mongoose.Schema({
         default : null 
     },
     location: {
-        type: String
+        type: String,
+    },
+    lat: {
+        type: Number,
+    },
+    long: {
+        type: Number,
     },
     checkInTime : {
         type :Date, 
