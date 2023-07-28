@@ -174,7 +174,7 @@ exports.getAllFiles = async (req, res) => {
 
 // delete selected files
 exports.deleteFile = async (req, res) => {
-
+  try{
   const {filename} = req.body
   
   // get Login user
@@ -202,6 +202,14 @@ exports.deleteFile = async (req, res) => {
     });
     return;
   }
+} catch (err) {
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+    status: "fail",
+    message: "something went wrong",
+    error: err,
+  });
+  return;
+}
 };
 
 
