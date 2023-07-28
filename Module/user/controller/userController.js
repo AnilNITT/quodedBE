@@ -170,7 +170,7 @@ exports.login = async (req, res) => {
         // console.log(mail);
         if (mail.status !== true) {
           res.status(StatusCodes.OK).json({
-            status: false,
+            status: "false",
             message: "Email OTP send Error",
           });
           return;

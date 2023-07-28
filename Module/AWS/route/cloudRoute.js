@@ -39,8 +39,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-router.post('/upload-file',upload.single('image'),authendiCate.authenticateToken,cloudController.uploadData);
-// router.post('/upload-files',upload.single('image'),authendiCate.authenticateToken,cloudController.uploadData);
 
+
+router.post('/upload-file',upload.single('image'),authendiCate.authenticateToken,cloudController.uploadFile);
+
+router.get('/get-all-files',authendiCate.authenticateToken,cloudController.getAllFiles);
+
+router.delete('/delete-file',authendiCate.authenticateToken,cloudController.deleteFile);
 
 module.exports = router;

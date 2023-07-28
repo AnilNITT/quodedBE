@@ -726,7 +726,7 @@ exports.getDataForTask = async (req, res) => {
       });
       return;
     }
-    
+
     res.status(StatusCodes.OK).send({
       status: true,
       type:"task",
