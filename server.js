@@ -102,6 +102,7 @@ app.get("/", async(req, res)=> {
   res.send({
     status: true,
     message: "Quoded Server runing",
+    data:process.env.NAME
   });
 
 });
@@ -573,3 +574,7 @@ function errHandler(err, req, res, next) {
 
 
 app.use(errHandler);
+
+
+
+
