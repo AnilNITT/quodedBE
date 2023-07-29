@@ -136,11 +136,11 @@ exports.getAllFiles = async (req, res) => {
       const key = item.Key;
       const extension = key.split('.').pop().toLowerCase();
   
-      if (['jpg', 'jpeg', 'gif','png'].includes(extension)) {
+      if (['jpg', 'jpeg', 'gif','png',"bmp","svg","eps","pict","psd","tif","tga"].includes(extension)) {
         groups.Images.push(item);
-      } else if (['mp4', 'flv'].includes(extension)) {
+      } else if (['mp4', 'flv','avi','mov','dv','mpg','wma','wmv','swf','m4v','mxf'].includes(extension)) {
         groups.Video.push(item);
-      } else if (['mp3'].includes(extension)) {
+      } else if (['mp3','aiff','aac','ac3','m4a'].includes(extension)) {
         groups.Audio.push(item);
       } else {
         groups.Documents.push(item);

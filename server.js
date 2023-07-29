@@ -98,12 +98,10 @@ app.get('/return-next', function (req,res,next) {
 
 
 app.get("/", async(req, res)=> {
-
   res.send({
     status: true,
     message: "Quoded Server runing",
   });
-
 });
 
 
