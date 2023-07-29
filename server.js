@@ -102,7 +102,6 @@ app.get("/", async(req, res)=> {
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data:process.env.NAME
   });
 
 });
