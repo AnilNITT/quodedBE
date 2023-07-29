@@ -29,7 +29,8 @@ const storage = multer.diskStorage({
         cb(null, path);
     },
     filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const uniqueSuffix = Date.now().toFixed() + '-' + Math.round(Math.random() * 1E2);
       const filename = file.originalname.split('.')[0].replace(" ","-");
       cb(null, filename + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
     }
@@ -41,9 +42,11 @@ const upload = multer({ storage: storage });
 
 
 
-router.post('/upload-file',upload.single('image'),authendiCate.authenticateToken,cloudController.uploadFile);
+router.post('/upload-file',upload.array('image'),authendiCate.authenticateToken,cloudController.uploadFile);
 
 router.get('/get-all-files',authendiCate.authenticateToken,cloudController.getAllFiles);
+
+router.get('/get-folder-files-size',authendiCate.authenticateToken,cloudController.getFolderFilesSize);
 
 router.delete('/delete-file',authendiCate.authenticateToken,cloudController.deleteFile);
 
