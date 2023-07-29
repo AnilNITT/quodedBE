@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+require("dotenv").config();
 const mongoose = require("mongoose");
 const http = require("http").Server(app);
 const axios = require("axios");
@@ -80,11 +81,30 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static("uploads"));
 
 
+// API for the testing of next() 
+app.get('/next', function (req,res,next) { 
+    console.log('hi there ');
+    next();
+    console.log('you are still here');
+  }
+)
+
+  
+// API for the testing of return next() 
+app.get('/return-next', function (req,res,next) { 
+    console.log('hi there');
+    return next(); 
+    console.log('you are still here');
+  }
+)
+
+
 app.get("/", async(req, res)=> {
 
   res.send({
     status: true,
     message: "Quoded Server runing",
+    data: process.env.NAME,
   });
 
 });

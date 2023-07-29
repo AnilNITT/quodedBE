@@ -35,7 +35,6 @@ exports.uploadFile = async (req, res) => {
     /* function base64ToBuffer(base64String) {
     return Buffer.from(base64String, "base64");
   } */
-
     const imageBuffer = Buffer.from(binaryData, "hex");
 
     // Detect the file type from the binary data
