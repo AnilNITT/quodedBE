@@ -17,8 +17,8 @@ var bucket = "quoded-cloud-data";
 const s3Client = new S3Client({
   region: "us-east-1",
   credentials: {
-    accessKeyId: "AKIATTW2PJIYPE753DAK",
-    secretAccessKey: "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",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 

@@ -34,8 +34,6 @@ const MessageModal = require("./Model/MessageModal");
 const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/ShiftModal");
-// const { access } = require("fs");
-
 // const dateFormat = "%Y-%m-%d";
 
 
@@ -104,7 +102,6 @@ app.get("/", async(req, res)=> {
   res.send({
     status: true,
     message: "Quoded Server runing",
-    data: process.env.NAME,
   });
 
 });
@@ -155,13 +152,13 @@ app.post("/get-distance", async(req, res)=> {
 app.get("/call", async(req, res)=> {
 
   try{
-    const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
-  const API_KEY = "rntB6_6kSniGQxEzJBU67g";
-  const API_SECRET = "leAr6jJE4AEALcmhwRLlFunkCMdSSAws";
+  const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
+  const API_KEY = process.env.ZOOM_API_KEY;
+  const API_SECRET = process.env.ZOOM_API_SECRET;
   const FROM_PHONE_NUMBER = "9630196313";
   const TO_PHONE_NUMBER = "7000269701";
 
-  const accessToken = "eyJzdiI6IjAwMDAwMSIsImFsZyI6IkhTNTEyIiwidiI6IjIuMCIsImtpZCI6IjhmMWE4NTcyLWVmMTUtNDM1Zi05YmU2LWE0YjI0MWY2MzVkOCJ9.eyJ2ZXIiOjksImF1aWQiOiIyNDQ1N2VhMjVjNmMwNmI0YzE4ZTM0NDE5OGE3ZDFkNyIsImNvZGUiOiIzcTdPUnA5ME5VSzZEVEc3V1BQVHRPNXpocjdRekxLU0EiLCJpc3MiOiJ6bTpjaWQ6dms1cVdFR1RVMlFtcGw5b1pTY3d3IiwiZ25vIjowLCJ0eXBlIjowLCJ0aWQiOjAsImF1ZCI6Imh0dHBzOi8vb2F1dGguem9vbS51cyIsInVpZCI6IjJSbnVjMldLUjA2MGozWnhrV1VEZmciLCJuYmYiOjE2ODk4NTAyNDQsImV4cCI6MTY4OTg1Mzg0NCwiaWF0IjoxNjg5ODUwMjQ0LCJhaWQiOiJydWhNdlNqWVJUZTNkUWdneUlMMzBBIn0.ifIwpisFIfUU0UdWdf9dCAvbjY8hEnDUoY71Adchgvqr_ZoLl6S_0kXlyMlWCPuFVDhEMzT5H5iJYtKsTIQV4Q"
+  const accessToken = process.env.ZOOM_API_ACCESSTOKEN
 
       // Step 2: Make the voice call
   const { data: makeCallResponse } = await axios.post(
@@ -535,10 +532,7 @@ socketIO.on("connection", async (socket) => {
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
-  mongoose.connect(
-    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qo?retryWrites=true&w=majority",
-    "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/RealDatabase?retryWrites=true&w=majority",
-    // "mongodb+srv://jameel86:YGKx17uttjwe8knk@cluster0.zpiaagb.mongodb.net/qotest?retryWrites=true&w=majority",
+  mongoose.connect(process.env.MONGO_URL,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -579,17 +573,3 @@ function errHandler(err, req, res, next) {
 
 
 app.use(errHandler);
-
-
-
-/*
-
-name : Jacques
-email : mjameelandroid@gmail.com
-PhoneNumber : 966567054272
-
-name : Ben
-email : jameel86@gmail.com
-PhoneNumber : 5068973848
-
-*/
