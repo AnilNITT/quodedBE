@@ -79,6 +79,7 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static("uploads"));
 
 
+/* 
 // API for the testing of next() 
 app.get('/next', function (req,res,next) { 
     console.log('hi there ');
@@ -86,7 +87,6 @@ app.get('/next', function (req,res,next) {
     console.log('you are still here');
   }
 )
-
   
 // API for the testing of return next() 
 app.get('/return-next', function (req,res,next) { 
@@ -95,6 +95,7 @@ app.get('/return-next', function (req,res,next) {
     console.log('you are still here');
   }
 )
+*/
 
 
 app.get("/", async(req, res)=> {
@@ -111,6 +112,7 @@ app.post("/get-distance", async(req, res)=> {
     return degrees * (Math.PI / 180);
   }
   
+
   // Function to calculate the distance between two points
   function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     const earthRadiusKm = 6371; // Radius of the Earth in kilometers
@@ -129,6 +131,7 @@ app.post("/get-distance", async(req, res)=> {
     return distance;
   }
   
+
   // Example usage
   const latitude1 = 22.7026424; // Latitude of Point 1
   const longitude1 = 75.8716625; // Longitude of Point 1
@@ -170,7 +173,7 @@ app.get("/call", async(req, res)=> {
           Authorization: `Bearer ${accessToken}`,
         },
       }
-    );
+  );
 
   res.send({
     status: true,
@@ -193,6 +196,7 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
+
 
 // User router
 app.use(express.static("uploads"));
@@ -571,7 +575,3 @@ function errHandler(err, req, res, next) {
 
 
 app.use(errHandler);
-
-
-
-
