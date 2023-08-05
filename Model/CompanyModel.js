@@ -7,9 +7,12 @@ const companySchema = new mongoose.Schema({
         type: String,
         required: true,
     }
-},{
-    // timestamps:true,
-});
+},
+/* {
+    timestamps:true,
+} */
+);
+
 
 // Apply the auto-increment plugin to the schema
 companySchema.plugin(autoIncrement.plugin, {
@@ -19,4 +22,11 @@ companySchema.plugin(autoIncrement.plugin, {
   incrementBy: 1
 });
 
+
+// mongoose.model('Company', companySchema).collection.dropIndex({ id: 1 })
 module.exports = mongoose.model('Company', companySchema,"Company");
+
+// const YourModel = mongoose.model('Company', companySchema,"Company");
+
+// // Drop the collection
+// YourModel.collection.drop()

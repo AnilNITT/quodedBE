@@ -22,10 +22,12 @@ const s3Client = new S3Client({
   },
 });
 
+
 // upload file to the server
 exports.uploadFile = async (req, res) => {
   try {
-    // get Login user
+
+    // get Login user data
     const userdata = req.user;
 
     if (req.files.length > 0 && req.files.length < 16) {
@@ -175,6 +177,9 @@ exports.getAllFiles = async (req, res) => {
     const result = await s3Client.send(command);
 
     if (result.Contents) {
+
+      const totalSize = result.Contents.reduce((a, b) => a + b.Size, 0);
+
       const groups = {
         Images: [],
         Video: [],
@@ -188,34 +193,12 @@ exports.getAllFiles = async (req, res) => {
         const extension = key.split(".").pop().toLowerCase();
 
         if (
-          [
-            "jpg",
-            "jpeg",
-            "gif",
-            "png",
-            "bmp",
-            "svg",
-            "eps",
-            "pict",
-            "psd",
-            "tif",
-            "tga",
+          ["jpg","jpeg","gif","png","bmp","svg","eps","pict","psd","tif","tga",
           ].includes(extension)
         ) {
           groups.Images.push(item);
         } else if (
-          [
-            "mp4",
-            "flv",
-            "avi",
-            "mov",
-            "dv",
-            "mpg",
-            "wma",
-            "wmv",
-            "swf",
-            "m4v",
-            "mxf",
+          ["mp4","flv","avi","mov","dv","mpg","wma","wmv","swf","m4v","mxf",
           ].includes(extension)
         ) {
           groups.Video.push(item);
@@ -229,6 +212,7 @@ exports.getAllFiles = async (req, res) => {
       res.status(StatusCodes.OK).json({
         status: true,
         message: "successfully",
+        data_size: +parseFloat(totalSize / 1138576).toFixed(2) ,
         data: groups,
       });
       return;

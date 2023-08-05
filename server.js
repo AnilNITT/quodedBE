@@ -14,7 +14,7 @@ var meeting = require("./Module/meeting/route/meeting");
 const check = require("./Module/checkinout/route/checkinout");
 const shift = require("./Module/shift/route/shift");
 const company = require("./Module/company/route/company");
-// const employee = require("./Module/employee/route/employee");
+const employee = require("./Module/employee/route/employee");
 const cloudRoutes = require("./Module/AWS/route/cloudRoute");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
@@ -35,6 +35,7 @@ const TaskModal = require("./Model/TaskModal");
 const Meeting = require("./Model/Meeting");
 const shifts = require("./Model/ShiftModal");
 // const dateFormat = "%Y-%m-%d";
+
 
 
 const myEmitter = new EventEmitter();
@@ -208,7 +209,7 @@ app.use("/meetings", meeting);
 app.use("/check", check);
 app.use("/shift", shift);
 app.use("/company", company);
-// app.use("/employee", employee);
+app.use("/employee", employee);
 app.use("/cloud", cloudRoutes);
 
 
@@ -542,6 +543,7 @@ try {
   );
 
   var db = mongoose.connection;
+  // db.dropCollection('Company')
   // Added check for DB connection
   if (!db) {
     console.log("Error connecting db");
