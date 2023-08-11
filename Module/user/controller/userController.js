@@ -147,7 +147,7 @@ exports.findUser = (req, res) => {
 // User login with this function
 exports.login = async (req, res) => {
   try {
-    console.log("hii");
+
     let { email } = req.body;
 
     if (email == undefined) {

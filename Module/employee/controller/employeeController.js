@@ -324,15 +324,13 @@ exports.getEmployeeSortedByCompany = async (req, res) => {
         data: employee,
       });
       return;
-    } 
-    else {
+    } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         status: "fail",
         message: "Employee not found",
       });
       return;
     }
-    
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
       status: "fail",

@@ -11,6 +11,10 @@ var employeeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Number, 
         ref: 'users' , 
     },
+    role:{
+        type: String,
+        default: "employee",
+    },
     employee_name:{
         type:String, 
     },

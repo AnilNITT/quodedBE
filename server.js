@@ -6,11 +6,13 @@ const http = require("http").Server(app);
 const axios = require("axios");
 const cors = require("cors");
 const morgan = require("morgan");
-var user = require("./Module/user/route/user");
-var chat = require("./Module/chat/route/chat");
-var task = require("./Module/task/route/task");
-var templogin = require("./Module/tempLogin/route/templogin");
-var meeting = require("./Module/meeting/route/meeting");
+const admin = require("./Module/Admin/route/adminRoute");
+const project = require("./Module/Project/route/project")
+const user = require("./Module/user/route/user");
+const chat = require("./Module/chat/route/chat");
+const task = require("./Module/task/route/task");
+const templogin = require("./Module/tempLogin/route/templogin");
+const meeting = require("./Module/meeting/route/meeting");
 const check = require("./Module/checkinout/route/checkinout");
 const shift = require("./Module/shift/route/shift");
 const company = require("./Module/company/route/company");
@@ -19,7 +21,7 @@ const cloudRoutes = require("./Module/AWS/route/cloudRoute");
 const config = require("./helper/config");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const moment = require('moment');
+// const moment = require('moment');
 const EventEmitter = require('events');
 // const cryptoen = require("./helper/Crypto");
 // var CryptoJS = require("crypto-js");
@@ -201,6 +203,7 @@ app.use((req, res, next) => {
 
 // User router
 app.use(express.static("uploads"));
+app.use("/admin", admin);
 app.use("/user", user);
 app.use("/chat", chat);
 app.use("/task", task);
@@ -211,6 +214,7 @@ app.use("/shift", shift);
 app.use("/company", company);
 app.use("/employee", employee);
 app.use("/cloud", cloudRoutes);
+app.use("/project", project);
 
 
 app.post("/meeting", async function (req, res) {
@@ -243,7 +247,6 @@ app.post("/meeting", async function (req, res) {
     res.status(500).json({ error: "Failed to create Zoom meeting" });
   }
 });
-
 
 // Socket connection intialize
 socketIO.use(function (socket, next) {
