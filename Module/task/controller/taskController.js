@@ -348,7 +348,7 @@ exports.addTask = async (req, res) => {
             senderId: senderId,
             receiverId: receivers,
             description: description,
-            additional_details: additional_details,
+            Additional_Details: additional_details,
             endTime: endTime,
           };
 
