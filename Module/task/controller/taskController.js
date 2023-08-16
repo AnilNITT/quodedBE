@@ -11,7 +11,9 @@ var ObjectId = require("mongoose").Types.ObjectId;
 var moment = require("moment");
 var today = moment().startOf("day"); // Get today's date at the beginning of the day
 
-exports.conversationList = async (req, res) => {
+
+
+/* exports.conversationList = async (req, res) => {
   Conversation.find(
     {
       members: { $in: [req.user.id] },
@@ -35,6 +37,7 @@ exports.conversationList = async (req, res) => {
     .populate("senderId", "ProfileIcon Status firstname lastname email")
     .populate("receiverId", "ProfileIcon Status firstname lastname email");
 };
+
 
 exports.coversationStart = async (req, res) => {
   let { receiverId } = req.body;
@@ -72,34 +75,14 @@ exports.coversationStart = async (req, res) => {
   }
 };
 
-exports.getTaskAttchments = async (req, res) => {
-  let { taskId } = req.query;
-  if (taskId === undefined) {
-    res.status(500).send({
-      error: "error",
-      message: "task id is required",
-      status: "fail",
-    });
-    return;
-  } else {
-    TaskModal.find({ _id: taskId }, function (err, obj) {
-      res.status(200).send({
-        status: true,
-        taskDetails: obj,
-      });
-    })
-      .populate("senderId", "ProfileIcon Status firstname lastname email")
-      .populate("receiverId", "ProfileIcon Status firstname lastname email");
-  }
-};
+
 
 exports.acceptTask = async (req, res) => {
   try {
     let { messageId } = req.body;
 
     if (messageId == undefined) {
-      res.status(500).send({
-        error: "error",
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
         message: "messageId is required",
         status: "fail",
       });
@@ -124,6 +107,29 @@ exports.acceptTask = async (req, res) => {
     return;
   }
 };
+
+exports.getTaskAttchments = async (req, res) => {
+  let { taskId } = req.query;
+  if (taskId === undefined) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      message: "task id is required",
+      status: "fail",
+    });
+    return;
+  } else {
+    TaskModal.find({ _id: taskId }, function (err, obj) {
+      res.status(StatusCodes.OK).send({
+        status: true,
+        taskDetails: obj,
+      });
+    })
+      .populate("senderId", "ProfileIcon Status firstname lastname email")
+      .populate("receiverId", "ProfileIcon Status firstname lastname email");
+  }
+};
+*/
+
+
 
 // update the task or Task status
 exports.updateTask = async (req, res) => {
@@ -182,6 +188,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+
 // upload Task Attachments
 exports.uploadTaskAttachments = async (req, res) => {
   try {
@@ -220,6 +227,7 @@ exports.uploadTaskAttachments = async (req, res) => {
     return;
   }
 };
+
 
 // get task details
 exports.getTaskDetails = async (req, res) => {
@@ -269,6 +277,7 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
+
 // add task comments
 exports.taskComments = async (req, res) => {
   try {
@@ -312,10 +321,12 @@ exports.taskComments = async (req, res) => {
   }
 };
 
+
 // Add Task
 exports.addTask = async (req, res) => {
   try {
     const {
+      projectId,
       roomId,
       type,
       senderId,
@@ -344,6 +355,7 @@ exports.addTask = async (req, res) => {
           let message = await MessageModal.create(msgdata);
 
           const task = {
+            projectId:projectId,
             roomId: rooms,
             senderId: senderId,
             receiverId: receivers,
@@ -389,6 +401,7 @@ exports.addTask = async (req, res) => {
   }
 };
 
+
 // get Task Comments
 exports.getTaskComments = async (req, res) => {
   try {
@@ -429,6 +442,7 @@ exports.getTaskComments = async (req, res) => {
     return;
   }
 };
+
 
 // get All task with RoomID
 exports.getAllTaskwithRoomId = async (req, res) => {
@@ -500,6 +514,7 @@ exports.getAllTaskwithRoomId = async (req, res) => {
   }
 };
 
+
 // get All task with RoomID
 exports.getAllTasks = async (req, res) => {
   /* 
@@ -547,6 +562,7 @@ exports.getAllTasks = async (req, res) => {
     return;
   }
 };
+
 
 // All task groupby dates
 exports.getAllTask = async (req, res) => {
@@ -747,6 +763,7 @@ exports.getAllTask = async (req, res) => {
   }
 };
 
+
 // upload Task Attachments
 exports.updateTaskAttachments = async (req, res) => {
   try {
@@ -796,6 +813,7 @@ exports.updateTaskAttachments = async (req, res) => {
   }
 };
 
+
 // get All Files of Chat with RoomID
 exports.getChatAllFiles = async (req, res) => {
   try {
@@ -814,13 +832,18 @@ exports.getChatAllFiles = async (req, res) => {
     //   .populate("senderId", "ProfileIcon Status name email")
     //   .populate("receiverId", "ProfileIcon Status name email");
 
+    let types = ['image','video','audio','file'];
+
     const files = await MessageModal.aggregate([
       {
         $unwind: "$Attachments",
       },
       {
         $match: {
-          $and: [{ roomId: new ObjectId(roomId) }, { type: "media" }],
+          $and: [
+            { roomId: new ObjectId(roomId) }, 
+            { type: { $in: types } }
+          ],
         },
       },
       {
@@ -853,6 +876,7 @@ exports.getChatAllFiles = async (req, res) => {
     return;
   }
 };
+
 
 // get Perticular User Assign Task
 exports.getAllTaskwithUserId = async (req, res) => {
@@ -958,6 +982,7 @@ exports.getAllTaskwithUserId = async (req, res) => {
   }
 };
 
+
 // get Perticular User Assign Task
 exports.getAllTaskwithUserIds = async (req, res) => {
   try {
@@ -1062,6 +1087,7 @@ exports.getAllTaskwithUserIds = async (req, res) => {
   }
 };
 
+
 // get task sorted by Date
 exports.getSortedLoginUserTask = async (req, res) => {
   try {
@@ -1161,6 +1187,7 @@ exports.getSortedLoginUserTask = async (req, res) => {
   }
 };
 
+
 // get task sorted by Date
 exports.getSortedByMonthLoginUserTask = async (req, res) => {
   try {
@@ -1252,6 +1279,7 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
     return;
   }
 };
+
 
 // get task sorted by Date
 exports.getSelectedMonthLoginUserTask = async (req, res) => {
@@ -1369,6 +1397,7 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
     return;
   }
 };
+
 
 // All task groupby dates both sender n received
 exports.getAllTasksss = async (req, res) => {
@@ -1634,6 +1663,7 @@ exports.getAllTasksss = async (req, res) => {
   }
 };
 
+
 // All task groupby dates both sender n received
 exports.getAllData = async (req, res) => {
   try {
@@ -1780,6 +1810,7 @@ exports.getAllData = async (req, res) => {
     return;
   }
 };
+
 
 // get task sorted by Date
 exports.getSelectedMonthAllData = async (req, res) => {
@@ -1965,6 +1996,7 @@ exports.getSelectedMonthAllData = async (req, res) => {
     return;
   }
 };
+
 
 // get task sorted by Date
 exports.getSelectedWeekAllData = async (req, res) => {

@@ -18,8 +18,8 @@ async function sendEmail({ email, otp, name, text }) {
       port: 465,
       secure: true, // use SSL
       auth: {
-        user: "patidaranil0791@gmail.com",
-        pass: "rXVhAPK1fV6H",
+        user: "noreply@quoded.com",
+        pass: "bJr6r@nx",
       },
       tls: {
         ciphers: "SSLv3",
@@ -30,7 +30,7 @@ async function sendEmail({ email, otp, name, text }) {
     if (text) {
       try {
         const info = await transporter.sendMail({
-          from: '"Quoded App" <patidaranil0791@gmail.com>', // sender address
+          from: '"Quoded App" <noreply@quoded.com>', // sender address
           to: email, // list of receivers
           subject: "you have new message", // Subject line
           text: "Hello ur otp is", // plain text body
@@ -54,7 +54,7 @@ async function sendEmail({ email, otp, name, text }) {
     } else {
       try {
         let info = await transporter.sendMail({
-          from: '"Quoded App" <patidaranil0791@gmail.com>', // sender address
+          from: '"Quoded App" <noreply@quoded.com>', // sender address
           to: email, // list of receivers
           subject: "Quoded App", // Subject line
           text: "Hello ur otp is", // plain text body
@@ -70,7 +70,7 @@ async function sendEmail({ email, otp, name, text }) {
       ${otp}
       </span>
       </h3>
-      <h4>This OTP is valid only within two minutes.</h4>
+      <h4>This OTP is valid only within 5 minutes.</h4>
   
       'Thanks,Quoded Team...'`, // html body
         });

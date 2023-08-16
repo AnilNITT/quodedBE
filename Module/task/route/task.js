@@ -3,7 +3,7 @@ var router = express.Router();
 var authendiCate = require("../../../helper/Jwt");
 var taskController = require("../controller/taskController");
 const multer = require('multer');
-const TaskModal = require('../../../Model/TaskModal');
+// const TaskModal = require('../../../Model/TaskModal');
 var fs = require("fs-extra");
 
 // Define the allowed file types
@@ -38,7 +38,7 @@ const storage = multer.diskStorage({
 
 // const upload = multer({ storage: storage, fileFilter: fileFilter });
 const upload = multer({ storage: storage });
-
+/* 
 
 router.post('/task-attachement', upload.single('file'), function (req, res, next) {
   res.json({
@@ -49,7 +49,7 @@ router.post('/task-attachement', upload.single('file'), function (req, res, next
     originalname: req.file.originalname
   });
 });
-
+ */
 // get task comments
 router.get('/get-task-comments/:taskId', authendiCate.authenticateToken, taskController.getTaskComments);
 
@@ -78,7 +78,7 @@ router.post('/update-task', authendiCate.authenticateToken, taskController.updat
 router.post('/add-task', upload.array('files'),authendiCate.authenticateToken, taskController.addTask);
 
 // get task attachments
-router.get('/get-task-attchments', authendiCate.authenticateToken, taskController.getTaskAttchments);
+// router.get('/get-task-attchments', authendiCate.authenticateToken, taskController.getTaskAttchments);
 
 // upload task attachments
 router.post('/task-attachments', upload.array('files'),taskController.uploadTaskAttachments)
@@ -109,9 +109,9 @@ router.get('/get-month-sorted-task', authendiCate.authenticateToken, taskControl
 // get task attachments
 router.post('/get-selected-month-sorted-task', authendiCate.authenticateToken, taskController.getSelectedMonthLoginUserTask);
 
-const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
+// const uploadMultiple = multer({ storage: storage, fileFilter: fileFilter });
 
-router.post('/multiple-task-attchments', uploadMultiple.single('file'), function (req, res) { 
+/* router.post('/multiple-task-attchments', uploadMultiple.single('file'), function (req, res) { 
   
   let { taskId } = req.body;
 
@@ -131,5 +131,5 @@ router.post('/multiple-task-attchments', uploadMultiple.single('file'), function
     });
 });
 
-
+ */
 module.exports = router

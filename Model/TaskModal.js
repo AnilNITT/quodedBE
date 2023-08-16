@@ -5,6 +5,10 @@ Schema = mongoose.Schema;
 
 var taskSchema = new mongoose.Schema(
   {
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+    },
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "conversations",
