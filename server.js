@@ -419,6 +419,7 @@ socketIO.on("connection", async (socket) => {
       if (data.type === "task") {
 
         let Task = new TaskModal();
+        Task.projectId= data.projectId;
         Task.roomId = data.roomId;
         Task.senderId = data.senderId;
         Task.receiverId = data.receiverId;

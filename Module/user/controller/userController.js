@@ -1195,48 +1195,34 @@ exports.getAllUserAndTask = async (req, res) => {
 
     const data = await TaskModal.aggregate([
       {
-        $lookup: {
-          from: "users",
-          localField: "senderId",
-          foreignField: "_id",
-          as: "Sender",
+        $group: {
+          _id: '$receiverId',
+          // tasks: { $push: '$$ROOT' },
+          totalTasks: { $sum: 1 },
+          receiverIds: { $push: '$receiverId' },
         },
       },
       {
-        $unwind: "$Sender",
-      },
-      {
         $lookup: {
-          from: "users",
-          localField: "receiverId",
-          foreignField: "_id",
-          as: "Receiver",
+          from: 'users', // Replace with the actual collection name for users
+          localField: 'receiverIds',
+          foreignField: '_id',
+          as: 'User',
         },
       },
-      {
-        $unwind: "$Receiver",
-      },
-      {
+       {
         $project: {
-          roomId: 1, // 1 means show n 0 means not show
-          senderId: 1,
-          receiverId: 1,
-          description: 1,
-          comments: 1,
-          Additional_Details: 1,
-          Attachments: 1,
-          endTime: 1,
-          status: 1,
-          "Sender._id": 1,
-          "Sender.name": 1,
-          "Sender.email": 1,
-          "Sender.Status": 1,
-          "Sender.ProfileIcon": 1,
-          "Receiver._id": 1,
-          "Receiver.name": 1,
-          "Receiver.email": 1,
-          "Receiver.Status": 1,
-          "Receiver.ProfileIcon": 1,
+          _id:1,
+          totalTasks:1,
+          receiverIds:1,
+          "User._id": 1,
+          "User.name": 1,
+          "User.email": 1,
+          "User.Status": 1,
+          "User.ProfileIcon": 1,
+          "User.job_title": 1,
+          "User.user_id": 1,
+          "User.PhoneNumber": 1,
         },
       },
     ]);

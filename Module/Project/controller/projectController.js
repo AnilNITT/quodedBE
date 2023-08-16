@@ -59,10 +59,8 @@ exports.addProject = async (req, res) => {
 // Get All Project
 exports.getAllProject = async (req, res) => {
     try {
-      // get Login user data
-      const userdata = req.user;
   
-/*       if (userdata.role !== "Admin") {
+      /* if (userdata.role !== "Admin") {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
           status: "fail",
           message: "You are not authorized to Access this",
