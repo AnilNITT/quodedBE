@@ -244,7 +244,8 @@ exports.getTaskDetails = async (req, res) => {
     } else {
       const task = await TaskModal.findOne({ _id: taskId })
         .populate("senderId", "ProfileIcon Status name email")
-        .populate("receiverId", "ProfileIcon Status name email");
+        .populate("receiverId", "ProfileIcon Status name email")
+        .populate("projectId", "id name description");
 
       if (task) {
         if (new Date().getTime() > new Date(task.endTime).getTime()) {
@@ -893,6 +894,17 @@ exports.getAllTaskwithUserId = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -924,6 +936,11 @@ exports.getAllTaskwithUserId = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.email": 1,
@@ -998,6 +1015,17 @@ exports.getAllTaskwithUserIds = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -1029,6 +1057,11 @@ exports.getAllTaskwithUserIds = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.email": 1,
@@ -1098,7 +1131,17 @@ exports.getSortedLoginUserTask = async (req, res) => {
           endTime: { $gt: today.toDate() },
         },
       },
-
+      {
+        $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
       {
         $lookup: {
           from: "users",
@@ -1132,6 +1175,11 @@ exports.getSortedLoginUserTask = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1200,6 +1248,17 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -1231,6 +1290,11 @@ exports.getSortedByMonthLoginUserTask = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1313,6 +1377,17 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -1344,6 +1419,11 @@ exports.getSelectedMonthLoginUserTask = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1437,6 +1517,17 @@ exports.getAllTasksss = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -1460,6 +1551,7 @@ exports.getAllTasksss = async (req, res) => {
       {
         $project: {
           roomId: 1, // 1 means show n 0 means not show
+          projectId: 1,  
           senderId: 1,
           receiverId: 1,
           comments: 1,
@@ -1468,6 +1560,10 @@ exports.getAllTasksss = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1686,6 +1782,17 @@ exports.getAllData = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -1709,6 +1816,7 @@ exports.getAllData = async (req, res) => {
       {
         $project: {
           roomId: 1, // 1 means show n 0 means not show
+          projectId: 1,          
           senderId: 1,
           receiverId: 1,
           comments: 1,
@@ -1717,6 +1825,10 @@ exports.getAllData = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1850,6 +1962,17 @@ exports.getSelectedMonthAllData = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -1881,6 +2004,11 @@ exports.getSelectedMonthAllData = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -1967,6 +2095,7 @@ exports.getSelectedMonthAllData = async (req, res) => {
       { $sort: { _id: 1 } }, // sort by count   no of user in one group
     ]);
 
+
     if (task || meeting) {
       /* await TaskModal.populate(task[0].data, {
         path: "senderId receiverId",
@@ -2027,6 +2156,17 @@ exports.getSelectedWeekAllData = async (req, res) => {
       },
       {
         $lookup: {
+          from: "Project",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "Project",
+        },
+      },
+      {
+        $unwind: "$Project",
+      },
+      {
+        $lookup: {
           from: "users",
           localField: "senderId",
           foreignField: "_id",
@@ -2058,6 +2198,11 @@ exports.getSelectedWeekAllData = async (req, res) => {
           Attachments: 1,
           endTime: 1,
           status: 1,
+          projectId: 1, 
+          "Project._id": 1,
+          "Project.id": 1,
+          "Project.name": 1,
+          "Project.description": 1,
           "Sender._id": 1,
           "Sender.name": 1,
           "Sender.ProfileIcon": 1,
@@ -2152,7 +2297,7 @@ exports.getSelectedWeekAllData = async (req, res) => {
           }, */
           _id: {
             $dateToString: {
-              format: "%m-%Y",
+              format: "%d-%m-%Y",
               date: "$startTime",
             },
           },
