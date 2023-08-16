@@ -60,6 +60,10 @@ router.get('/getalluser', authendiCate.authenticateToken, userController.getAllU
 
 router.get('/getallusers', userController.getAllUsers)
 
+
+router.get('/all-users-and-tasks', authendiCate.authenticateToken,userController.getAllUserAndTask)
+
+
 // get user By ID
 router.post('/getuserbyid', authendiCate.authenticateToken, userController.getUserById)
 

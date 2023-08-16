@@ -66,6 +66,9 @@ router.get('/chat-all-files', authendiCate.authenticateToken, taskController.get
 router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 
 // get Login user All tasks
+router.get('/login-user-all-task', authendiCate.authenticateToken, taskController.getUserAllTask);
+
+// get Login user All tasks
 router.get('/assigned-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserIds);
 
 // Add comments to task

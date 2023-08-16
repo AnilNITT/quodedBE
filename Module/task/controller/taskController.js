@@ -2338,3 +2338,96 @@ exports.getSelectedWeekAllData = async (req, res) => {
     return;
   }
 };
+
+
+// get Login User All Assign Task
+exports.getUserAllTask = async (req, res) => {
+  try {
+    /* const task = await TaskModal.find({ receiverId: req.user.id })
+      .populate("senderId", "ProfileIcon Status name email")
+      .populate("receiverId", "ProfileIcon Status name email");
+    */
+   
+    const task = await TaskModal.aggregate([
+      {
+        $match: {
+          receiverId: new ObjectId(req.user.id),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          description: 1,
+          comments: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.email": 1,
+          "Sender.Status": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.email": 1,
+          "Receiver.Status": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+    ]);
+
+    console.log(task.length);
+    
+    if (task.length > 0) {
+      /*       await TaskModal.populate(task[0].data ,{
+        path: "senderId receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      }); */
+
+      res.status(StatusCodes.OK).send({
+        status: true,
+        tasks: task,
+      });
+      return;
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "false",
+        tasks: task,
+        message: "No Task found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
+};

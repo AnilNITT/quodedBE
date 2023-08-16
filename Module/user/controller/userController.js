@@ -5,10 +5,11 @@ var sendEmail = require("../../../helper/sendEmail");
 // var bcrypt = require("bcrypt");
 // var jwt_decode = require("jwt-decode");
 // var ObjectId = require("mongoose").Types.ObjectId;
+// const fs = require("fs");
+// var path = require("path");
 var { StatusCodes } = require("http-status-codes");
-const fs = require("fs");
-var path = require("path");
 var config = require("../../../helper/config");
+var TaskModal = require("../../../Model/TaskModal");
 
 
 // password and confirm password validation here
@@ -1184,4 +1185,82 @@ exports.deletePhoneNo = async (req, res) => {
   });
   return;
 }
+};
+
+
+// get All user
+exports.getAllUserAndTask = async (req, res) => {
+
+  try {
+
+    const data = await TaskModal.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "senderId",
+          foreignField: "_id",
+          as: "Sender",
+        },
+      },
+      {
+        $unwind: "$Sender",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "receiverId",
+          foreignField: "_id",
+          as: "Receiver",
+        },
+      },
+      {
+        $unwind: "$Receiver",
+      },
+      {
+        $project: {
+          roomId: 1, // 1 means show n 0 means not show
+          senderId: 1,
+          receiverId: 1,
+          description: 1,
+          comments: 1,
+          Additional_Details: 1,
+          Attachments: 1,
+          endTime: 1,
+          status: 1,
+          "Sender._id": 1,
+          "Sender.name": 1,
+          "Sender.email": 1,
+          "Sender.Status": 1,
+          "Sender.ProfileIcon": 1,
+          "Receiver._id": 1,
+          "Receiver.name": 1,
+          "Receiver.email": 1,
+          "Receiver.Status": 1,
+          "Receiver.ProfileIcon": 1,
+        },
+      },
+    ]);
+
+
+    if (data.length > 0) {
+      return res.status(StatusCodes.OK).json({
+        status: true,
+        message: "successful",
+        data: data,
+      });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        status: "fail",
+        message: "No Data found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+      status: "fail",
+      message: "Something went wrong",
+      error: err,
+    });
+    return;
+  }
 };
