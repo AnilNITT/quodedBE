@@ -255,7 +255,6 @@ exports.sendMultimediaMessage = async (req, res) => {
 exports.getFiles = async (req, res) => {
   try {
 
-    console.log("hi");
     const { roomId } = req.query;
     
     if (roomId === undefined || roomId.length < 24) {
@@ -268,18 +267,25 @@ exports.getFiles = async (req, res) => {
     }
 
     let types = ['image','video','audio','file'];
-    
+
     const messages = await MessageModal.aggregate([
+      {
+        $unwind: "$Attachments",
+      },
       {
         $match: {
           $and: [
             {
               roomId: new ObjectId(roomId),
             },
-            {
-              type: { $in: types } ,
-            },
+            { type: { $in: types } },
           ],
+        },
+      },
+      {
+        $group: {
+          _id: "$type",
+          data: { $push: "$Attachments" }, // show all params
         },
       },
     ]);
