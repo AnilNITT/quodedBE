@@ -70,14 +70,6 @@ exports.getAllProject = async (req, res) => {
   
       let data = await Project.find(req.query);
 
-      if (data.length == 0) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-          status: "fail",
-          message: "No Project found",
-        });
-        return;
-      }
-  
       res.status(StatusCodes.OK).json({
         status: true,
         message: "Successfully",

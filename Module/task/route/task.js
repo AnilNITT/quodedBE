@@ -66,6 +66,12 @@ router.get('/chat-all-files', authendiCate.authenticateToken, taskController.get
 router.get('/user-all-task', authendiCate.authenticateToken, taskController.getAllTaskwithUserId);
 
 // get Login user All tasks
+router.get('/user-all-task/:id', authendiCate.authenticateToken, taskController.getAllTaskByUserId);
+
+// get Login user All tasks
+router.get('/all-task-by-projectid/:id', authendiCate.authenticateToken, taskController.getAllTaskByProjectId);
+
+// get Login user All tasks
 router.get('/login-user-all-task', authendiCate.authenticateToken, taskController.getUserAllTask);
 
 // get Login user All tasks
