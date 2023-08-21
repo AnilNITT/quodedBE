@@ -128,7 +128,7 @@ exports.getCheckIn = async (req, res) => {
   let checkin = await CheckModel.findOne({senderId:userdata.id})
                                 .sort({createdAt:-1})
 
-  if(checkin.type == "=check in"){
+  if(checkin && checkin.type == "check in"){
     res.status(StatusCodes.OK).send({
       status: true,
       message: "successfully",
