@@ -1777,7 +1777,7 @@ exports.getAllData = async (req, res) => {
               senderId: new ObjectId(req.user.id),
             },
           ],
-          endTime: { $gt: today },
+          // endTime: { $gt: today },
         },
       },
       {

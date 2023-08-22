@@ -194,6 +194,7 @@ app.get("/call", async(req, res)=> {
 });
 
 
+
 // Socket io route implementation
 app.use((req, res, next) => {
   req.io = socketIO;
@@ -361,7 +362,9 @@ socketIO.on("connection", async (socket) => {
     // .sort({ createdAt: -1 });
 
     if (conversations.length > 0) {
+
       conversations.map(async (data) => {
+        
         const senderId =
           data.senderId == socket.decoded.id ? data.receiverId : data.senderId;
         const message = await MessageModal.aggregate([
@@ -410,6 +413,7 @@ socketIO.on("connection", async (socket) => {
     // console.log("req.body", data);
 
     if (data.type) {
+
       let message = new MessageModal();
       message.type = data.type;
       message.roomId = data.roomId;
@@ -533,6 +537,7 @@ socketIO.on("connection", async (socket) => {
     // socket.broadcast.emit("users", users);
     // socketIO.emit("newUserResponse", "disconnect")
   });
+
 });
 
 
