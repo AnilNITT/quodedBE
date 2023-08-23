@@ -71,6 +71,8 @@ router.get('/user-all-task/:id', authendiCate.authenticateToken, taskController.
 // get Login user All tasks
 router.get('/all-task-by-projectid/:id', authendiCate.authenticateToken, taskController.getAllTaskByProjectId);
 
+router.get('/all-group-task-by-projectid/:id', authendiCate.authenticateToken, taskController.getGroupedTaskByProjectId);
+
 // get Login user All tasks
 router.get('/login-user-all-task', authendiCate.authenticateToken, taskController.getUserAllTask);
 
@@ -103,6 +105,7 @@ router.get('/get-all-task-user', authendiCate.authenticateToken, taskController.
 
 
 router.get('/get-all-data', authendiCate.authenticateToken, taskController.getAllData);
+
 
 router.post('/get-select-month-all-data', authendiCate.authenticateToken, taskController.getSelectedMonthAllData);
 
