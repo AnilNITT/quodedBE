@@ -194,6 +194,7 @@ exports.getconversation = async (req, res) => {
     .populate("checkId")
     .populate("shiftId")
     .populate({path:"oldMessageId",populate:{path:'senderId',select: "name createdAt"}})
+    .populate({path:"taskId",populate:{path:'projectId',select: "name description"}})
     .populate("senderId", "ProfileIcon Status name email")
     .populate("receiverId", "ProfileIcon Status name email")
 

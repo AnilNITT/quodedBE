@@ -478,6 +478,7 @@ socketIO.on("connection", async (socket) => {
         .populate("checkId")
         // .populate("oldMessageId")
         .populate({path:"oldMessageId",populate:{path:'senderId',select: "name createdAt"}})
+        .populate({path:"taskId",populate:{path:'projectId',select: "name description"}})
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 
@@ -502,6 +503,7 @@ socketIO.on("connection", async (socket) => {
         .populate("checkId")
         // .populate("oldMessageId")
         .populate({path:"oldMessageId",populate:{path:'senderId',select: "name createdAt"}})
+        .populate({path:"taskId",populate:{path:'projectId',select: "name description"}})
         .populate("senderId", "ProfileIcon Status name email")
         .populate("receiverId", "ProfileIcon Status name email");
 

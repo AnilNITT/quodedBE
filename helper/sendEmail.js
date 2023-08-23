@@ -27,6 +27,7 @@ async function sendEmail({ email, otp, name, text }) {
       },
     });
     
+    
     if (text) {
       try {
         const info = await transporter.sendMail({
