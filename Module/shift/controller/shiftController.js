@@ -152,13 +152,18 @@ exports.transferShift = async (req, res) => {
         status:"Pending"
       }
 
-      const shift = await ShiftModal.findByIdAndUpdate(
+      let shift = await ShiftModal.findByIdAndUpdate(
         { _id: shiftId }, data, { new: true }
       );
 
       await MessageModal.findByIdAndUpdate(
         { _id: message._id }, data, { new: true }
       );
+
+      shift = await ShiftModal.populate(shift ,{
+        path: "receiverId",
+        select: ["ProfileIcon", "Status", "email", "name"],
+      });
 
       res.status(StatusCodes.OK).send({
         status: true,
