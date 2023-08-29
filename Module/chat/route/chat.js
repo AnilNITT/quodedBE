@@ -79,4 +79,7 @@ router.get('/get-files', authendiCate.authenticateToken,chatController.getFiles)
 
 router.post('/get-data-for-task', authendiCate.authenticateToken,chatController.getDataForTask)
 
+//get last message
+router.get('/get-last-msg', chatController.getChatandLastmsg)
+
 module.exports = router;

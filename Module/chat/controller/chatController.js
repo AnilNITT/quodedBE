@@ -762,3 +762,66 @@ exports.getDataForTask = async (req, res) => {
   return;
 }
 };
+
+
+// conversation list and last messae and unseen count
+exports.getChatandLastmsg = async(req,res)=> {
+  const data = await MessageModal.aggregate([
+    {
+      $sort: { createdAt: -1 } // Sort messages by descending createdAt
+    },
+    {
+      $group: {
+        _id: '$roomId',
+        lastMessage: { $first: '$$ROOT' }, // Get the first message in the group (most recent)
+        unseenMessageCount: {
+          $sum: { $cond: [{ $eq: ['$seenStatus', 'unseen'] }, 1, 0] } // Count unseen messages
+        }
+      }
+    },
+/*     {
+      $lookup: {
+        from: 'messages', // The collection name for self-join
+        localField: 'lastMessage.roomId',
+        foreignField: 'roomId',
+        as: 'lastMessage' // Replace the 'lastMessage' field with the full message document
+      }
+    },
+    {
+      $unwind: '$lastMessage'
+    }, */
+/*     {
+      $lookup: {
+        from: 'users', // Replace with the actual user collection name
+        localField: 'lastMessage.receiverId',
+        foreignField: '_id',
+        as: 'receiver'
+      }
+    },
+    {
+      $lookup: {
+        from: 'users', // Replace with the actual user collection name
+        localField: 'lastMessage.senderId',
+        foreignField: '_id',
+        as: 'sender'
+      }
+    }, */
+
+    /* {
+      $project: {
+        _id: 1,
+        lastMessage: {
+          _id: '$lastMessage._id',
+          text: '$lastMessage.text',
+          senderId: '$lastMessage.senderId',
+          createdAt: '$lastMessage.createdAt',
+          updatedAt: '$lastMessage.updatedAt',
+          seenStatus: '$lastMessage.seenStatus'
+        },
+        unseenMessageCount: 1,
+        receiver: { $arrayElemAt: ['$receiver', 0] } // Get the first user in the array
+      }
+    } */
+  ])
+  res.send({message:"hello",data});
+}
