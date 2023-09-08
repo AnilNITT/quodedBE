@@ -157,12 +157,12 @@ app.get("/call", async(req, res)=> {
 
   try{
   const ZOOM_API_BASE_URL = "https://api.zoom.us/v2";
-  const API_KEY = process.env.ZOOM_API_KEY;
-  const API_SECRET = process.env.ZOOM_API_SECRET;
+  const API_KEY = "";
+  const API_SECRET = "";
   const FROM_PHONE_NUMBER = "9630196313";
   const TO_PHONE_NUMBER = "7000269701";
 
-  const accessToken = process.env.ZOOM_API_ACCESSTOKEN
+  const accessToken = ""
 
       // Step 2: Make the voice call
   const { data: makeCallResponse } = await axios.post(
