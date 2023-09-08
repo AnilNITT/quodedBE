@@ -18,8 +18,8 @@ async function sendEmail({ email, otp, name, text }) {
       port: 465,
       secure: true, // use SSL
       auth: {
-        user: "noreply@quoded.com",
-        pass: "bJr6r@nx",
+        user: "demo.com",
+        pass: "",
       },
       tls: {
         ciphers: "SSLv3",
@@ -31,7 +31,7 @@ async function sendEmail({ email, otp, name, text }) {
     if (text) {
       try {
         const info = await transporter.sendMail({
-          from: '"Quoded App" <noreply@quoded.com>', // sender address
+          from: '"Quoded App" <demo.com>', // sender address
           to: email, // list of receivers
           subject: "you have new message", // Subject line
           text: "Hello ur otp is", // plain text body
@@ -55,7 +55,7 @@ async function sendEmail({ email, otp, name, text }) {
     } else {
       try {
         let info = await transporter.sendMail({
-          from: '"Quoded App" <noreply@quoded.com>', // sender address
+          from: '"Quoded App" <demo.com>', // sender address
           to: email, // list of receivers
           subject: "Quoded App", // Subject line
           text: "Hello ur otp is", // plain text body
