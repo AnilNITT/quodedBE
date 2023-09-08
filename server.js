@@ -546,7 +546,7 @@ socketIO.on("connection", async (socket) => {
 // Mongodb connection setup
 try {
   mongoose.set("strictQuery", false);
-  mongoose.connect(process.env.MONGO_URL,
+  mongoose.connect("MONGO_URL",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
